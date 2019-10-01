@@ -2,15 +2,30 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stretch
-
+      - image: circleci/python:3.7.0
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+          DATABASE_URL: postgresql://root@localhost/circle_test?sslmode=disable
     steps:
       - checkout
-
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+      - restore_cache:
+          keys:
+            - deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - deps9
       - run:
-          name: Greeting
-          command: echo Hello, world.
-
+         command: |
+           sudo pip install pipenv
+           pipenv install
+      - save_cache:
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          paths:
+            - ".venv"
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.6/site-packages"
       - run:
-          name: Print the Current Time
-          command: date
+          name: Python unit tests
+          command: make test
+      - store_test_results:
+          path: test-results
