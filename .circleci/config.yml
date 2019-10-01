@@ -27,7 +27,7 @@ jobs:
           name: Python unit tests
           command: |
             mkdir test-reports
-            make test-with-artifact
+            pipenv run py.test --junit-xml=test-reports/junit.xml
       - store_test_results:
           path: test-reports
       - store_artifacts: # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
