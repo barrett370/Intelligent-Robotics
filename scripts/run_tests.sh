@@ -6,8 +6,7 @@ DEFAULT='\e[39m'
 
 failed_tests=0
 test_dirs=$(find . -name tests)
-# shellcheck disable=SC2086
-echo -e "${BLUE}" found "${test_dirs//[$'\t\r\n']}" to format ${DEFAULT}
+echo -e "${BLUE}" found "${test_dirs//[$'\t\r\n']}" to format "${DEFAULT}"
 c=$(echo "$test_dirs" | wc -l)
 
 for i in $(seq "$c"); do
