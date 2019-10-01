@@ -2,15 +2,24 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stretch
-
+      - image: circleci/python:3.7.0
+        environment: # environment variables for primary container
+          PIPENV_VENV_IN_PROJECT: true
     steps:
       - checkout
-
+      - restore_cache:
+          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
-          name: Greeting
-          command: echo Hello, world.
-
+         command: |
+           sudo pip install pipenv
+           pipenv install
+           - save_cache: # cache Python dependencies using checksum of Pipfile as the cache-key
+           key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+           paths:
+             - ".venv"
+             - "/usr/local/bin"
+             - "/usr/local/lib/python3.6/site-packages"
       - run:
-          name: Print the Current Time
-          command: date
+          name: Python unit tests
+          command: make test
