@@ -27,4 +27,5 @@ if [ "$failed_tests" -eq "0" ]; then
   echo -e "${GREEN} all tests passed!"
 else
   echo -e "${RED} $failed_tests tests failed!"
+  exit 1
 fi
