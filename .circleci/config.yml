@@ -3,18 +3,17 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.7.0
-        environment: # environment variables for primary container
+        environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:
       - checkout
       - restore_cache:
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
           key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
          command: |
            sudo pip install pipenv
            pipenv install
-      - save_cache: # cache Python dependencies using checksum of Pipfile as the cache-key
+      - save_cache:
           key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
             - ".venv"
@@ -23,5 +22,5 @@ jobs:
       - run:
           name: Python unit tests
           command: make test
-      - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+      - store_test_results:
           path: test-results
