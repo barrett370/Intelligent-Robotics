@@ -1,5 +1,6 @@
 import unittest
-from foo.main import *
+
+from src.foo.main import to_test
 
 
 class MyTestCase(unittest.TestCase):

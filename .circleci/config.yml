@@ -25,6 +25,6 @@ jobs:
             - "/usr/local/lib/python3.6/site-packages"
       - run:
           name: Python unit tests
-          command: make test
+          command: make test-with-artifact
       - store_test_results:
           path: test-results
