@@ -1,1 +1,19 @@
-# Intelligent-Robotics
+# Intelligent-Robotics: Team HOWARD
+
+The members of this team are as follows:
+ 
+- Charlie de Freitas 
+- Sam Barrett
+- Jon Freer
+- Anant Kapoor
+- George Wellington
+- Howard Wolowitz
+
+HOWARD stands for:
+
+	Howard
+	Oward
+	Ward
+	Ard
+	Rd
+	D
