@@ -25,9 +25,10 @@ jobs:
             - "/usr/local/lib/python3.6/site-packages"
       - run:
           name: Python unit tests
-          command: make test-with-artifact
+          command: |
+            mkdir test-reports
+            make test-with-artifact
       - store_test_results:
-          path: test-results
+          path: test-reports
       - store_artifacts: # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: test-results
-          destination: tr1
+          path: test-reports
