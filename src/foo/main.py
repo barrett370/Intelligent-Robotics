@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def to_test() -> bool:
     return True
 
@@ -19,7 +22,7 @@ class Coordinates:
     def __str__(self) -> str:
         return f"x:{self.x}, y:{self.y}, z:{self.z}"
 
-    def __eq__(self, o: object) -> bool:
+    def __eq__(self, o: Coordinates) -> bool:
         return self.x == o.x and self.y == o.y and self.z == o.z
 
 

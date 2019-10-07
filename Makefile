@@ -1,3 +1,7 @@
+.PHONY: all
+all: ##KEEP ME AT THE TOP
+	make test && make behave
+
 .PHONY: unittest
 unittest:
 	./scripts/run_tests.sh
