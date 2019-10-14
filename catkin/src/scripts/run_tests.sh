@@ -6,17 +6,17 @@ DEFAULT='\e[39m'
 
 failed_tests=0
 test_dirs=$(find . -name tests)
-echo -e "${BLUE}" found "${test_dirs//[$'\t\r\n']}" to format "${DEFAULT}"
+echo -e "${BLUE}" found "${test_dirs//[$'\t\r\n']/}" to format "${DEFAULT}"
 c=$(echo "$test_dirs" | wc -l)
 
 for i in $(seq "$c"); do
   dir=$(echo "$test_dirs" | head -"$i" | tail -1)
   test_files="$(echo "$dir"/test_*.py)"
   for file_name in $test_files; do
-      file_path=$(echo "$file_name" | sed 's/\.\///g')
-      echo -e "${BLUE} testing $file_path ${DEFAULT}"
-      dir_failed=$(pipenv run python -m unittest -v -f "$file_path" 2>&1 | grep -c "FAILED")
-      failed_tests=$((  $failed_tests + $dir_failed ))
+    file_path=$(echo "$file_name" | sed 's/\.\///g')
+    echo -e "${BLUE} testing $file_path ${DEFAULT}"
+    dir_failed=$(pipenv run python -m unittest -v -f "$file_path" 2>&1 | grep -c "FAILED")
+    failed_tests=$((failed_tests + dir_failed))
     if [ "$dir_failed" -gt "0" ]; then
       echo -e "${RED}" "$dir_failed" failed in this directory "${DEFAULT}"
     fi
