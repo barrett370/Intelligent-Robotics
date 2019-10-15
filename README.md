@@ -2,12 +2,12 @@
 
 The members of this team are as follows:
  
-- Charlie de Freitas 
+- Zechen Wang
 - Sam Barrett
 - Jon Freer
 - Anant Kapoor
 - George Wellington
-- Howard Wolowitz
+- (Howard Wolowitz)
 
 HOWARD stands for:
 
