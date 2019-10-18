@@ -2,7 +2,7 @@
 
 The members of this team are as follows:
  
-- Zechen Wang
+- Charles de Freitas
 - Sam Barrett
 - Jon Freer
 - Anant Kapoor
