@@ -1,0 +1,10 @@
+DOCUMENTATION:
+    - README.md
+    - ./**/*.md
+
+TEST:
+    - ./**/tests/*.py
+
+ROS:
+    - ./catkin/src/*
+
