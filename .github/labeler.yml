@@ -1,6 +1,6 @@
 DOCUMENTATION:
     - README.md
-    - *.md
+    - ./**/*.md
 
 TEST:
     - ./**/tests/*.py
