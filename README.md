@@ -2,11 +2,11 @@
 
 The members of this team are as follows:
  
-- Charles de Freitas
-- Sam Barrett
-- Jon Freer
 - Anant Kapoor
+- Charles de Freitas
 - George Wellington
+- Jon Freer
+- Sam Barrett
 - (Howard Wolowitz)
 
 HOWARD stands for:
