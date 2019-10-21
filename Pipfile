@@ -8,5 +8,7 @@ verify_ssl = true
 [packages]
 pytest = "*"
 behave = "*"
+pyaml = "*"
+rospkg = "*"
 [requires]
-python_version = "2.7"
+python_version = "3.7"
