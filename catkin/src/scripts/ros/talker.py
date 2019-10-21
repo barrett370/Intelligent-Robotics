@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from std_msgs.msg import String
+import datetime
 
 
 def talker() -> None:
@@ -8,7 +9,7 @@ def talker() -> None:
     rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
-        hello_str = 'hello world %s' % str(rospy.get_time)
+        hello_str = 'hello world %s' % datetime.datetime.now()
         rospy.loginfo(hello_str)
         pub.publish(hello_str)
         rate.sleep()
