@@ -1,5 +1,5 @@
 on: push
-name: on push
+name: pylint
 jobs:
   gitHubActionForPylint:
     name: GitHub Action for pylint
