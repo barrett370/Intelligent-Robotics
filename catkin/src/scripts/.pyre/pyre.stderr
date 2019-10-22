@@ -1,0 +1,25 @@
+2019-10-21 18:00:28,425 INFO Binary found at `/home/sam/.local/bin/pyre.bin`
+2019-10-21 18:00:28,425 DEBUG Trying with: `/home/sam/.local/lib/python3.6/site-packages/pyre_check/client/pyre_check/typeshed/`
+2019-10-21 18:00:28,425 DEBUG Trying with: `/home/sam/.local/lib/python3.6/site-packages/pyre_check/pyre_check/typeshed/`
+2019-10-21 18:00:28,426 DEBUG Trying with: `/home/sam/.local/lib/python3.6/site-packages/pyre_check/typeshed/`
+2019-10-21 18:00:28,426 DEBUG Trying with: `/home/sam/.local/lib/python3.6/pyre_check/typeshed/`
+2019-10-21 18:00:28,426 DEBUG Trying with: `/home/sam/.local/lib/pyre_check/typeshed/`
+2019-10-21 18:00:28,426 PROMPT Which directory should pyre be initialized in? (Default: `.`): 
+2019-10-21 18:00:29,849 INFO Successfully initialized pyre! You can view the configuration at `/home/sam/git-repos/Intelligent-Robotics/catkin/src/scripts/.pyre_configuration`.
+2019-10-21 18:00:32,564 DEBUG Reading configuration `.pyre_configuration`...
+2019-10-21 18:00:32,564 DEBUG Found source_directories: `.`
+2019-10-21 18:00:32,565 DEBUG Running `/home/sam/.local/bin/pyre.bin check -logging-sections parser -project-root /home/sam/git-repos/Intelligent-Robotics/catkin/src/scripts -filter-directories /home/sam/git-repos/Intelligent-Robotics/catkin/src/scripts -workers 1 -search-path /home/sam/.local/lib/pyre_check/typeshed/stdlib/3.7,/home/sam/.local/lib/pyre_check/typeshed/stdlib/3.6,/home/sam/.local/lib/pyre_check/typeshed/stdlib/3,/home/sam/.local/lib/pyre_check/typeshed/stdlib/2and3,/home/sam/.local/lib/pyre_check/typeshed/third_party/3,/home/sam/.local/lib/pyre_check/typeshed/third_party/2and3 .`
+2019-10-21 18:00:32,605 PERFORMANCE Module tracker built: 0.020000s
+2019-10-21 18:00:32,710 INFO Parsing 827 stubs and sources...
+2019-10-21 18:00:34,575 PERFORMANCE Sources parsed: 1.969000s
+2019-10-21 18:00:34,676 INFO Building type environment...
+2019-10-21 18:00:40,653 PERFORMANCE Full environment built: 6.077000s
+2019-10-21 18:00:40,653 INFO Checking 3 sources...
+2019-10-21 18:00:40,718 INFO Running check `TypeCheck`...
+2019-10-21 18:00:40,718 INFO Processed 3 of 3 sources
+2019-10-21 18:00:40,718 PERFORMANCE Check_TypeCheck: 0.064000s
+2019-10-21 18:00:40,724 MEMORY Shared memory size post-typecheck (size: 15)
+2019-10-21 18:00:40,724 PERFORMANCE Analyzed sources: 0.064000s
+2019-10-21 18:00:40,738 PERFORMANCE Check: 8.137000s
+2019-10-21 18:00:40,739 ERROR Found 3 type errors!
+

@@ -10,5 +10,9 @@ pytest = "*"
 behave = "*"
 pyaml = "*"
 rospkg = "*"
+pyre-check ="*"
+psutil = "*"
+pywatchman = "*"
+
 [requires]
 python_version = "3.7"

@@ -25,9 +25,11 @@ jobs:
             - "/usr/local/bin"
             - "/usr/local/lib/python3.6/site-packages"
       - run:
+          name: Pyre Type checking
+          command: make type-check
+      - run:
           name: Python Unit tests
           command: pipenv run py.test --junit-xml=test-reports/pytest.xml
-
       - run:
           name: Python Behavioural tests
           command: pipenv run behave --junit --junit-directory test-reports/
