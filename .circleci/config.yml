@@ -26,7 +26,8 @@ jobs:
             - "/usr/local/lib/python3.6/site-packages"
       - run:
           name: Pyre Type checking
-          command: make type-check
+          command: |
+            cd ./catkin/src && pipenv run pyre --source-directory="." check
       - run:
           name: Python Unit tests
           command: pipenv run py.test --junit-xml=test-reports/pytest.xml
