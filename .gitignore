@@ -59,3 +59,10 @@ cmake_install.cmake
 install_manifest.txt
 build
 devel
+catkin/src/.pyre/pyre.stderr
+
+.pyre/pyre.stderr
+
+catkin/src/.pyre_configuration
+
+catkin/src/scripts/.pyre/pyre.stderr

@@ -1,15 +1,17 @@
 #!/usr/bin/env python
-import rospy
-from std_msgs.msg import String
+
+
+import rospy  # pyre-ignore
+from std_msgs.msg import String  # pyre-ignore
 import datetime
 
 
 def talker() -> None:
-    pub = rospy.Publisher('chatter', String, queue_size=10)
+    pub = rospy.Publisher('chatter', String, queue_size=10)  # pyre-ignore
     rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
-        hello_str = 'hello world %s' % datetime.datetime.now()
+        hello_str = 'Hello, World at %s' % datetime.datetime.now()
         rospy.loginfo(hello_str)
         pub.publish(hello_str)
         rate.sleep()

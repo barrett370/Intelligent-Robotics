@@ -7,4 +7,13 @@ TEST:
     - src/**/tests/*.py
 
 ROS:
+    - catkin/src/**/*
     - catkin/src/*
+
+CI:
+    - .circleci/*
+    - .github/*
+
+DEPENDENCIES:
+    - Pipfile
+    - Pipfile.lock

@@ -13,3 +13,11 @@ test:
 .PHONY: behave
 behave:
 	pipenv run behave
+
+.PHONY: init-pyre
+init-pyre:
+	cd ./catkin/src/ && pipenv run pyre init
+
+.PHONY: type-check
+type-check:
+	cd ./catkin/src/ && pipenv run pyre check
