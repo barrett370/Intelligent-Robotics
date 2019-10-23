@@ -6,26 +6,27 @@ subscribes to laser, map, and odometry and creates an instance of
 pf.PFLocaliser() to do the localisation.
 """
 
-import rospy
+import rospy  # pyre-ignore
 import pf_localisation.pf
 from pf_localisation.util import *
 
-from geometry_msgs.msg import ( PoseStamped, PoseWithCovarianceStamped,
-                                PoseArray, Quaternion )
-from tf.msg import tfMessage
-from sensor_msgs.msg import LaserScan
-from nav_msgs.msg import OccupancyGrid, Odometry
+from geometry_msgs.msg import (PoseStamped, PoseWithCovarianceStamped,  # pyre-ignore
+                               PoseArray, Quaternion)
+from tf.msg import tfMessage  # pyre-ignore
+from sensor_msgs.msg import LaserScan  # pyre-ignore
+from nav_msgs.msg import OccupancyGrid, Odometry  # pyre-ignore
 import pf_localisation
 from threading import Lock
 
 import sys
 from copy import deepcopy
 
+
 class ParticleFilterLocalisationNode(object):
     def __init__(self):
         # ----- Minimum change (m/radians) before publishing new particle cloud and pose
-        self._PUBLISH_DELTA = rospy.get_param("publish_delta", 0.1)  
-        
+        self._PUBLISH_DELTA = rospy.get_param("publish_delta", 0.1)
+
         self._particle_filter = pf_localisation.pf.PFLocaliser()
 
         self._latest_scan = None
@@ -43,13 +44,13 @@ class ParticleFilterLocalisationNode(object):
             ocuccupancy_map = rospy.wait_for_message("/map", OccupancyGrid, 20)
         except:
             rospy.logerr("Problem getting a map. Check that you have a map_server"
-                     " running: rosrun map_server map_server <mapname> " )
+                         " running: rosrun map_server map_server <mapname> ")
             sys.exit(1)
         rospy.loginfo("Map received. %d X %d, %f px/m." %
                       (ocuccupancy_map.info.width, ocuccupancy_map.info.height,
                        ocuccupancy_map.info.resolution))
         self._particle_filter.set_map(ocuccupancy_map)
-        
+
         self._laser_subscriber = rospy.Subscriber("/base_scan", LaserScan,
                                                   self._laser_callback,
                                                   queue_size=1)
@@ -78,9 +79,9 @@ class ParticleFilterLocalisationNode(object):
             t_filter = self._particle_filter.update_filter(self._latest_scan)
             if t_odom + t_filter > 0.1:
                 rospy.logwarn("Filter cycle overran timeslot")
-                rospy.loginfo("Odometry update: %fs"%t_odom)
-                rospy.loginfo("Particle update: %fs"%t_filter)
-    
+                rospy.loginfo("Odometry update: %fs" % t_odom)
+                rospy.loginfo("Particle update: %fs" % t_filter)
+
     def _laser_callback(self, scan):
         """
         Laser received. Store a ref to the latest scan. If robot has moved
@@ -88,23 +89,23 @@ class ParticleFilterLocalisationNode(object):
         """
         self._latest_scan = scan
         if self._initial_pose_received:
-            if  self._sufficientMovementDetected(self._particle_filter.estimatedpose):
+            if self._sufficientMovementDetected(self._particle_filter.estimatedpose):
                 # ----- Publish the new pose
                 self._amcl_pose_publisher.publish(self._particle_filter.estimatedpose)
-                estimatedpose =  PoseStamped()
+                estimatedpose = PoseStamped()
                 estimatedpose.pose = self._particle_filter.estimatedpose.pose.pose
                 estimatedpose.header.frame_id = "map"
                 self._pose_publisher.publish(estimatedpose)
-                
+
                 # ----- Update record of previously-published pose
                 self._last_published_pose = deepcopy(self._particle_filter.estimatedpose)
-        
+
                 # ----- Get updated particle cloud and publish it
                 self._cloud_publisher.publish(self._particle_filter.particlecloud)
-        
+
                 # ----- Get updated transform and publish it
                 self._tf_publisher.publish(self._particle_filter.tf_message)
-    
+
     def _sufficientMovementDetected(self, latest_pose):
         """
         Compares the last published pose to the current pose. Returns true
@@ -123,12 +124,13 @@ class ParticleFilterLocalisationNode(object):
         prev_rot = self._last_published_pose.pose.pose.orientation
 
         q = rotateQuaternion(Quaternion(w=1.0),
-                             getHeading(latest_rot))   # Rotate forward
-        q = rotateQuaternion(q, -getHeading(prev_rot)) # Rotate backward
+                             getHeading(latest_rot))  # Rotate forward
+        q = rotateQuaternion(q, -getHeading(prev_rot))  # Rotate backward
         heading_delta = abs(getHeading(q))
-        #rospy.loginfo("Moved by %f"%location_delta)
+        # rospy.loginfo("Moved by %f"%location_delta)
         return (location_delta > self._PUBLISH_DELTA or
                 heading_delta > self._PUBLISH_DELTA)
+
 
 if __name__ == '__main__':
     # --- Main Program  ---

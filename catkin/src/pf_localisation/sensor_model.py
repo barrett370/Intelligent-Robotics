@@ -2,12 +2,12 @@
 sensor_model.py
 Provides a SensorModel class to calculate particle weights.
 """
-import rospy
+import rospy  # pyre-ignore
 from pf_localisation.util import getHeading
 
 import math
 
-import laser_trace
+import laser_trace # pyre-ignore
 
 PI_OVER_TWO = math.pi / 2
 

@@ -1,6 +1,6 @@
 import math
 import time
-from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Quaternion # pyre-ignore
 
 def timed(fn):
     """ Decorator to time functions. For debugging time critical code """
