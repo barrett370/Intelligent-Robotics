@@ -6,9 +6,9 @@ def timed(fn):
     """ Decorator to time functions. For debugging time critical code """
     def timed(*args,  **kwargs):
         t = time.time()
-        print "[", fn, __name__, "]Start: ",  t
+        print("[", fn, __name__, "]Start: ", t)
         ret =  fn(*args, **kwargs)
-        print "[", fn, __name__, "]End:", time.time(),  " = = = ",  time.time() - t
+        print("[", fn, __name__, "]End:", time.time(), " = = = ", time.time() - t)
         return ret
     return timed
 

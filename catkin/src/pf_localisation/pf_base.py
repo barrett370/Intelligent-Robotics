@@ -16,12 +16,13 @@ from nav_msgs.msg import OccupancyGrid
 
 import math
 import random
-import numpy as np
-from util import rotateQuaternion, getHeading
+from pf_localisation.util import rotateQuaternion, getHeading
+
 import numpy as np
 from threading import Lock
 import time
-import sensor_model
+from pf_localisation import sensor_model
+
 PI_OVER_TWO = math.pi/2 # For faster calculations
 
 class PFLocaliserBase(object):
