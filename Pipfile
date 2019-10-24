@@ -13,6 +13,7 @@ rospkg = "*"
 pyre-check ="*"
 psutil = "*"
 pywatchman = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.7"
