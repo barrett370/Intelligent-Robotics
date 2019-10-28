@@ -1,6 +1,6 @@
 .PHONY: all
 all: ##KEEP ME AT THE TOP
-	make test && make behave
+	make test && make behave && make type-check
 
 .PHONY: unittest
 unittest:
