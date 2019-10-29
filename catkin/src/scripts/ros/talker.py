@@ -6,7 +6,7 @@ from std_msgs.msg import String  # pyre-ignore
 import datetime
 
 
-def talker() -> None:
+def talker():
     pub = rospy.Publisher('chatter', String, queue_size=10)  # pyre-ignore
     rospy.init_node('talker', anonymous=True)
     rate = rospy.Rate(10)
