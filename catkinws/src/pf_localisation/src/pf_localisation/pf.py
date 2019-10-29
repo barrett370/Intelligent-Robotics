@@ -1,25 +1,26 @@
 from geometry_msgs.msg import Pose, PoseArray, Quaternion
-from pf_localisation.src.pf_localisation.pf_base import PFLocaliserBase
+from pf_base import PFLocaliserBase
 import math
 import rospy
 
-from pf_localisation.src.pf_localisation.util import rotateQuaternion, getHeading
+from util import rotateQuaternion, getHeading
 from random import random
 
 from time import time
 
 
 class PFLocaliser(PFLocaliserBase):
-
+       
     def __init__(self):
         # ----- Call the superclass constructor
         super(PFLocaliser, self).__init__()
-
+        
         # ----- Set motion model parameters
-
+ 
         # ----- Sensor model parameters
-        self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
-
+        self.NUMBER_PREDICTED_READINGS = 20     # Number of readings to predict
+        
+       
     def initialise_particle_cloud(self, initialpose):
         """
         Set particle cloud to initialpose plus noise
@@ -36,6 +37,8 @@ class PFLocaliser(PFLocaliserBase):
         """
         pass
 
+ 
+    
     def update_particle_cloud(self, scan):
         """
         This should use the supplied laser scan to update the current

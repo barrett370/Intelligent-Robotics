@@ -2,19 +2,15 @@ import math
 import time
 from geometry_msgs.msg import Quaternion
 
-
 def timed(fn):
     """ Decorator to time functions. For debugging time critical code """
-
-    def timed(*args, **kwargs):
+    def timed(*args,  **kwargs):
         t = time.time()
-        print("[", fn, __name__, "]Start: ", t)
-        ret = fn(*args, **kwargs)
-        print("[", fn, __name__, "]End:", time.time(), " = = = ", time.time() - t)
+        print "[", fn, __name__, "]Start: ",  t
+        ret =  fn(*args, **kwargs)
+        print "[", fn, __name__, "]End:", time.time(),  " = = = ",  time.time() - t
         return ret
-
     return timed
-
 
 def rotateQuaternion(q_orig, yaw):
     """
@@ -33,14 +29,14 @@ def rotateQuaternion(q_orig, yaw):
     p = 0
     y = yaw / 2.0
     r = 0
-
+ 
     sinp = math.sin(p)
     siny = math.sin(y)
     sinr = math.sin(r)
     cosp = math.cos(p)
     cosy = math.cos(y)
     cosr = math.cos(r)
-
+ 
     q_headingChange.x = sinr * cosp * cosy - cosr * sinp * siny
     q_headingChange.y = cosr * sinp * cosy + sinr * cosp * siny
     q_headingChange.z = cosr * cosp * siny - sinr * sinp * cosy
@@ -53,7 +49,7 @@ def rotateQuaternion(q_orig, yaw):
     return multiply_quaternions(q_headingChange, q_orig)
 
 
-def multiply_quaternions(qa, qb):
+def multiply_quaternions( qa, qb ):
     """
     Multiplies two quaternions to give the rotation of qb by qa.
     
@@ -64,7 +60,7 @@ def multiply_quaternions(qa, qb):
        | (geometry_msgs.msg.Quaternion): qb rotated by qa.
     """
     combined = Quaternion()
-
+    
     combined.w = (qa.w * qb.w - qa.x * qb.x - qa.y * qb.y - qa.z * qb.z)
     combined.x = (qa.x * qb.w + qa.w * qb.x + qa.y * qb.z - qa.z * qb.y)
     combined.y = (qa.w * qb.y - qa.x * qb.z + qa.y * qb.w + qa.z * qb.x)
