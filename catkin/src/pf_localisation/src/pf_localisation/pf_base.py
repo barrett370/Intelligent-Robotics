@@ -6,23 +6,24 @@ before PFLocalisationNode will work.
 Converted to Python
 """
 
-import rospy  # pyre-ignore
+import rospy
 
-from geometry_msgs.msg import (PoseWithCovarianceStamped, PoseArray,  # pyre-ignore
+from geometry_msgs.msg import (PoseWithCovarianceStamped, PoseArray,
                                Quaternion, Transform, TransformStamped)
-from tf.msg import tfMessage  # pyre-ignore
+from tf.msg import tfMessage
 from tf import transformations
-from nav_msgs.msg import OccupancyGrid  # pyre-ignore
+from nav_msgs.msg import OccupancyGrid
 
 import math
 import random
-from pf_localisation.util import rotateQuaternion, getHeading
-
-import numpy as np # pyre-ignore
+import numpy as np
+# from util import rotateQuaternion, getHeading
+import numpy as np
 from threading import Lock
 import time
-
-from pf_localisation import sensor_model
+# import sensor_model
+from pf_localisation.src.pf_localisation import sensor_model
+from pf_localisation.src.pf_localisation.util import rotateQuaternion, getHeading
 
 PI_OVER_TWO = math.pi / 2  # For faster calculations
 

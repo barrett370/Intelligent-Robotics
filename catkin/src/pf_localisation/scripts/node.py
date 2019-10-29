@@ -6,20 +6,24 @@ subscribes to laser, map, and odometry and creates an instance of
 pf.PFLocaliser() to do the localisation.
 """
 
-import rospy  # pyre-ignore
-import pf_localisation.pf
-from pf_localisation.util import *
+import rospy
+# import pf_localisation.pf
+# import pf_localisation.src.pf_localisation.pf
+# from pf_localisation.src.pf_localisation.util import *
 
-from geometry_msgs.msg import (PoseStamped, PoseWithCovarianceStamped,  # pyre-ignore
+from geometry_msgs.msg import (PoseStamped, PoseWithCovarianceStamped,
                                PoseArray, Quaternion)
-from tf.msg import tfMessage  # pyre-ignore
-from sensor_msgs.msg import LaserScan  # pyre-ignore
-from nav_msgs.msg import OccupancyGrid, Odometry  # pyre-ignore
-import pf_localisation
+from tf.msg import tfMessage
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import OccupancyGrid, Odometry
+# import pf_localisation
 from threading import Lock
 
 import sys
 from copy import deepcopy
+
+from pf_localisation.src.pf_localisation.pf import PFLocaliser
+from pf_localisation.src.pf_localisation.util import rotateQuaternion, getHeading
 
 
 class ParticleFilterLocalisationNode(object):
@@ -27,7 +31,7 @@ class ParticleFilterLocalisationNode(object):
         # ----- Minimum change (m/radians) before publishing new particle cloud and pose
         self._PUBLISH_DELTA = rospy.get_param("publish_delta", 0.1)
 
-        self._particle_filter = pf_localisation.pf.PFLocaliser()
+        self._particle_filter = PFLocaliser()
 
         self._latest_scan = None
         self._last_published_pose = None

@@ -1,11 +1,9 @@
-from geometry_msgs.msg import Pose, PoseArray, Quaternion  # pyre-ignore
-
-# from pf_base import PFLocaliserBase
-from pf_localisation.pf_base import PFLocaliserBase
+from geometry_msgs.msg import Pose, PoseArray, Quaternion
+from pf_localisation.src.pf_localisation.pf_base import PFLocaliserBase
 import math
-import rospy  # pyre-ignore
+import rospy
 
-from pf_localisation.util import rotateQuaternion, getHeading
+from pf_localisation.src.pf_localisation.util import rotateQuaternion, getHeading
 from random import random
 
 from time import time
