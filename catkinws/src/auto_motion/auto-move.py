@@ -19,12 +19,12 @@ class AutoMover():
         self.turn_angle = 90
         self.keep_wall_at = 90
 
-        pub = rospy.Publisher('cmd_vel', Twist, queue_size=100)
-        sub = rospy.Subscriber('/scan', LaserScan, self.callback)
         print("Publishing to cmd_vel")
         rospy.init_node("auto_mover", anonymous=False)
         print("Setup custom node, auto_mover")
         rate = rospy.Rate(self.refresh_rate)
+        pub = rospy.Publisher('cmd_vel', Twist, queue_size=100)
+        sub = rospy.Subscriber('/scan', LaserScan, self.callback)
         base_data = Twist()
 
         while not rospy.is_shutdown():
@@ -46,8 +46,12 @@ class AutoMover():
                     base_data.angular.z = -correction
                 elif self.bearing_tolerance > self.keep_wall_at + self.bearing_tolerance:
                     base_data.angular = correction
-        pub.publish(base_data)
-        rate.sleep()
+                else:
+                    pass
+            else:
+                pass
+            pub.publish(base_data)
+            rate.sleep()
 
     def angle_to_range(self, angle):
         return int((8.0 / 3.0) * (angle + 135))
