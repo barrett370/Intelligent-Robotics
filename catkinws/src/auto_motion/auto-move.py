@@ -19,7 +19,6 @@ class AutoMover():
         self.turn_angle = 90
         self.keep_wall_at = 90
 
-    def run(self):
         pub = rospy.Publisher('cmd_vel', Twist, queue_size=100)
         sub = rospy.Subscriber('/scan', LaserScan, self.callback)
         print("Publishing to cmd_vel")
