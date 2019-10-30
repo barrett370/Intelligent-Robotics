@@ -53,11 +53,14 @@ class AutoMover(MotionModel):
         pub.publish(base_data)
         rate.sleep()
 
+    def angle_to_range(self, angle):
+        return int((8.0 / 3.0) * (angle + 135))
+
     def callback(self, msg):
         smallest = 100
         index = 0
         for i in range(1, 135):
-            left = msg.ranges[lambda: int((8.0 / 3.0) * (i + 135))]
+            left = msg.ranges[self.angle_to_range(i)]
             if left < smallest:
                 smallest = left
                 index = i
