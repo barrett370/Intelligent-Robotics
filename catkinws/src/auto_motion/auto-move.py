@@ -5,7 +5,8 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
 
-class MotionModel:
+class AutoMover():
+
     def __init__(self):
         self.left = 0.0
         self.bearing = 0
@@ -17,10 +18,6 @@ class MotionModel:
         self.refresh_rate = 10
         self.turn_angle = 90
         self.keep_wall_at = 90
-
-
-class AutoMover(MotionModel):
-    turn = False
 
     def run(self):
         pub = rospy.Publisher('cmd_vel', Twist, queue_size=100)
