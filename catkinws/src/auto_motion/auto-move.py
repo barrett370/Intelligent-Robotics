@@ -2,6 +2,7 @@
 
 import rospy
 from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
 
 
 class MotionModel:
@@ -23,6 +24,7 @@ class AutoMover(MotionModel):
 
     def run(self):
         pub = rospy.Publisher('cmd_vel', Twist, queue_size=100)
+        sub = rospy.Subscriber('/scan', LaserScan, self.callback())
         print("Publishing to cmd_vel")
         rospy.init_node("auto_mover", anonymous=False)
         print("Setup custom node, auto_mover")
