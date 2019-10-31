@@ -3,6 +3,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 import numpy
+import math
 flip = 1
 turn = False
 RIGHT = 90
@@ -21,7 +22,7 @@ def is_number(s):
 def average_list(xs):
     sum = 0
     for x in xs:
-        if is_number(x):
+        if not str(x) == "nan":
             if x < 1:
                 sum += x*0.001
             elif x > 3:
@@ -122,7 +123,7 @@ def talker():
             base_data.linear.x = 0.25
             current_bearing = 0
             turn = False
-        pub.publish(base_data)
+        #pub.publish(base_data)
 
     # rate.sleep()
 
