@@ -14,7 +14,7 @@ class AutoMover():
         self.wall_threshold = 2.0
         self.wall_tolerance = 0.2
         self.bearing_tolerance = 2.0
-        self.speed = 1.0
+        self.speed = 0.1
         self.refresh_rate = 10
         self.turn_angle = 90
         self.keep_wall_at = 90
@@ -34,22 +34,22 @@ class AutoMover():
             distance_from_wall = self.left - self.distance
 
             if abs(distance_from_wall) < self.wall_threshold:
-                print("Wall detected")
                 if distance_from_wall > self.wall_tolerance:
                     self.keep_wall_at = 80
                 elif distance_from_wall < -self.wall_tolerance:
                     self.keep_wall_at = 100
 
-                correction = abs(self.keep_wall_at - self.bearing) * (5.0 / 90.0)
+                correction = abs(self.keep_wall_at - self.bearing) * (5.0 / 180.0)
 
                 if self.bearing < self.keep_wall_at - self.bearing_tolerance:
-                    base_data.angular.z = -correction
+                    base_data.angular.z = -1 * correction
                 elif self.bearing_tolerance > self.keep_wall_at + self.bearing_tolerance:
                     base_data.angular = correction
                 else:
                     pass
             else:
                 pass
+            print(base_data)
             pub.publish(base_data)
             rate.sleep()
 

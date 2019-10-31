@@ -46,7 +46,7 @@ def talker():
             turnCount = turnCount + 1
         else:
             base_data.angular.z = 0
-            base_data.linear.x = 0.1
+            base_data.linear.x = 0.5
             turnCount = 0
             turn = False
         pub.publish( base_data )
