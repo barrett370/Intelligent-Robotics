@@ -21,9 +21,9 @@ class PFLocaliser(PFLocaliserBase):
         super(PFLocaliser, self).__init__()
         
         # ----- Set motion model parameters
-        self.ODOM_ROTATION_NOISE = ???? # Odometry model rotation noise
-        self.ODOM_TRANSLATION_NOISE = ???? # Odometry model x axis (forward) noise
-        self.ODOM_DRIFT_NOISE = ???? # Odometry model y axis (side-to-side) noise
+        self.ODOM_ROTATION_NOISE = 0 # Odometry model rotation noise
+        self.ODOM_TRANSLATION_NOISE = 0 # Odometry model x axis (forward) noise
+        self.ODOM_DRIFT_NOISE = 0 # Odometry model y axis (side-to-side) noise
  
         # ----- Sensor model parameters
         self.NUMBER_PREDICTED_READINGS = 20     # Number of readings to predict
