@@ -123,9 +123,9 @@ def talker():
             base_data.linear.x = 0.25
             current_bearing = 0
             turn = False
-        # pub.publish(base_data)
+        pub.publish(base_data)
 
-    # rate.sleep()
+    rate.sleep()
 
 
 if __name__ == '__main__':
