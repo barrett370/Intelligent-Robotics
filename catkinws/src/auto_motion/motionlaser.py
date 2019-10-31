@@ -4,6 +4,7 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 import numpy
 import math
+
 flip = 1
 turn = False
 RIGHT = 90
@@ -12,6 +13,7 @@ BACKWARDS = 180
 FORWARD = 0
 desired_bearing = 0
 
+
 def is_number(s):
     try:
         float(s)
@@ -19,12 +21,13 @@ def is_number(s):
     except ValueError:
         return False
 
+
 def average_list(xs):
     sum = 0
     for x in xs:
         if not str(x) == "nan":
             if x < 1:
-                sum += x*0.001
+                sum += x * 0.001
             elif x > 3:
                 sum += 3
             else:
@@ -39,15 +42,15 @@ def callback(msg):
     left = msg.ranges[0: 50]
     left_avg = average_list(left)
     centre_left = msg.ranges[200:224]
-    centre_left_avg = average_list(centre_left) * 0.5
+    centre_left_avg = average_list(centre_left)
     centre = msg.ranges[225: 275]
     centre_avg = average_list(centre)
     centre_right = msg.ranges[276:300]
-    centre_right_avg = average_list(centre_right) * 0.5
-    centre_avg = (centre_avg + centre_right_avg + centre_left_avg) / 3
-    right = msg.ranges[450: 500]    
+    centre_right_avg = average_list(centre_right)
+    centre_avg = (0.5 * centre_avg) + (0.25 * centre_right_avg) + (0.25 * centre_left_avg)
+    right = msg.ranges[450: 500]
     right_avg = average_list(right)
-    print(left_avg , centre_avg ,right_avg)
+    print(left_avg, centre_avg, right_avg)
     # print msg.ranges[250]
     # check centre and right
     if centre_avg < 1.5:  # turn
@@ -55,22 +58,22 @@ def callback(msg):
             desired_bearing = RIGHT
             print("turning right 1")
             turn = True
-              # turn right
+            # turn right
         elif left_avg > 3.5:
             desired_bearing = LEFT
             print("turning left")
             turn = True
-              # turn left
+            # turn left
         else:
             desired_bearing = BACKWARDS
             print("reversing, beep beep beep")
             turn = True
-              # reverse and recurse
-    elif centre_avg > 1.5 and  right_avg > 3.5:  # space to the right
+            # reverse and recurse
+    elif centre_avg > 1.5 and right_avg > 3.5:  # space to the right
         desired_bearing = RIGHT
         print("turning right 2 ")
         turn = True
-          # turn right
+        # turn right
     elif right_avg < 0.5 and left_avg > 0.5:
         # turn left 
         desired_bearing = LEFT
@@ -95,9 +98,6 @@ def callback(msg):
     # turn = False
 
 
-
-
-
 def talker():
     sub = rospy.Subscriber('/base_scan', LaserScan, callback)
     print('subscribed to /scan')
@@ -116,14 +116,14 @@ def talker():
     while not rospy.is_shutdown():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
             base_data.linear.x = 0
-            base_data.angular.z = desired_bearing/90
+            base_data.angular.z = desired_bearing / 90
             current_bearing = current_bearing + 1
         else:
             base_data.angular.z = 0
             base_data.linear.x = 0.25
             current_bearing = 0
             turn = False
-        #pub.publish(base_data)
+        # pub.publish(base_data)
 
     # rate.sleep()
 
