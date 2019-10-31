@@ -9,7 +9,10 @@ from random import random
 from time import time
 
 
-# editing just this file to implement particle filtering
+# You need to make changes ONLY in pf.py file for completing the localisation package. 
+# If you want to change any of the inherited parameters (parameters inherited from the parent class PFLocaliserBase), it is 
+# best to do so from the child class itself (i.e. in PFLocaliser class in pf.py).
+# However, you may play with different values for parameters in the other files (eg. sensor_model.py) for conducting experiments.
 
 class PFLocaliser(PFLocaliserBase):
        
