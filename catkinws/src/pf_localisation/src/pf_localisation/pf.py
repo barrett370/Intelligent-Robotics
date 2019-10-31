@@ -43,6 +43,10 @@ class PFLocaliser(PFLocaliserBase):
         :Return:
             | (geometry_msgs.msg.PoseArray) poses of the particles
         """
+        self.particlecloud = PoseArray() # what do i populate this with 
+        self.initialpose = initialpose # not sure
+        return particlecloud # not sure about this
+
         pass
 
  
