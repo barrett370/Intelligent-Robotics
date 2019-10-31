@@ -23,36 +23,40 @@ def callback(msg):
     global turn
     global flip
     global desired_bearing
-    left = msg.ranges[0, 50]
+    left = msg.ranges[0: 50]
     left_avg = average_list(left)
-    centre = msg.ranges[200, 300]
+    centre = msg.ranges[200: 300]
     centre_avg = average_list(centre)
-    right = msg.ranges[450, 500]
+    right = msg.ranges[450: 500]
     right_avg = average_list(right)
     # print msg.ranges[250]
     # check centre and right
     if centre_avg < 1:  # turn
         if right_avg > 3:
             desired_bearing = RIGHT
+            print("turning right")
             turn = True
-            pass  # turn right
+              # turn right
         elif left_avg > 3:
             desired_bearing = LEFT
+            print("turning left")
             turn = True
-            pass  # turn left
+              # turn left
         else:
             desired_bearing = BACKWARDS
+            print("reversing, beep beep beep")
             turn = True
-            pass  # reverse and recurse
+              # reverse and recurse
     elif right_avg > 3:  # space to the right
         desired_bearing = RIGHT
+        print("turning right")
         turn = True
-        pass  # turn right
+          # turn right
     else:
         desired_bearing = FORWARD
-        turn = True
-        pass  # forward
-    turn = False
+        print("turning right")
+        turn = False
+        # forward
     # if(msg.ranges[250]<1):
     #     print("turn")
     #     if(not turn):
