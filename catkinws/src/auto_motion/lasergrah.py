@@ -13,15 +13,19 @@ def callback(msg):
     plt.clf()
     values=[]
     prev = 0
-    for value in msg.ranges:
-        print(value)
-        if value < 1:
-            value = prev
-        if str(value) == "nan":
-            value = 5.5
-        prev = value
-        values.append(value)
-    plt.plot(values)
+    for i in range(0,len(msg.ranges),10):
+        temp_values=[]
+        for value in msg.ranges[i:i+10]:
+            if value < 1:
+                value = prev
+                print('lower')
+            elif str(value) == "nan":
+                value = 5.5
+                print('higher')
+            prev = value
+            temp_values.append(value)
+        values.append(sum(temp_values)/len(temp_values))
+    plt.plot(values[::-1])
 
     fig.canvas.draw()
     
