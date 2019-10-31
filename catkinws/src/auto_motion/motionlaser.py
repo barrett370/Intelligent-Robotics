@@ -17,6 +17,8 @@ def average_list(xs):
     for x in xs:
         if x < 1:
             sum += x*0.001
+        elif x > 3:
+            sum += 3 
         else:
             sum += x
     return sum / len(xs)
@@ -28,20 +30,25 @@ def callback(msg):
     global desired_bearing
     left = msg.ranges[0: 50]
     left_avg = average_list(left)
-    centre = msg.ranges[200: 300]
+    centre_left = msg.ranges[200:224]
+    centre_left_avg = average_list(centre_left) * 0.5
+    centre = msg.ranges[225: 275]
     centre_avg = average_list(centre)
+    centre_right = msg.ranges[276:300]
+    centre_right_avg = average_list(centre_right) * 0.5
+    centre_avg = (centre_avg + centre_right_avg + centre_left_avg) / 3
     right = msg.ranges[450: 500]    
     right_avg = average_list(right)
     print(left_avg , centre_avg ,right_avg)
     # print msg.ranges[250]
     # check centre and right
-    if centre_avg < 1:  # turn
-        if right_avg > 3:
+    if centre_avg < 1.5:  # turn
+        if right_avg > 3.5:
             desired_bearing = RIGHT
             print("turning right 1")
             turn = True
               # turn right
-        elif left_avg > 3:
+        elif left_avg > 3.5:
             desired_bearing = LEFT
             print("turning left")
             turn = True
@@ -51,11 +58,18 @@ def callback(msg):
             print("reversing, beep beep beep")
             turn = True
               # reverse and recurse
-    elif centre_avg > 1 and  right_avg > 3:  # space to the right
+    elif centre_avg > 1.5 and  right_avg > 3.5:  # space to the right
         desired_bearing = RIGHT
         print("turning right 2 ")
         turn = True
           # turn right
+    elif right_avg < 0.5 and left_avg > 0.5:
+        # turn left 
+        desired_bearing = LEFT
+        turn = True
+    elif left_avg < 0.5 and right_avg > 0.5:
+        desired_bearing = RIGHT
+        turn = True
     else:
         desired_bearing = FORWARD
         print("keeping on")
@@ -90,7 +104,7 @@ def talker():
     rate = rospy.Rate(10)  # 10hz
     base_data = Twist()
     current_bearing = 0
-    TURN_SCALAR = 300.0
+    TURN_SCALAR = 1500.0
     while not rospy.is_shutdown():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
             base_data.linear.x = 0
@@ -98,7 +112,7 @@ def talker():
             current_bearing = current_bearing + 1
         else:
             base_data.angular.z = 0
-            base_data.linear.x = 0.5
+            base_data.linear.x = 0.25
             current_bearing = 0
             turn = False
         pub.publish(base_data)
