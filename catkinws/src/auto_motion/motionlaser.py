@@ -11,16 +11,23 @@ BACKWARDS = 180
 FORWARD = 0
 desired_bearing = 0
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 def average_list(xs):
     sum = 0
     for x in xs:
-        if x < 1:
-            sum += x*0.001
-        elif x > 3:
-            sum += 3 
-        else:
-            sum += x
+        if is_number(x):
+            if x < 1:
+                sum += x*0.001
+            elif x > 3:
+                sum += 3
+            else:
+                sum += x
     return sum / len(xs)
 
 
