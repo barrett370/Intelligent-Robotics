@@ -39,7 +39,7 @@ class AutoMover():
                 elif distance_from_wall < -self.wall_tolerance:
                     self.keep_wall_at = 100
 
-                correction = abs(self.keep_wall_at - self.bearing) * (5.0 / 180.0)
+                correction = abs(self.keep_wall_at - self.bearing) * (5.0 / 90.0)
 
                 if self.bearing < self.keep_wall_at - self.bearing_tolerance:
                     base_data.angular.z = -1 * correction
@@ -57,7 +57,7 @@ class AutoMover():
         return int((8.0 / 3.0) * (angle + 135))
 
     def callback(self, msg):
-        smallest = 100
+        smallest = 10000000000
         index = 0
         for i in range(1, 135):
             left = msg.ranges[self.angle_to_range(i)]
