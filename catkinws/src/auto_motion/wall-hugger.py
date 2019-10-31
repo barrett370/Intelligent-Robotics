@@ -22,7 +22,7 @@ class wall_hugger():
         rate = rospy.Rate(FPS)
 
         velocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-        scan_subscriber = rospy.Subscriber('/front/scan', LaserScan, self.callback)
+        scan_subscriber = rospy.Subscriber('/scan', LaserScan, self.callback)
 
         vel_msg = Twist()
 

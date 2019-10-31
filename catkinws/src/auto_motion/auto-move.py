@@ -10,8 +10,8 @@ class AutoMover():
     def __init__(self):
         self.left = 0.0
         self.bearing = 0
-        self.distance = 1.0
-        self.wall_threshold = 2.0
+        self.distance = 0.5
+        self.wall_threshold = 1.0
         self.wall_tolerance = 0.2
         self.bearing_tolerance = 2.0
         self.speed = 0.1
