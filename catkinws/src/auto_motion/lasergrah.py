@@ -11,7 +11,17 @@ fig.canvas.draw()
 
 def callback(msg):
     plt.clf()
-    plt.plot(msg.ranges)
+    values=[]
+    prev = 0
+    for value in msg.ranges:
+        print(value)
+        if value < 1:
+            value = prev
+        if str(value) == "nan":
+            value = 5.5
+        prev = value
+        values.append(value)
+    plt.plot(values)
 
     fig.canvas.draw()
     
@@ -28,7 +38,7 @@ def talker():
         base_data = Twist()
         base_data.linear.x = 0.0
         pub.publish( base_data )
-    rate.sleep()
+        rate.sleep()
 if __name__ == '__main__':
     try:
         talker()
