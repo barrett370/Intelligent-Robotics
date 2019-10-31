@@ -45,9 +45,8 @@ class PFLocaliser(PFLocaliserBase):
         """
         self.particlecloud = PoseArray() # what do i populate this with 
         self.initialpose = initialpose # not sure
-        return particlecloud # not sure about this
-
-        pass
+        return self.particlecloud # not sure about this
+        #pass
 
  
     
