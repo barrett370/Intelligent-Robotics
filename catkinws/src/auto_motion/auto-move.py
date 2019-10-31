@@ -59,7 +59,7 @@ class AutoMover():
     def callback(self, msg):
         smallest = 10000000000
         index = 0
-        for i in range(1, 135):
+        for i in range(0, 135):
             left = msg.ranges[self.angle_to_range(i)]
             if left < smallest:
                 smallest = left
