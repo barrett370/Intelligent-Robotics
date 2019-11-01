@@ -97,7 +97,7 @@ def callback(msg):
     global sum_readings
     global desired_bearing
     global average_count
-    laser_val = clean_laser_readings(msg.ranges[::-1])
+    laser_val = msg.ranges[::-1]
     # left = laser_val[left_lower: left_upper]
     # left_avg = average_list(left)
     # centre_left = laser_val[centre_left_lower:centre_left_upper]
