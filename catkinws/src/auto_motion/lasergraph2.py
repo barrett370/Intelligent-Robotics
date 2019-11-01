@@ -44,8 +44,15 @@ def callback(msg):
         plt.clf()
         plt.plot(map(lambda x: x/RATE,sum_readings))
         fig.canvas.draw()
+        for value in msg.ranges:
+            if str(value) == "nan":
+                value = 5.5
         sum_readings = msg.ranges
     else: 
+        for value in msg.ranges:
+            if str(value) == "nan":
+                value = 5.5
+                
         sum_readings = [x + y for x, y in zip(msg.ranges, sum_readings)]
     average_count += 1
 
