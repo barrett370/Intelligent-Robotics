@@ -116,13 +116,13 @@ def callback(msg):
             laser_data.append(0)
         elif (i  < centre_right_upper):
             avg_data.append(centre_avg)
-            laser_data.append(centre[i])
+            laser_data.append(centre[i-325])
         elif (i   < right_lower):
             avg_data.append(0)
             laser_data.append(0)
         elif (i  < right_upper):
             avg_data.append(right_avg)
-            laser_data.append(right[i])
+            laser_data.append(right[i-575])
 
     print(left_avg, centre_avg, right_avg)
     graph_readings(laser_data,
