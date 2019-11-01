@@ -8,7 +8,7 @@ import numpy
 import math
 import random
 
-simMode = True  # sets the vairables if in sim mode
+simMode = False  # sets the vairables if in sim mode
 flip = 1
 turn = False
 
@@ -20,7 +20,7 @@ average_count = 0
 sum_readings = []
 history = [FORWARD, FORWARD, FORWARD]
 desired_bearing = 0
-RATE = 3
+RATE = 5
 HZ = 2
 if simMode:
     left_lower = 0
@@ -111,14 +111,16 @@ def callback(msg):
     # right_avg = average_list(right)
     # print(left_avg, centre_avg, right_avg)
     average_count +=1
+    print(len(sum_readings))
     if average_count % RATE == 0:
-        print(average_count)
+        # print(average_count)
         mapped_readings = map(lambda x: x / RATE, sum_readings)
 
         # fig.canvas.draw()
         sum_readings = []
         for value in laser_val:
             strip_nan(sum_readings, value)
+
         left = mapped_readings[left_lower:left_upper]
         centre_left = mapped_readings[centre_left_lower: centre_left_upper]
         centre = mapped_readings[centre_lower: centre_upper]
@@ -225,7 +227,7 @@ def talker():
             base_data.linear.x = 0.25
             current_bearing = 0
             turn = False
-        pub.publish(base_data)
+        # pub.publish(base_data)
 
     rate.sleep()
 
