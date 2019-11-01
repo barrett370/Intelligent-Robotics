@@ -37,8 +37,8 @@ else:
     centre_upper = 375
     centre_right_lower = 376
     centre_right_upper = 426
-    right_lower = 675
-    right_upper = 700
+    right_lower = 575
+    right_upper = 675
 
 
 def clean_laser_readings(msg):
