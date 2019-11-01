@@ -42,10 +42,9 @@ else:
 
 
 def clean_laser_readings(msg):
-    values = []
     prev = 0
+    temp_values = []
     for i in range(0, len(msg)):
-        temp_values = []
         for value in msg[i]:
             if value < 1:
                 value = prev
@@ -55,8 +54,7 @@ def clean_laser_readings(msg):
 
             prev = value
             temp_values.append(value)
-        values.append(sum(temp_values) / len(temp_values))
-    return values
+    return temp_values
 
 
 def is_number(s):
