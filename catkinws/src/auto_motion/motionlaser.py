@@ -41,6 +41,24 @@ else:
     right_upper = 700
 
 
+def clean_laser_readings(msg):
+    values = []
+    prev = 0
+    for i in range(0, len(msg.ranges)):
+        temp_values = []
+        for value in msg.ranges[i]:
+            if value < 1:
+                value = prev
+
+            elif str(value) == "nan":
+                value = 5.5
+
+            prev = value
+            temp_values.append(value)
+        values.append(sum(temp_values) / len(temp_values))
+    return values
+
+
 def is_number(s):
     try:
         float(s)
@@ -66,7 +84,7 @@ def callback(msg):
     global turn
     global flip
     global desired_bearing
-    laser_val = msg.ranges[::-1]
+    laser_val = clean_laser_readings(msg.ranges[::-1])
     left = laser_val[left_lower: left_upper]
     left_avg = average_list(left)
     centre_left = laser_val[centre_left_lower:centre_left_upper]
