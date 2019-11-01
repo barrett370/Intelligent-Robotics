@@ -82,18 +82,30 @@ def callback(msg):
     global turn
     global flip
     global desired_bearing
-    laser_val = clean_laser_readings(msg.ranges[::-1])
+    readings = msg.ranges[::-1]
+    laser_val = clean_laser_readings(readings)
     left = laser_val[left_lower: left_upper]
     left_avg = average_list(left)
+    graph_readings(left)
+    graph_readings(left_avg)
     centre_left = laser_val[centre_left_lower:centre_left_upper]
     centre_left_avg = average_list(centre_left)
+    graph_readings(centre_left)
+    graph_readings(centre_left_avg)
     centre = laser_val[centre_lower: centre_upper]
     centre_avg = average_list(centre)
+    graph_readings(centre)
+    graph_readings(centre_avg)
     centre_right = laser_val[centre_right_lower:centre_right_upper]
     centre_right_avg = average_list(centre_right)
+    graph_readings(centre_right)
+    graph_readings(centre_right_avg)
     centre_avg = (0.5 * centre_avg) + (0.25 * centre_right_avg) + (0.25 * centre_left_avg)
+    graph_readings(centre_avg)
     right = laser_val[right_lower: right_upper]
     right_avg = average_list(right)
+    graph_readings(right)
+    graph_readings(right_avg)
     print(left_avg, centre_avg, right_avg)
     # print(random.uniform(0, 1))
     # print msg.ranges[250]
@@ -134,8 +146,8 @@ def callback(msg):
         desired_bearing = FORWARD
         print("keeping on")
         turn = False
-    if (history[0] == history[2] and desired_bearing == history[1]):  ## Forces a hand if in stalemate
-        if (random.uniform(0, 1) > 0.5):
+    if history[0] == history[2] and desired_bearing == history[1]:  ## Forces a hand if in stalemate
+        if random.uniform(0, 1) > 0.5:
             desired_bearing = history[0]
         else:
             desired_bearing = FORWARD
@@ -166,7 +178,7 @@ def talker():
     print('setup publisher to cmd_vel')
     rospy.init_node('Mover', anonymous=True)
     print('setup node')
-    rate = rospy.Rate(10)  # 10hz
+    rate = rospy.Rate(30)  # 10hz
     base_data = Twist()
     current_bearing = 0
     TURN_SCALAR = 1500.0
@@ -183,6 +195,17 @@ def talker():
         pub.publish(base_data)
 
     rate.sleep()
+import matplotlib.pyplot as plt
+
+def graph_readings(values):
+    avg_data = []
+    fig = plt.gcf()
+    fig.show()
+    fig.canvas.draw()
+    plt.clf()
+    plt.plot(values[::-1])
+    plt.plot(avg_data)
+    fig.canvas.draw()
 
 
 if __name__ == '__main__':

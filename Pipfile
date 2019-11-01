@@ -14,6 +14,7 @@ pyre-check ="*"
 psutil = "*"
 pywatchman = "*"
 numpy = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.7"
