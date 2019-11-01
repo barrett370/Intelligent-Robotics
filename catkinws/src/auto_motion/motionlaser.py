@@ -86,27 +86,24 @@ def callback(msg):
     laser_val = clean_laser_readings(readings)
     left = laser_val[left_lower: left_upper]
     left_avg = average_list(left)
-    graph_readings(left)
-    #graph_readings(left_avg)
+
     centre_left = laser_val[centre_left_lower:centre_left_upper]
     centre_left_avg = average_list(centre_left)
-    graph_readings(centre_left)
-    #graph_readings(centre_left_avg)
+
     centre = laser_val[centre_lower: centre_upper]
     centre_avg = average_list(centre)
-    graph_readings(centre)
-    #graph_readings(centre_avg)
+
     centre_right = laser_val[centre_right_lower:centre_right_upper]
     centre_right_avg = average_list(centre_right)
-    graph_readings(centre_right)
-    #graph_readings(centre_right_avg)
+
     centre_avg = (0.5 * centre_avg) + (0.25 * centre_right_avg) + (0.25 * centre_left_avg)
-    #graph_readings(centre_avg)
+
     right = laser_val[right_lower: right_upper]
     right_avg = average_list(right)
-    graph_readings(right)
-    #graph_readings(right_avg)
+
     print(left_avg, centre_avg, right_avg)
+    graph_readings((left + centre_left + centre + centre_right + right),
+                   ([left_avg, centre_left_avg, centre_avg, centre_right_avg, right_avg]))
     # print(random.uniform(0, 1))
     # print msg.ranges[250]
     # check centre and right
@@ -195,15 +192,17 @@ def talker():
         pub.publish(base_data)
 
     rate.sleep()
+
+
 import matplotlib.pyplot as plt
 
-def graph_readings(values):
-    avg_data = []
+
+def graph_readings(values, avg_data):
     fig = plt.gcf()
     fig.show()
     fig.canvas.draw()
     plt.clf()
-    plt.plot(values[::-1])
+    plt.plot(values)
     plt.plot(avg_data)
     fig.canvas.draw()
 
