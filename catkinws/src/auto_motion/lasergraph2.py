@@ -14,7 +14,7 @@ sum_readings = []
 fig = plt.gcf()
 fig.show()
 fig.canvas.draw()
-simMode = True
+simMode = False
 if simMode:
     left_lower = 0
     left_upper = 50
@@ -35,8 +35,8 @@ else:
     centre_upper = 375
     centre_right_lower = 376
     centre_right_upper = 426
-    right_lower = 675
-    right_upper = 700
+    right_lower = 575
+    right_upper = 675
 
 
 def callback(msg):
@@ -47,7 +47,8 @@ def callback(msg):
         plt.clf()
         mapped_readings = map(lambda x: x / RATE, sum_readings)
         plt.plot(mapped_readings)
-        fig.canvas.draw()
+        
+        #fig.canvas.draw()
         sum_readings = []
         for value in msg.ranges:
             strip_nan(sum_readings, value)
@@ -87,7 +88,7 @@ def callback(msg):
             elif (i < right_upper):
                 avg_data.append(right_avg)
         plt.plot(avg_data)
-
+        fig.canvas.draw()
     else:
         temp_values = []
         for value in msg.ranges:
