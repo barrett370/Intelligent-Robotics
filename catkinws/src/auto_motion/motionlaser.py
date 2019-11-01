@@ -34,16 +34,16 @@ if simMode:
     right_lower = 450
     right_upper = 500
 else:
-    left_lower = 25
-    left_upper = 125
-    centre_left_lower = 274
-    centre_left_upper = 324
+    right_lower = 25
+    right_upper = 125
+    centre_right_lower = 274
+    centre_right_upper = 324
     centre_lower = 325
     centre_upper = 375
-    centre_right_lower = 376
-    centre_right_upper = 426
-    right_lower = 675
-    right_upper = 700
+    centre_left_lower = 376
+    centre_left_upper = 426
+    left_lower = 675
+    left_upper = 700
 
 
 def clean_laser_readings(msg):
