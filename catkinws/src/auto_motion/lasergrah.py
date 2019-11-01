@@ -7,29 +7,52 @@ import matplotlib.pyplot as plt
 fig = plt.gcf()
 fig.show()
 fig.canvas.draw()
-
-left_lower = 25
-left_upper = 125
-centre_left_lower = 274
-centre_left_upper = 324
-centre_lower = 325
-centre_upper = 375
-centre_right_lower = 376
-centre_right_upper = 426
-right_lower = 675
-right_upper = 699
+simMode = True
+if simMode:
+    left_lower = 0
+    left_upper = 50
+    centre_left_lower = 200
+    centre_left_upper = 224
+    centre_lower = 224
+    centre_upper = 275
+    centre_right_lower = 276
+    centre_right_upper = 300
+    right_lower = 450
+    right_upper = 500
+else:
+    left_lower = 25
+    left_upper = 125
+    centre_left_lower = 274
+    centre_left_upper = 324
+    centre_lower = 325
+    centre_upper = 375
+    centre_right_lower = 376
+    centre_right_upper = 426
+    right_lower = 675
+    right_upper = 700
 
 
 def average_list(xs):
+    temp_values=[]
+    prev = xs[0] 
+    for value in xs:
+        if value < 1:
+            value = 5.5
+            print('lower')
+        elif str(value) == "nan":
+            value = 5.5
+            print('higher')
+        prev = value
+        temp_values.append(value)
     sum = 0
-    for x in xs:
+    for x in temp_values:
         if not str(x) == "nan":
-            if x < 1:
-                sum += x * 0.001
-            elif x > 3:
-                sum += 3
-            else:
-                sum += x
+            # if x < 1:
+            #     sum += x * 0.001
+            # elif x > 3:
+            #     sum += 3
+            # else:
+            sum += x
     return sum / len(xs)
 
 
@@ -47,19 +70,21 @@ def callback(msg):
     right = laser_val[right_lower: right_upper]
     right_avg = average_list(right)
     avg_data = []
-    for i in range(0,len(laser_val)):
-        if(i<left_lower):
-            avg_data.append("nan")
-        elif(i<left_upper):
+    for i in range(0,len(laser_val)/10):
+        print(left)
+        if(i*10<left_lower):
+            avg_data.append(0)
+        elif(i*10<left_upper):
             avg_data.append(left_avg)
-        elif (i<centre_left_lower):
-            avg_data.append("nan")
-        elif (i<centre_right_upper):
+        elif (i*10<centre_left_lower):
+            avg_data.append(0)
+        elif (i*10<centre_right_upper):
             avg_data.append(centre_avg)
-        elif (i<left_lower):
-            avg_data.append("nan")
-        elif (i<left_upper):
+        elif (i*10<right_lower):
+            avg_data.append(0)
+        elif (i*10<right_upper):
             avg_data.append(right_avg)
+        
     plt.clf()
     values=[]
     prev = 0
@@ -68,10 +93,10 @@ def callback(msg):
         for value in msg.ranges[i:i+10]:
             if value < 1:
                 value = prev
-                print('lower')
+                # print('lower')
             elif str(value) == "nan":
                 value = 5.5
-                print('higher')
+                # print('higher')
             prev = value
             temp_values.append(value)
         values.append(sum(temp_values)/len(temp_values))
