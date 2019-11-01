@@ -50,8 +50,7 @@ def callback(msg):
                 val = 5.5
             else:
                 val = value
-            
-        sum_readings.append(val)
+            sum_readings.append(val)
     else: 
         temp_values = []
         for value in msg.ranges:
