@@ -44,9 +44,9 @@ else:
 def clean_laser_readings(msg):
     values = []
     prev = 0
-    for i in range(0, len(msg.ranges)):
+    for i in range(0, len(msg)):
         temp_values = []
-        for value in msg.ranges[i]:
+        for value in msg[i]:
             if value < 1:
                 value = prev
 
