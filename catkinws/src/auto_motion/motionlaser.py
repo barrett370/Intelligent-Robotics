@@ -29,16 +29,16 @@ if simMode:
     right_lower = 450
     right_upper = 500
 else:
-    left_lower = 50
-    left_upper = 100
+    left_lower = 25
+    left_upper = 125
     centre_left_lower = 274
     centre_left_upper = 324
     centre_lower = 325
     centre_upper = 375
     centre_right_lower = 376
     centre_right_upper = 426
-    right_lower = 500
-    right_upper = 550
+    right_lower = 675
+    right_upper = 700
 
 
 def is_number(s):
