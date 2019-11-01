@@ -20,7 +20,8 @@ average_count = 0
 sum_readings = []
 history = [FORWARD, FORWARD, FORWARD]
 desired_bearing = 0
-RATE = 1
+RATE = 3
+HZ = 2
 if simMode:
     left_lower = 0
     left_upper = 50
@@ -49,7 +50,7 @@ def clean_laser_readings(msg):
     prev = 0
     temp_values = []
     for i in range(0, len(msg)):
-        for value in msg[i]:
+        for value in msg:
             if value < 1:
                 value = prev
 
@@ -109,8 +110,9 @@ def callback(msg):
     # right = laser_val[right_lower: right_upper]
     # right_avg = average_list(right)
     # print(left_avg, centre_avg, right_avg)
+    average_count +=1
     if average_count % RATE == 0:
-
+        print(average_count)
         mapped_readings = map(lambda x: x / RATE, sum_readings)
 
         # fig.canvas.draw()
@@ -122,13 +124,14 @@ def callback(msg):
         centre = mapped_readings[centre_lower: centre_upper]
         centre_right = mapped_readings[centre_right_lower:centre_right_upper]
         right = mapped_readings[right_lower:right_upper]
-
+        # print(left)
         left_avg = reduce(lambda a, b: a + b, left) / len(left)
         centre_left_avg = reduce(lambda a, b: a + b, centre_left) / len(centre_left)
         centre_avg = reduce(lambda a, b: a + b, centre) / len(centre)
         centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
         right_avg = reduce(lambda a, b: a + b, right) / len(right)
-
+        print(left_avg,centre_avg,right_avg)
+        
         # print(random.uniform(0, 1))
         # print msg.ranges[250]
         # check centre and right
@@ -168,6 +171,14 @@ def callback(msg):
             desired_bearing = FORWARD
             print("keeping on")
             turn = False
+
+
+    else:
+        temp_values = []
+        for value in msg.ranges:
+            strip_nan(temp_values, value)
+
+        sum_readings = [x + y for x, y in zip(temp_values, sum_readings)]
         # if history[0] == history[2] and desired_bearing == history[1]:  ## Forces a hand if in stalemate
         #     if random.uniform(0, 1) > 0.5:
         #         desired_bearing = history[0]
@@ -200,14 +211,14 @@ def talker():
     print('setup publisher to cmd_vel')
     rospy.init_node('Mover', anonymous=True)
     print('setup node')
-    rate = rospy.Rate(RATE)  # 10hz
+    rate = rospy.Rate(HZ)  # 10hz
     base_data = Twist()
     current_bearing = 0
     TURN_SCALAR = 1500.0
     while not rospy.is_shutdown():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
             base_data.linear.x = 0
-            base_data.angular.z = desired_bearing / 90
+            base_data.angular.z = desired_bearing / 180
             current_bearing = current_bearing + 1
         else:
             base_data.angular.z = 0
