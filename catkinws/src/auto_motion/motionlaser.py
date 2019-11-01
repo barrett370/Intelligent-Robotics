@@ -6,8 +6,7 @@ import numpy
 import math
 import random
 
-
-simMode = True #sets the vairables if in sim mode
+simMode = True  # sets the vairables if in sim mode
 flip = 1
 turn = False
 
@@ -15,14 +14,14 @@ RIGHT = -90
 LEFT = 90
 BACKWARDS = 180
 FORWARD = 0
-history = [FORWARD,FORWARD,FORWARD]
+history = [FORWARD, FORWARD, FORWARD]
 desired_bearing = 0
 
-if(simMode):
+if simMode:
     left_lower = 0
-    left_upper =50
-    centre_left_lower= 200
-    centre_left_upper =224
+    left_upper = 50
+    centre_left_lower = 200
+    centre_left_upper = 224
     centre_lower = 224
     centre_upper = 275
     centre_right_lower = 276
@@ -32,7 +31,14 @@ if(simMode):
 else:
     left_lower = 50
     left_upper = 100
-
+    centre_left_lower = 274
+    centre_left_upper = 324
+    centre_lower = 325
+    centre_upper = 375
+    centre_right_lower = 376
+    centre_right_upper = 426
+    right_lower = 500
+    right_upper = 550
 
 
 def is_number(s):
@@ -92,10 +98,10 @@ def callback(msg):
             print("reversing, beep beep beep")
             turn = True
             # reverse and recurse
-    elif centre_avg >2.5 and right_avg > 2.5 and left_avg >2.5:
+    elif centre_avg > 2.5 and right_avg > 2.5 and left_avg > 2.5:
         desired_bearing = LEFT
-        turn = False 
-        print ("Cant find anything, heading forward")
+        turn = False
+        print("Cant find anything, heading forward")
     elif centre_avg > 1.5 and right_avg > 2:  # space to the right
         desired_bearing = RIGHT
         print("turning right 2 ")
@@ -112,15 +118,15 @@ def callback(msg):
         desired_bearing = FORWARD
         print("keeping on")
         turn = False
-    if(history[0]== history[2] and desired_bearing==history[1]): ## Forces a hand if in stalemate
-        if(random.uniform(0, 1)>0.5):
-            desired_bearing = history[0] 
+    if (history[0] == history[2] and desired_bearing == history[1]):  ## Forces a hand if in stalemate
+        if (random.uniform(0, 1) > 0.5):
+            desired_bearing = history[0]
         else:
             desired_bearing = FORWARD
         # random.uniform(0, 1)
     history.append(desired_bearing)
     history.pop(0)
-        # forward
+    # forward
     # if(msg.ranges[250]<1):
     #     print("turn")
     #     if(not turn):
