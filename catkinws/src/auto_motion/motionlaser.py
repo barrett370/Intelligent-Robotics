@@ -91,116 +91,144 @@ def strip_nan(some_readings, value):
     some_readings.append(val)
 
 
+# def callback(msg):
+#     global turn
+#     global flip
+#     global sum_readings
+#     global desired_bearing
+#     global average_count
+#     laser_val = msg.ranges[::-1]
+#     average_count +=1
+#     print(len(sum_readings))
+#     if average_count % RATE == 0:
+#         # print(average_count)
+#         mapped_readings = map(lambda x: x / RATE, sum_readings)
+
+#         # fig.canvas.draw()
+#         sum_readings = []
+#         for value in laser_val:
+#             strip_nan(sum_readings, value)
+
+#         left = mapped_readings[left_lower:left_upper]
+#         centre_left = mapped_readings[centre_left_lower: centre_left_upper]
+#         centre = mapped_readings[centre_lower: centre_upper]
+#         centre_right = mapped_readings[centre_right_lower:centre_right_upper]
+#         right = mapped_readings[right_lower:right_upper]
+#         # print(left)
+#         left_avg = reduce(lambda a, b: a + b, left) / len(left)
+#         centre_left_avg = reduce(lambda a, b: a + b, centre_left) / len(centre_left)
+#         centre_avg = reduce(lambda a, b: a + b, centre) / len(centre)
+#         centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
+#         right_avg = reduce(lambda a, b: a + b, right) / len(right)
+#         print(left_avg,centre_avg,right_avg)
+        
+#         # print(random.uniform(0, 1))
+#         # print msg.ranges[250]
+#         # check centre and right
+#         if centre_avg < 1.1:  # turn
+#             if right_avg > 1.7:
+#                 desired_bearing = RIGHT
+#                 print("turning right 1")
+#                 turn = True
+#                 # turn right
+#             elif left_avg > 1.7:
+#                 desired_bearing = LEFT
+#                 print("turning left")
+#                 turn = True
+#                 # turn left
+#             else:
+#                 desired_bearing = BACKWARDS
+#                 print("reversing, beep beep beep")
+#                 turn = True
+#                 # reverse and recurse
+#         elif centre_avg > 1.1 and right_avg > 4.5 and left_avg > 4.5:
+#             desired_bearing = FORWARD
+#             turn = False
+#             print("Cant find anything, heading forward")
+#         elif centre_avg > 1.1 and right_avg > 1.7:  # space to the right
+#             desired_bearing = RIGHT
+#             print("turning right 2 ")
+#             turn = True
+#             # turn right
+#         elif right_avg < 0.6 < left_avg:
+#             # turn left
+#             desired_bearing = LEFT
+#             turn = True
+#         elif left_avg < 0.6 < right_avg:
+#             desired_bearing = RIGHT
+#             turn = True
+#         else:
+#             desired_bearing = FORWARD
+#             print("keeping on")
+#             turn = False
+
+
+#     else:
+#         temp_values = []
+#         for value in msg.ranges:
+#             strip_nan(temp_values, value)
+
+#         sum_readings = [x + y for x, y in zip(temp_values, sum_readings)]
+
+
 def callback(msg):
-    global turn
-    global flip
-    global sum_readings
-    global desired_bearing
     global average_count
-    laser_val = msg.ranges[::-1]
-    # left = laser_val[left_lower: left_upper]
-    # left_avg = average_list(left)
-    # centre_left = laser_val[centre_left_lower:centre_left_upper]
-    # centre_left_avg = average_list(centre_left)
-    # centre = laser_val[centre_lower: centre_upper]
-    # centre_avg = average_list(centre)
-    # centre_right = laser_val[centre_right_lower:centre_right_upper]
-    # centre_right_avg = average_list(centre_right)
-    # centre_avg = (0.5 * centre_avg) + (0.25 * centre_right_avg) + (0.25 * centre_left_avg)
-    # right = laser_val[right_lower: right_upper]
-    # right_avg = average_list(right)
-    # print(left_avg, centre_avg, right_avg)
-    average_count +=1
-    print(len(sum_readings))
+    global RATE
+    global sum_readings
     if average_count % RATE == 0:
-        # print(average_count)
+        # plt.clf()
         mapped_readings = map(lambda x: x / RATE, sum_readings)
-
-        # fig.canvas.draw()
+        # plt.plot(mapped_readings)
+        
+        #fig.canvas.draw()
         sum_readings = []
-        for value in laser_val:
+        for value in msg.ranges:
             strip_nan(sum_readings, value)
-
         left = mapped_readings[left_lower:left_upper]
         centre_left = mapped_readings[centre_left_lower: centre_left_upper]
         centre = mapped_readings[centre_lower: centre_upper]
         centre_right = mapped_readings[centre_right_lower:centre_right_upper]
         right = mapped_readings[right_lower:right_upper]
-        # print(left)
+
         left_avg = reduce(lambda a, b: a + b, left) / len(left)
         centre_left_avg = reduce(lambda a, b: a + b, centre_left) / len(centre_left)
         centre_avg = reduce(lambda a, b: a + b, centre) / len(centre)
         centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
         right_avg = reduce(lambda a, b: a + b, right) / len(right)
         print(left_avg,centre_avg,right_avg)
-        
-        # print(random.uniform(0, 1))
-        # print msg.ranges[250]
-        # check centre and right
-        if centre_avg < 1.1:  # turn
-            if right_avg > 1.7:
-                desired_bearing = RIGHT
-                print("turning right 1")
-                turn = True
-                # turn right
-            elif left_avg > 1.7:
-                desired_bearing = LEFT
-                print("turning left")
-                turn = True
-                # turn left
-            else:
-                desired_bearing = BACKWARDS
-                print("reversing, beep beep beep")
-                turn = True
-                # reverse and recurse
-        elif centre_avg > 1.1 and right_avg > 4.5 and left_avg > 4.5:
-            desired_bearing = FORWARD
-            turn = False
-            print("Cant find anything, heading forward")
-        elif centre_avg > 1.1 and right_avg > 1.7:  # space to the right
-            desired_bearing = RIGHT
-            print("turning right 2 ")
-            turn = True
-            # turn right
-        elif right_avg < 0.6 < left_avg:
-            # turn left
-            desired_bearing = LEFT
-            turn = True
-        elif left_avg < 0.6 < right_avg:
-            desired_bearing = RIGHT
-            turn = True
-        else:
-            desired_bearing = FORWARD
-            print("keeping on")
-            turn = False
-
-
+        avg_data = []
+        for i in range(len(mapped_readings)):
+            # if i < left_lower:
+            #     average_data.append(0)
+            # elif i == left_lower:
+            #     for j in range(len(left)):
+            #         average_data.append(left_avg)
+            #     i = left_upper
+            # elif i < centre_lower:
+            #     average_data.append(0)
+            # elif i == centre_lower:
+            #     for j in range(len(centre)):
+            if (i < left_lower):
+                avg_data.append(0)
+            elif (i < left_upper):
+                avg_data.append(left_avg)
+            elif (i < centre_left_lower):
+                avg_data.append(0)
+            elif (i < centre_right_upper):
+                avg_data.append(centre_avg)
+            elif (i < right_lower):
+                avg_data.append(0)
+            elif (i < right_upper):
+                avg_data.append(right_avg)
+        # plt.plot(avg_data)
+        # fig.canvas.draw()
     else:
         temp_values = []
         for value in msg.ranges:
             strip_nan(temp_values, value)
 
         sum_readings = [x + y for x, y in zip(temp_values, sum_readings)]
-        # if history[0] == history[2] and desired_bearing == history[1]:  ## Forces a hand if in stalemate
-        #     if random.uniform(0, 1) > 0.5:
-        #         desired_bearing = history[0]
-        #     else:
-        #         desired_bearing = FORWARD
-        # random.uniform(0, 1)
-        # history.append(desired_bearing)
-        # history.pop(0)
-        # forward
-    # if(msg.ranges[250]<1):
-    #     print("turn")
-    #     if(not turn):
-    #         turn = True
-    #         if(flip == 1):
-    #             flip = -1
-    #         else:
-    #             flip = 1
-    # else:
-    # turn = False
-
+    average_count += 1
 
 def talker():
     sub = rospy.Subscriber('/base_scan', LaserScan, callback)
@@ -209,7 +237,7 @@ def talker():
     desired_bearing = FORWARD
     global flip
     global turn
-    pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
+    pub = rospy.Publisher('/cmd_vel_2', Twist, queue_size=100)
     print('setup publisher to cmd_vel')
     rospy.init_node('Mover', anonymous=True)
     print('setup node')
