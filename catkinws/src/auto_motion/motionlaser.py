@@ -4,14 +4,35 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 import numpy
 import math
+import random
 
+
+simMode = True #sets the vairables if in sim mode
 flip = 1
 turn = False
-RIGHT = 90
-LEFT = -90
+
+RIGHT = -90
+LEFT = 90
 BACKWARDS = 180
 FORWARD = 0
+history = [FORWARD,FORWARD,FORWARD]
 desired_bearing = 0
+
+if(simMode):
+    left_lower = 0
+    left_upper =50
+    centre_left_lower= 200
+    centre_left_upper =224
+    centre_lower = 224
+    centre_upper = 275
+    centre_right_lower = 276
+    centre_right_upper = 300
+    right_lower = 450
+    right_upper = 500
+else:
+    left_lower = 50
+    left_upper = 100
+
 
 
 def is_number(s):
@@ -39,27 +60,29 @@ def callback(msg):
     global turn
     global flip
     global desired_bearing
-    left = msg.ranges[0: 50]
+    laser_val = msg.ranges[::-1]
+    left = laser_val[left_lower: left_upper]
     left_avg = average_list(left)
-    centre_left = msg.ranges[200:224]
+    centre_left = laser_val[centre_left_lower:centre_left_upper]
     centre_left_avg = average_list(centre_left)
-    centre = msg.ranges[225: 275]
+    centre = laser_val[centre_lower: centre_upper]
     centre_avg = average_list(centre)
-    centre_right = msg.ranges[276:300]
+    centre_right = laser_val[centre_right_lower:centre_right_upper]
     centre_right_avg = average_list(centre_right)
     centre_avg = (0.5 * centre_avg) + (0.25 * centre_right_avg) + (0.25 * centre_left_avg)
-    right = msg.ranges[450: 500]
+    right = laser_val[right_lower: right_upper]
     right_avg = average_list(right)
     print(left_avg, centre_avg, right_avg)
+    # print(random.uniform(0, 1))
     # print msg.ranges[250]
     # check centre and right
-    if centre_avg < 1.5:  # turn
-        if right_avg > 3.5:
+    if centre_avg < 1.7:  # turn
+        if right_avg > 2.5:
             desired_bearing = RIGHT
             print("turning right 1")
             turn = True
             # turn right
-        elif left_avg > 3.5:
+        elif left_avg > 2:
             desired_bearing = LEFT
             print("turning left")
             turn = True
@@ -69,7 +92,11 @@ def callback(msg):
             print("reversing, beep beep beep")
             turn = True
             # reverse and recurse
-    elif centre_avg > 1.5 and right_avg > 3.5:  # space to the right
+    elif centre_avg >2.5 and right_avg > 2.5 and left_avg >2.5:
+        desired_bearing = LEFT
+        turn = False 
+        print ("Cant find anything, heading forward")
+    elif centre_avg > 1.5 and right_avg > 2:  # space to the right
         desired_bearing = RIGHT
         print("turning right 2 ")
         turn = True
@@ -85,6 +112,14 @@ def callback(msg):
         desired_bearing = FORWARD
         print("keeping on")
         turn = False
+    if(history[0]== history[2] and desired_bearing==history[1]): ## Forces a hand if in stalemate
+        if(random.uniform(0, 1)>0.5):
+            desired_bearing = history[0] 
+        else:
+            desired_bearing = FORWARD
+        # random.uniform(0, 1)
+    history.append(desired_bearing)
+    history.pop(0)
         # forward
     # if(msg.ranges[250]<1):
     #     print("turn")
