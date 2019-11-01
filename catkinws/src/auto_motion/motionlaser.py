@@ -8,7 +8,7 @@ import numpy
 import math
 import random
 
-simMode = False  # sets the vairables if in sim mode
+simMode = True  # sets the vairables if in sim mode
 flip = 1
 turn = False
 
@@ -220,6 +220,46 @@ def callback(msg):
                 avg_data.append(0)
             elif (i < right_upper):
                 avg_data.append(right_avg)
+
+        if centre_avg < 1.1:  # turn
+            if right_avg > 1.7:
+                desired_bearing = RIGHT
+                print("turning right 1")
+                turn = True
+                # turn right
+            elif left_avg > 1.7:
+                desired_bearing = LEFT
+                print("turning left")
+                turn = True
+                # turn left
+            else:
+                desired_bearing = BACKWARDS
+                print("reversing, beep beep beep")
+                turn = True
+                # reverse and recurse
+        elif centre_avg > 1.1 and right_avg > 4.5 and left_avg > 4.5:
+            desired_bearing = FORWARD
+            turn = False
+            print("Cant find anything, heading forward")
+        elif centre_avg > 1.1 and right_avg > 1.7:  # space to the right
+            desired_bearing = RIGHT
+            print("turning right 2 ")
+            turn = True
+            # turn right
+        elif right_avg < 0.6 < left_avg:
+            # turn left
+            desired_bearing = LEFT
+            turn = True
+        elif left_avg < 0.6 < right_avg:
+            desired_bearing = RIGHT
+            turn = True
+        else:
+            desired_bearing = FORWARD
+            print("keeping on")
+            turn = False
+
+
+
         # plt.plot(avg_data)
         # fig.canvas.draw()
     else:
