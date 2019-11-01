@@ -101,9 +101,32 @@ def callback(msg):
     right = laser_val[right_lower: right_upper]
     right_avg = average_list(right)
 
+    avg_data = []
+    laser_data = []
+    for i in range(0, len(laser_val) / 10):
+
+        if (i * 10 < left_lower):
+            avg_data.append(0)
+            laser_data.append(0)
+        elif (i * 10 < left_upper):
+            avg_data.append(left_avg)
+            laser_data.append(left[i])
+        elif (i * 10 < centre_left_lower):
+            avg_data.append(0)
+            laser_data.append(0)
+        elif (i * 10 < centre_right_upper):
+            avg_data.append(centre_avg)
+            laser_data.append(centre[i])
+        elif (i * 10 < right_lower):
+            avg_data.append(0)
+            laser_data.append(0)
+        elif (i * 10 < right_upper):
+            avg_data.append(right_avg)
+            laser_data.append(right[i])
+
     print(left_avg, centre_avg, right_avg)
     graph_readings((left + centre_left + centre + centre_right + right),
-                   ([left_avg, centre_left_avg, centre_avg, centre_right_avg, right_avg]))
+                   avg_data)
     # print(random.uniform(0, 1))
     # print msg.ranges[250]
     # check centre and right
