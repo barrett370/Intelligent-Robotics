@@ -49,17 +49,17 @@ def callback(msg):
     avg_data = []
     for i in range(0,len(laser_val)):
         if(i<left_lower):
-            avg_data[i]="nan"
+            avg_data.append("nan")
         elif(i<left_upper):
-            avg_data[i]=left_avg
+            avg_data.append(left_avg)
         elif (i<centre_left_lower):
-            avg_data[i]="nan"
+            avg_data.append("nan")
         elif (i<centre_right_upper):
-            avg_data[i]=centre_avg
+            avg_data.append(centre_avg)
         elif (i<left_lower):
-            avg_data[i]="nan"
+            avg_data.append("nan")
         elif (i<left_upper):
-            avg_data = right_avg
+            avg_data.append(right_avg)
     plt.clf()
     values=[]
     prev = 0
