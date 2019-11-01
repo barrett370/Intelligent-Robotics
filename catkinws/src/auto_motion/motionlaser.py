@@ -37,15 +37,15 @@ else:
     centre_upper = 375
     centre_right_lower = 376
     centre_right_upper = 426
-    right_lower = 575
-    right_upper = 675
+    right_lower = 675
+    right_upper = 700
 
 
 def clean_laser_readings(msg):
     prev = 0
     temp_values = []
     for i in range(0, len(msg)):
-        for value in msg:
+        for value in msg[i]:
             if value < 1:
                 value = prev
 
@@ -82,51 +82,19 @@ def callback(msg):
     global turn
     global flip
     global desired_bearing
-    readings = msg.ranges[::-1]
-    laser_val = clean_laser_readings(readings)
+    laser_val = clean_laser_readings(msg.ranges[::-1])
     left = laser_val[left_lower: left_upper]
     left_avg = average_list(left)
-
     centre_left = laser_val[centre_left_lower:centre_left_upper]
     centre_left_avg = average_list(centre_left)
-
     centre = laser_val[centre_lower: centre_upper]
     centre_avg = average_list(centre)
-
     centre_right = laser_val[centre_right_lower:centre_right_upper]
     centre_right_avg = average_list(centre_right)
-
     centre_avg = (0.5 * centre_avg) + (0.25 * centre_right_avg) + (0.25 * centre_left_avg)
-
     right = laser_val[right_lower: right_upper]
     right_avg = average_list(right)
-
-    avg_data = []
-    laser_data = []
-    for i in range(0, len(laser_val)):
-
-        if (i < left_lower):
-            avg_data.append(0)
-            laser_data.append(0)
-        elif (i  < left_upper):
-            avg_data.append(left_avg)
-            laser_data.append(left[i])
-        elif (i  < centre_left_lower):
-            avg_data.append(0)
-            laser_data.append(0)
-        elif (i  < centre_right_upper):
-            avg_data.append(centre_avg)
-            laser_data.append(centre[i-325])
-        elif (i   < right_lower):
-            avg_data.append(0)
-            laser_data.append(0)
-        elif (i  < right_upper):
-            avg_data.append(right_avg)
-            laser_data.append(right[i-575])
-
     print(left_avg, centre_avg, right_avg)
-    graph_readings(laser_data,
-                   avg_data)
     # print(random.uniform(0, 1))
     # print msg.ranges[250]
     # check centre and right
@@ -156,7 +124,7 @@ def callback(msg):
         turn = True
         # turn right
     elif right_avg < 0.5 and left_avg > 0.5:
-        # turn left 
+        # turn left
         desired_bearing = LEFT
         turn = True
     elif left_avg < 0.5 and right_avg > 0.5:
@@ -166,8 +134,8 @@ def callback(msg):
         desired_bearing = FORWARD
         print("keeping on")
         turn = False
-    if history[0] == history[2] and desired_bearing == history[1]:  ## Forces a hand if in stalemate
-        if random.uniform(0, 1) > 0.5:
+    if (history[0] == history[2] and desired_bearing == history[1]):  ## Forces a hand if in stalemate
+        if (random.uniform(0, 1) > 0.5):
             desired_bearing = history[0]
         else:
             desired_bearing = FORWARD
@@ -198,7 +166,7 @@ def talker():
     print('setup publisher to cmd_vel')
     rospy.init_node('Mover', anonymous=True)
     print('setup node')
-    rate = rospy.Rate(30)  # 10hz
+    rate = rospy.Rate(10)  # 10hz
     base_data = Twist()
     current_bearing = 0
     TURN_SCALAR = 1500.0
@@ -215,19 +183,6 @@ def talker():
         pub.publish(base_data)
 
     rate.sleep()
-
-
-import matplotlib.pyplot as plt
-
-
-def graph_readings(values, avg_data):
-    fig = plt.gcf()
-    fig.show()
-    fig.canvas.draw()
-    plt.clf()
-    plt.plot(values)
-    plt.plot(avg_data)
-    fig.canvas.draw()
 
 
 if __name__ == '__main__':
