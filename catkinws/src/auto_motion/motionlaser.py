@@ -23,27 +23,34 @@ desired_bearing = 0
 RATE = 5
 HZ = 2
 if simMode:
-    left_lower = 0
-    left_upper = 50
-    centre_left_lower = 200
-    centre_left_upper = 224
-    centre_lower = 224
-    centre_upper = 275
-    centre_right_lower = 276
-    centre_right_upper = 300
-    right_lower = 450
-    right_upper = 500
+    # Laser groupings
+    LEFT_LOWER = 0
+    LEFT_UPPER = 50
+    CENTRE_LEFT_LOWER = 200
+    CENTRE_LEFT_UPPER = 224
+    CENTRE_LOWER = 224
+    CENTRE_UPPER = 275
+    CENTRE_RIGHT_LOWER = 276
+    CENTRE_RIGHT_UPPER = 300
+    RIGHT_LOWER = 450
+    RIGHT_UPPER = 500
 else:
-    right_lower = 25
-    right_upper = 125
-    centre_right_lower = 274
-    centre_right_upper = 324
-    centre_lower = 325
-    centre_upper = 375
-    centre_left_lower = 376
-    centre_left_upper = 426
-    left_lower = 675
-    left_upper = 700
+    # Laser groupings
+    RIGHT_LOWER = 25
+    RIGHT_UPPER = 125
+    CENTRE_RIGHT_LOWER = 274
+    CENTRE_RIGHT_UPPER = 324
+    CENTRE_LOWER = 325
+    CENTRE_UPPER = 375
+    CENTRE_LEFT_LOWER = 376
+    CENTRE_LEFT_UPPER = 426
+    LEFT_LOWER = 675
+    LEFT_UPPER = 700
+
+    # Optimal Ranges
+    RIGHT_OPTIMAL = 0.5
+    RIGHT_MAX = 2.0
+    FRONT_MIN = 3.0
 
 
 def clean_laser_readings(msg):
@@ -184,11 +191,11 @@ def callback(msg):
         sum_readings = []
         for value in msg.ranges:
             strip_nan(sum_readings, value)
-        left = mapped_readings[left_lower:left_upper]
-        centre_left = mapped_readings[centre_left_lower: centre_left_upper]
-        centre = mapped_readings[centre_lower: centre_upper]
-        centre_right = mapped_readings[centre_right_lower:centre_right_upper]
-        right = mapped_readings[right_lower:right_upper]
+        left = mapped_readings[LEFT_LOWER:LEFT_UPPER]
+        centre_left = mapped_readings[CENTRE_LEFT_LOWER: CENTRE_LEFT_UPPER]
+        centre = mapped_readings[CENTRE_LOWER: CENTRE_UPPER]
+        centre_right = mapped_readings[CENTRE_RIGHT_LOWER:CENTRE_RIGHT_UPPER]
+        right = mapped_readings[RIGHT_LOWER:RIGHT_UPPER]
 
         left_avg = reduce(lambda a, b: a + b, left) / len(left)
         centre_left_avg = reduce(lambda a, b: a + b, centre_left) / len(centre_left)
@@ -208,28 +215,28 @@ def callback(msg):
             #     average_data.append(0)
             # elif i == centre_lower:
             #     for j in range(len(centre)):
-            if (i < left_lower):
+            if (i < LEFT_LOWER):
                 avg_data.append(0)
-            elif (i < left_upper):
+            elif (i < LEFT_UPPER):
                 avg_data.append(left_avg)
-            elif (i < centre_left_lower):
+            elif (i < CENTRE_LEFT_LOWER):
                 avg_data.append(0)
-            elif (i < centre_right_upper):
+            elif (i < CENTRE_RIGHT_UPPER):
                 avg_data.append(centre_avg)
-            elif (i < right_lower):
+            elif (i < RIGHT_LOWER):
                 avg_data.append(0)
-            elif (i < right_upper):
+            elif (i < RIGHT_UPPER):
                 avg_data.append(right_avg)
 
-        if centre_avg < 1.1:  # turn
-            if right_avg > 1.7:
+        if centre_avg < FRONT_MIN:  # turn
+            if right_avg > RIGHT_MAX:
                 desired_bearing = RIGHT
-                print("turning right 1")
+                print("turning right, \n too little space front, enough space right")
                 turn = True
                 # turn right
             elif left_avg > 1.7:
                 desired_bearing = LEFT
-                print("turning left")
+                print("turning left, no space front or right")
                 turn = True
                 # turn left
             else:
@@ -237,7 +244,7 @@ def callback(msg):
                 print("reversing, beep beep beep")
                 turn = True
                 # reverse and recurse
-        elif centre_avg > 1.1 and right_avg > 4.5 and left_avg > 4.5:
+        elif centre_avg > FRONT_MIN and right_avg == RIGHT_OPTIMAL and left_avg > 4.5:
             desired_bearing = FORWARD
             turn = False
             print("Cant find anything, heading forward")
