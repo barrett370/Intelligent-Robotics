@@ -42,8 +42,8 @@ else:
     # Laser groupings
     RIGHT_LOWER = 25
     RIGHT_UPPER = 125
-    CENTRE_RIGHT_LOWER = 274
-    CENTRE_RIGHT_UPPER = 324
+    CENTRE_RIGHT_LOWER = 150
+    CENTRE_RIGHT_UPPER = 250
     CENTRE_LOWER = 325
     CENTRE_UPPER = 375
     CENTRE_LEFT_LOWER = 376
@@ -139,6 +139,7 @@ def callback(msg):
         centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
         right_avg = reduce(lambda a, b: a + b, right) / len(right)
         print(left_avg, centre_avg, right_avg)
+        print("right_avg: "+right_avg)
         avg_data = []
         # pad advverages for graphing
         for i in range(len(mapped_readings)):
