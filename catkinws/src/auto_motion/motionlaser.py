@@ -8,7 +8,7 @@ import numpy
 import math
 import random
 
-simMode = True  # sets the vairables if in sim mode
+simMode = False  # sets the vairables if in sim mode
 flip = 1
 turn = False
 
@@ -153,14 +153,17 @@ def callback(msg):
             # SPACE RIGHT?
             if right_avg >= RIGHT_MIN:
                 # TURN RIGHT
+                print("no space front, turning right")
                 turn = True
                 desired_bearing = RIGHT
             else: # PIVOT
+                print("no space front or right, pivoting left")
                 turn = True
                 desired_bearing = LEFT
         else:
             # SPACE RIGHT?
             if right_avg >= RIGHT_MIN:
+                print("space right, turning")
                 turn = True
                 desired_bearing = RIGHT
             else:
