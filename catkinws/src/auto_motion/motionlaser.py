@@ -201,12 +201,12 @@ def talker():
     rate = rospy.Rate(HZ)  # 10hz
     base_data = Twist()
     current_bearing = 0
-    TURN_SCALAR = 1500.0
+    TURN_SCALAR = 1000.0
     while not rospy.is_shutdown():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
             base_data.angular.z = desired_bearing / 180
             if move_and_turn:
-                base_data.linear.x = 0.25
+                base_data.linear.x = 0.5
             else:
                 base_data.linear.x = 0
             current_bearing = current_bearing + 1
