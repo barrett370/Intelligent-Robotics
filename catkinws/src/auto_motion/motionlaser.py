@@ -139,7 +139,7 @@ def callback(msg):
         centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
         right_avg = reduce(lambda a, b: a + b, right) / len(right)
         print(left_avg, centre_avg, right_avg)
-        print("right_avg: "+right_avg)
+        print("right_avg: "+str(right_avg))
         avg_data = []
         # pad advverages for graphing
         for i in range(len(mapped_readings)):
@@ -226,7 +226,7 @@ def talker():
             if desired_bearing > 0:
                 base_data.angular.z = 0.25 * turn_adjustment
             else:
-                base_data.angular.z = -0.25 * turn_adjustment * (right_avg^2/2.25)
+                base_data.angular.z = -0.25 * turn_adjustment * ((right_avg*right_avg)/2.25)
                 print(str(right_avg)+','+str(turn_adjustment))
             # base_data.angular.z  = 0.002*desired_bearing
             if move_and_turn:
