@@ -149,7 +149,7 @@ def callback(msg):
                 avg_data.append(right_avg)
 
         # SPACE FORWARD?
-        if centre_avg >= FRONT_MIN: # turn
+        if centre_avg <= FRONT_MIN: # turn
             # SPACE RIGHT?
             if right_avg >= RIGHT_MIN:
                 # TURN RIGHT
