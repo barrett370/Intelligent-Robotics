@@ -206,7 +206,7 @@ def talker():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
             #base_data.angular.z = desired_bearing / 360000
             if(desired_bearing>0):
-                base_data.angular.z = 0.25
+                base_data.angular.z = 0.35
             else:
                 base_data.angular.z = -0.25
             #base_data.angular.z  = 0.002*desired_bearing
