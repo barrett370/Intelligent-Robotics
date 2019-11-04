@@ -12,7 +12,7 @@ simMode = False  # sets the vairables if in sim mode
 flip = 1
 turn = False
 
-avg_right = 0
+right_avg = 0
 RIGHT = -90
 LEFT = 90
 BACKWARDS = 180
@@ -115,7 +115,7 @@ def callback(msg):
     global move_and_turn
     global desired_bearing
     global correction
-    global avg_right
+    global right_avg
     correction = False
     if average_count % RATE == 0:
         # plt.clf()
@@ -203,7 +203,7 @@ def talker():
     global desired_bearing
     desired_bearing = FORWARD
     global flip
-    global avg_right
+    global right_avg
     global turn
     global correction
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
@@ -225,7 +225,8 @@ def talker():
             if desired_bearing > 0:
                 base_data.angular.z = 0.25 * turn_adjustment
             else:
-                base_data.angular.z = -0.25 * turn_adjustment * (avg_right/1.5)
+                base_data.angular.z = -0.25 * turn_adjustment * (right_avg/1.5)
+                print(str(right_avg)+','+str(turn_adjustment))
             # base_data.angular.z  = 0.002*desired_bearing
             if move_and_turn:
                 base_data.linear.x = 0.25
