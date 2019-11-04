@@ -43,7 +43,7 @@ class PFLocaliser(PFLocaliserBase):
         :Return:
             | (geometry_msgs.msg.PoseArray) poses of the particles
         """
-        print(initialpose.pose.pose.position.x,initialpose.pose.pose.y)
+        print(initialpose.pose.pose.position.x,initialpose.pose.pose.position.y)
         self.particlecloud = PoseArray() # populated with 500 poses
         newPose = Pose()
         # noise_placeholder = 10
