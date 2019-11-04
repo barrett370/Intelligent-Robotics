@@ -20,8 +20,8 @@ average_count = 0
 sum_readings = []
 history = [FORWARD, FORWARD, FORWARD]
 desired_bearing = 0
-RATE = 5
-HZ = 2
+RATE = 3 # no. calcs in average
+HZ = 10
 move_and_turn = False
 if simMode:
     # Laser groupings
@@ -204,9 +204,14 @@ def talker():
     TURN_SCALAR = 1000.0
     while not rospy.is_shutdown():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
-            base_data.angular.z = desired_bearing / 180
+            #base_data.angular.z = desired_bearing / 360000
+            if(desired_bearing>0):
+                base_data.angular.z = 0.2
+            else:
+                base_data.angular.z = -0.2
+            #base_data.angular.z  = 0.002*desired_bearing
             if move_and_turn:
-                base_data.linear.x = 0.5
+                base_data.linear.x = 0.1
             else:
                 base_data.linear.x = 0
             current_bearing = current_bearing + 1
