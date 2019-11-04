@@ -158,7 +158,7 @@ def callback(msg):
                 print("no space front, turning right")
                 turn = True
                 desired_bearing = RIGHT
-                move_and_turn = True
+                move_and_turn = False
             else:  # PIVOT
                 print("no space front or right, pivoting left")
                 turn = True
@@ -205,11 +205,11 @@ def talker():
     while not rospy.is_shutdown():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
             base_data.angular.z = desired_bearing / 180
-            current_bearing = current_bearing + 1
             if move_and_turn:
                 base_data.linear.x = 0.25
             else:
                 base_data.linear.x = 0
+            current_bearing = current_bearing + 1
         else:
             base_data.angular.z = 0
             base_data.linear.x = 0.25
