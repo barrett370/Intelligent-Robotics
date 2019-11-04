@@ -51,10 +51,10 @@ else:
 
     # Optimal Ranges
     RIGHT_OPTIMAL = 0.5
-    RIGHT_MAX = 2.0
-    RIGHT_MIN = 1.0
+    RIGHT_MAX = 3.0
+    RIGHT_MIN = 2.0
     FRONT_MIN = 2.0
-    LEFT_MIN = 1.0
+    LEFT_MIN = 2.0
     MAX_RANGE = 5.5
 
 
@@ -211,7 +211,7 @@ def talker():
                 base_data.angular.z = -0.25
             #base_data.angular.z  = 0.002*desired_bearing
             if move_and_turn:
-                base_data.linear.x = 0.15
+                base_data.linear.x = 0.25
             else:
                 # base_data.linear.x = 0
                 base_data.linear.x= 0.05
