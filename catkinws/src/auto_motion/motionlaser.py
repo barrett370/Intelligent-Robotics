@@ -34,6 +34,7 @@ if simMode:
     CENTRE_RIGHT_UPPER = 300
     RIGHT_LOWER = 450
     RIGHT_UPPER = 500
+    MAX_RANGE = 3
 else:
     # Laser groupings
     RIGHT_LOWER = 25
@@ -53,6 +54,7 @@ else:
     RIGHT_MIN = 1.0
     FRONT_MIN = 2.0
     LEFT_MIN = 1.0
+    MAX_RANGE = 5.5
 
 
 def clean_laser_readings(msg):
@@ -60,11 +62,13 @@ def clean_laser_readings(msg):
     temp_values = []
     for i in range(0, len(msg)):
         for value in msg:
-            if value < 1:
+            if value < 0.1:
+                value = MAX_RANGE
+            elif value < 1:
                 value = prev
 
             elif str(value) == "nan":
-                value = 5.5
+                value = MAX_RANGE
 
             prev = value
             temp_values.append(value)
