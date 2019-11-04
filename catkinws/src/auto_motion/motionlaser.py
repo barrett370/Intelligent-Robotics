@@ -22,7 +22,7 @@ history = [FORWARD, FORWARD, FORWARD]
 desired_bearing = 0
 RATE = 5
 HZ = 2
-turn_and_move = False
+move_and_turn = False
 if simMode:
     # Laser groupings
     LEFT_LOWER = 0
@@ -110,6 +110,7 @@ def callback(msg):
     global RATE
     global sum_readings
     global turn
+    global move_and_turn
     global desired_bearing
     if average_count % RATE == 0:
         # plt.clf()
@@ -205,7 +206,7 @@ def talker():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
             base_data.angular.z = desired_bearing / 180
             current_bearing = current_bearing + 1
-            if turn_and_move:
+            if move_and_turn:
                 base_data.linear.x = 0.25
             else:
                 base_data.linear.x = 0
