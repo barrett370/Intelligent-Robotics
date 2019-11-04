@@ -33,8 +33,8 @@ if simMode:
     CENTRE_LEFT_UPPER = 224
     CENTRE_LOWER = 224
     CENTRE_UPPER = 275
-    CENTRE_RIGHT_LOWER = 276
-    CENTRE_RIGHT_UPPER = 300
+    CENTRE_RIGHT_LOWER = 300
+    CENTRE_RIGHT_UPPER = 375
     RIGHT_LOWER = 450
     RIGHT_UPPER = 500
     MAX_RANGE = 3
@@ -156,7 +156,7 @@ def callback(msg):
                 avg_data.append(right_avg)
 
         # SPACE FORWARD?
-        if centre_avg <= FRONT_MIN:  # turn
+        if centre_avg <= FRONT_MIN or centre_right_avg <= 0.3:  # turn
             # SPACE RIGHT?
             print("no space front or right, pivoting left")
             turn = True
@@ -225,7 +225,7 @@ def talker():
             if desired_bearing > 0:
                 base_data.angular.z = 0.25 * turn_adjustment
             else:
-                base_data.angular.z = -0.25 * turn_adjustment * (right_avg/1.5)
+                base_data.angular.z = -0.25 * turn_adjustment * (right_avg^2/2.25)
                 print(str(right_avg)+','+str(turn_adjustment))
             # base_data.angular.z  = 0.002*desired_bearing
             if move_and_turn:
