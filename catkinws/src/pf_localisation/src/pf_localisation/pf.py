@@ -50,10 +50,10 @@ class PFLocaliser(PFLocaliserBase):
         for i in range(500):
             #need to generate noise in noise placeholder in the loop with gaussian
             noise_placeholder = gauss(0,1)
-            newPose.pose.pose.position.x = initialpose.pose.pose.position.x + noise_placeholder
-            newPose.pose.pose.position.y = initialpose.pose.pose.position.y + noise_placeholder
-            newPose.pose.pose.position.z = initialpose.pose.pose.position.z + noise_placeholder
-            newPose.pose.pose.orientation = rotateQuaternion(Quaternion(w=1.0), INIT_HEADING)  
+            newPose.position.x = initialpose.pose.pose.position.x + noise_placeholder
+            newPose.position.y = initialpose.pose.pose.position.y + noise_placeholder
+            newPose.position.z = initialpose.pose.pose.position.z + noise_placeholder
+            newPose.orientation = rotateQuaternion(Quaternion(w=1.0), INIT_HEADING)  
             # add to particle cloud
         
         return self.particlecloud # not sure about this
