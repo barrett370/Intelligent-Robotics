@@ -20,8 +20,9 @@ average_count = 0
 sum_readings = []
 history = [FORWARD, FORWARD, FORWARD]
 desired_bearing = 0
-RATE = 3 # no. calcs in average
+RATE = 3  # no. calcs in average
 HZ = 10
+correction = False
 move_and_turn = False
 if simMode:
     # Laser groupings
@@ -112,6 +113,8 @@ def callback(msg):
     global turn
     global move_and_turn
     global desired_bearing
+    global correction
+    correction = False
     if average_count % RATE == 0:
         # plt.clf()
         mapped_readings = map(lambda x: x / RATE, sum_readings)
@@ -168,11 +171,13 @@ def callback(msg):
                 print("Too close, turning left")
                 turn = True
                 move_and_turn = True
+                correction = True
                 desired_bearing = LEFT
             elif RIGHT_OPTIMAL < right_avg < RIGHT_MIN:
                 print("Too far, turning right")
                 turn = True
                 move_and_turn = True
+                correction = True
                 desired_bearing = RIGHT
             else:
                 turn = False
@@ -197,6 +202,7 @@ def talker():
     desired_bearing = FORWARD
     global flip
     global turn
+    global correction
     pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
     print('setup publisher to cmd_vel')
     rospy.init_node('Mover', anonymous=True)
@@ -207,17 +213,22 @@ def talker():
     TURN_SCALAR = 1000.0
     while not rospy.is_shutdown():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
-            #base_data.angular.z = desired_bearing / 360000
-            if(desired_bearing>0):
-                base_data.angular.z = 0.35
+            # base_data.angular.z = desired_bearing / 360000
+            turn_adjustment = 1
+            if correction:
+                turn_adjustment = 0.2
             else:
-                base_data.angular.z = -0.25
-            #base_data.angular.z  = 0.002*desired_bearing
+                turn_adjustment = 1
+            if desired_bearing > 0:
+                base_data.angular.z = 0.35 * turn_adjustment
+            else:
+                base_data.angular.z = -0.25 * turn_adjustment
+            # base_data.angular.z  = 0.002*desired_bearing
             if move_and_turn:
                 base_data.linear.x = 0.25
             else:
                 # base_data.linear.x = 0
-                base_data.linear.x= 0.0
+                base_data.linear.x = 0.0
             current_bearing = current_bearing + 1
         else:
             base_data.angular.z = 0
