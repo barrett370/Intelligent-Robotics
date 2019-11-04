@@ -164,6 +164,16 @@ def callback(msg):
                 turn = True
                 move_and_turn = True
                 desired_bearing = RIGHT
+            elif right_avg < RIGHT_OPTIMAL:
+                print("Too close, turning left")
+                turn = True
+                move_and_turn = True
+                desired_bearing = LEFT
+            elif RIGHT_OPTIMAL < right_avg < RIGHT_MIN:
+                print("Too far, turning right")
+                turn = True
+                move_and_turn = True
+                desired_bearing = RIGHT
             else:
                 turn = False
                 desired_bearing = FORWARD
