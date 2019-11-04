@@ -206,18 +206,19 @@ def talker():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
             #base_data.angular.z = desired_bearing / 360000
             if(desired_bearing>0):
-                base_data.angular.z = 0.2
+                base_data.angular.z = 0.25
             else:
-                base_data.angular.z = -0.2
+                base_data.angular.z = -0.25
             #base_data.angular.z  = 0.002*desired_bearing
             if move_and_turn:
-                base_data.linear.x = 0.1
+                base_data.linear.x = 0.15
             else:
-                base_data.linear.x = 0
+                # base_data.linear.x = 0
+                base_data.linear.x= 0.05
             current_bearing = current_bearing + 1
         else:
             base_data.angular.z = 0
-            base_data.linear.x = 0.25
+            base_data.linear.x = 0.2
             current_bearing = 0
             turn = False
         pub.publish(base_data)
