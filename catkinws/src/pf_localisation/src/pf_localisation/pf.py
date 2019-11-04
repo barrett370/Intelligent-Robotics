@@ -29,7 +29,7 @@ class PFLocaliser(PFLocaliserBase):
         self.NUMBER_PREDICTED_READINGS = 20     # Number of readings to predict
         
        
-    def initialise_particle_cloud(self, initialpose):
+    def initialise_par      ticle_cloud(self, initialpose):
         """
         Set particle cloud to initialpose plus noise
 
@@ -44,7 +44,16 @@ class PFLocaliser(PFLocaliserBase):
             | (geometry_msgs.msg.PoseArray) poses of the particles
         """
         self.particlecloud = PoseArray() # what do i populate this with 
-        self.initialpose = initialpose # not sure
+        newPose = Pose()
+        noise_placeholder = 10
+        INIT_HEADING = 0 	# Initial orientation of robot (radians)
+        for i in range(10):
+            #need to generate noise in noise placeholder in the loop with gaussian
+            newPose.pose.pose.position.x = initialpose.pose.pose.position.x + noise_placeholder
+            newPose.pose.pose.position.y = initialpose.pose.pose.position.y + noise_placeholder
+            newPose.pose.pose.position.z = initialpose.pose.pose.position.z + noise_placeholder
+            newPose.pose.pose.orientation = rotateQuaternion(Quaternion(w=1.0), INIT_HEADING)   
+        
         return self.particlecloud # not sure about this
         #pass
 
