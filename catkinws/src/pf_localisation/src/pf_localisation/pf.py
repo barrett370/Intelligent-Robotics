@@ -43,21 +43,21 @@ class PFLocaliser(PFLocaliserBase):
         :Return:
             | (geometry_msgs.msg.PoseArray) poses of the particles
         """
-        self.particlecloud = PoseArray() # what do i populate this with 
+        self.particlecloud = PoseArray() # populated with 500 poses
         newPose = Pose()
-        noise_placeholder = 10
+        # noise_placeholder = 10
         INIT_HEADING = 0 	# Initial orientation of robot (radians)
         for i in range(500):
             #need to generate noise in noise placeholder in the loop with gaussian
             noise_placeholder = gauss(0,1)
             newPose.position.x = initialpose.pose.pose.position.x + noise_placeholder
             newPose.position.y = initialpose.pose.pose.position.y + noise_placeholder
-            newPose.position.z = initialpose.pose.pose.position.z + noise_placeholder
+            newPose.position.z = initialpose.pose.pose.position.z # z wont have any noise
             newPose.orientation = rotateQuaternion(Quaternion(w=1.0), INIT_HEADING)  
             # add to particle cloud
-        
-        return self.particlecloud # not sure about this
-        #pass
+            self.particlecloud.poses.append(newPose)  # append particle cloud to
+        return self.particlecloud  # not sure about this
+        #  pass
 
  
     
@@ -88,4 +88,24 @@ class PFLocaliser(PFLocaliserBase):
         :Return:
             | (geometry_msgs.msg.Pose) robot's estimated pose.
          """
-        pass
+
+        sum_x = 0
+        sum_y = 0
+        self.particlecloud.poses
+
+        #Work out the average of the coords
+
+        for i in range (0,len(self.particlecloud.poses)):
+            sum_x += self.particlecloud.poses[i].position.x
+            sum_y += self.particlecloud.poses[i].position.y
+
+        average_x = sum_x /500
+        average_y = sum_y /500
+
+        estimatePose = Pose()
+        estimatePose.position.x = average_x
+        estimatePose.position.y = average_y
+        estimatePose.position.z = self.particlecloud.poses[0].position.z #
+        estimatePose.orientation = self.particlecloud.poses[0].orientation #This needs updating
+        return estimatePose
+        # pass
