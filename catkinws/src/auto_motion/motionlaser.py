@@ -22,6 +22,7 @@ history = [FORWARD, FORWARD, FORWARD]
 desired_bearing = 0
 RATE = 5
 HZ = 2
+turn_and_move = False
 if simMode:
     # Laser groupings
     LEFT_LOWER = 0
@@ -114,8 +115,8 @@ def callback(msg):
         # plt.clf()
         mapped_readings = map(lambda x: x / RATE, sum_readings)
         # plt.plot(mapped_readings)
-        
-        #fig.canvas.draw()
+
+        # fig.canvas.draw()
         sum_readings = []
         for value in msg.ranges:
             strip_nan(sum_readings, value)
@@ -131,7 +132,7 @@ def callback(msg):
         centre_avg = reduce(lambda a, b: a + b, centre) / len(centre)
         centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
         right_avg = reduce(lambda a, b: a + b, right) / len(right)
-        print(left_avg,centre_avg,right_avg)
+        print(left_avg, centre_avg, right_avg)
         avg_data = []
         # pad advverages for graphing
         for i in range(len(mapped_readings)):
@@ -149,26 +150,31 @@ def callback(msg):
                 avg_data.append(right_avg)
 
         # SPACE FORWARD?
-        if centre_avg <= FRONT_MIN: # turn
+        if centre_avg <= FRONT_MIN:  # turn
             # SPACE RIGHT?
             if right_avg >= RIGHT_MIN:
                 # TURN RIGHT
                 print("no space front, turning right")
                 turn = True
                 desired_bearing = RIGHT
-            else: # PIVOT
+                move_and_turn = True
+            else:  # PIVOT
                 print("no space front or right, pivoting left")
                 turn = True
                 desired_bearing = LEFT
+                move_and_turn = False
         else:
             # SPACE RIGHT?
             if right_avg >= RIGHT_MIN:
                 print("space right, turning")
                 turn = True
+                move_and_turn = True
                 desired_bearing = RIGHT
             else:
                 turn = False
                 desired_bearing = FORWARD
+                move_and_turn = False
+
         # plt.plot(avg_data)
         # fig.canvas.draw()
     else:
@@ -179,6 +185,7 @@ def callback(msg):
         sum_readings = [x + y for x, y in zip(temp_values, sum_readings)]
     average_count += 1
 
+
 def talker():
     sub = rospy.Subscriber('/base_scan', LaserScan, callback)
     print('subscribed to /scan')
@@ -186,7 +193,7 @@ def talker():
     desired_bearing = FORWARD
     global flip
     global turn
-    pub = rospy.Publisher('/cmd_vel_2', Twist, queue_size=100)
+    pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
     print('setup publisher to cmd_vel')
     rospy.init_node('Mover', anonymous=True)
     print('setup node')
@@ -196,17 +203,19 @@ def talker():
     TURN_SCALAR = 1500.0
     while not rospy.is_shutdown():
         if turn and current_bearing < abs(TURN_SCALAR * desired_bearing):
-            base_data.linear.x = 0
             base_data.angular.z = desired_bearing / 180
             current_bearing = current_bearing + 1
+            if turn_and_move:
+                base_data.linear.x = 0.25
+            else:
+                base_data.linear.x = 0
         else:
             base_data.angular.z = 0
             base_data.linear.x = 0.25
             current_bearing = 0
             turn = False
-        # pub.publish(base_data)
-
-    rate.sleep()
+        pub.publish(base_data)
+        rate.sleep()
 
 
 if __name__ == '__main__':
