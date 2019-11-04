@@ -4,7 +4,7 @@ import math
 import rospy
 
 from util import rotateQuaternion, getHeading
-from random import random
+from random import random, gauss
 
 from time import time
 
@@ -29,7 +29,7 @@ class PFLocaliser(PFLocaliserBase):
         self.NUMBER_PREDICTED_READINGS = 20     # Number of readings to predict
         
        
-    def initialise_par      ticle_cloud(self, initialpose):
+    def initialise_particle_cloud(self, initialpose):
         """
         Set particle cloud to initialpose plus noise
 
@@ -47,12 +47,14 @@ class PFLocaliser(PFLocaliserBase):
         newPose = Pose()
         noise_placeholder = 10
         INIT_HEADING = 0 	# Initial orientation of robot (radians)
-        for i in range(10):
+        for i in range(500):
             #need to generate noise in noise placeholder in the loop with gaussian
+            noise_placeholder = gauss(0,1)
             newPose.pose.pose.position.x = initialpose.pose.pose.position.x + noise_placeholder
             newPose.pose.pose.position.y = initialpose.pose.pose.position.y + noise_placeholder
             newPose.pose.pose.position.z = initialpose.pose.pose.position.z + noise_placeholder
-            newPose.pose.pose.orientation = rotateQuaternion(Quaternion(w=1.0), INIT_HEADING)   
+            newPose.pose.pose.orientation = rotateQuaternion(Quaternion(w=1.0), INIT_HEADING)  
+            # add to particle cloud
         
         return self.particlecloud # not sure about this
         #pass
