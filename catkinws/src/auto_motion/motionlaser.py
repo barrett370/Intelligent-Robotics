@@ -153,17 +153,10 @@ def callback(msg):
         # SPACE FORWARD?
         if centre_avg <= FRONT_MIN:  # turn
             # SPACE RIGHT?
-            if right_avg >= RIGHT_MIN:
-                # TURN RIGHT
-                print("no space front, turning right")
-                turn = True
-                desired_bearing = RIGHT
-                move_and_turn = False
-            else:  # PIVOT
-                print("no space front or right, pivoting left")
-                turn = True
-                desired_bearing = LEFT
-                move_and_turn = False
+            print("no space front or right, pivoting left")
+            turn = True
+            desired_bearing = LEFT
+            move_and_turn = False
         else:
             # SPACE RIGHT?
             if right_avg >= RIGHT_MIN:
