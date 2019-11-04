@@ -51,10 +51,10 @@ else:
 
     # Optimal Ranges
     RIGHT_OPTIMAL = 0.5
-    RIGHT_MAX = 3.0
-    RIGHT_MIN = 2.0
-    FRONT_MIN = 2.0
-    LEFT_MIN = 2.0
+    RIGHT_MAX = 1.5
+    RIGHT_MIN = 1.0
+    FRONT_MIN = 1.5
+    LEFT_MIN = 1.0
     MAX_RANGE = 5.5
 
 
@@ -207,7 +207,7 @@ def talker():
                 base_data.linear.x = 0.25
             else:
                 # base_data.linear.x = 0
-                base_data.linear.x= 0.05
+                base_data.linear.x= 0.0
             current_bearing = current_bearing + 1
         else:
             base_data.angular.z = 0
