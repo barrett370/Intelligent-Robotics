@@ -4,8 +4,8 @@ import math
 import rospy
 
 from util import rotateQuaternion, getHeading
-from random import gauss
-import random
+from random import random, gauss
+
 from time import time
 
 
@@ -37,7 +37,7 @@ class PFLocaliser(PFLocaliserBase):
         super(PFLocaliser, self).__init__()
 
         # ----- Set motion model parameters
-        # potentially upper bounds? according to jon
+        # These need to be changed to non-zero values
         self.ODOM_ROTATION_NOISE = 0  # Odometry model rotation noise
         # Odometry model x axis (forward) noise
         self.ODOM_TRANSLATION_NOISE = 0
@@ -72,8 +72,11 @@ class PFLocaliser(PFLocaliserBase):
             noise_value = 1
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             generatedAngle = random.vonmisesvariate(mu=0, kappa=0)
-            newPose.position.x = initialpose.pose.pose.position.x + (random_gauss * noise_value)
-            newPose.position.y = initialpose.pose.pose.position.y + (random_gauss * noise_value)
+            newPose.position.x = initialpose.pose.pose.position.x + \
+                                 random_gauss * self.ODOM_TRANSLATION_NOISE
+            newPose.position.y = initialpose.pose.pose.position.y + \
+                                 random_gauss * self.ODOM_DRIFT_NOISE
+
             newPose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
             newPose.orientation = rotateQuaternion(
                 Quaternion(w=1.0), generatedAngle)
