@@ -27,9 +27,9 @@ class PFLocaliser(PFLocaliserBase):
         self.ODOM_DRIFT_NOISE = 0 # Odometry model y axis (side-to-side) noise
  
         # ----- Sensor model parameters
-        self.NUMBER_PREDICTED_READINGS = 500     # Number of readings to predict
-        
+        self.NUMBER_PREDICTED_READINGS = 20     # Number of readings to predict
        
+
     def initialise_particle_cloud(self, initialpose):
         """
         Set particle cloud to initialpose plus noise
@@ -48,14 +48,15 @@ class PFLocaliser(PFLocaliserBase):
         self.particlecloud = PoseArray() # populated with 500 poses
         newPose = Pose()
         # noiseValue = 10
-        INIT_HEADING = 0 	# Initial orientation of robot (radians)
+        # INIT_HEADING = 0 	# Initial orientation of robot (radians)
         for i in range(500):
             #need to generate noise in noise placeholder in the loop with gaussian
             noiseValue = gauss(0,1)
+            generatedAngle = random.vonmisesvariate(0, 0) # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             newPose.position.x = initialpose.pose.pose.position.x + noiseValue
             newPose.position.y = initialpose.pose.pose.position.y + noiseValue
             newPose.position.z = initialpose.pose.pose.position.z # z wont have any noise
-            newPose.orientation = rotateQuaternion(Quaternion(w=1.0), INIT_HEADING)  
+            newPose.orientation = rotateQuaternion(Quaternion(w=1.0), generatedAngle)  
             # add to particle cloud
             self.particlecloud.poses.append(newPose)  # append particle cloud to
         return self.particlecloud  # not sure about this
