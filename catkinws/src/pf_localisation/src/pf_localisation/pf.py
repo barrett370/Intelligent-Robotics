@@ -4,8 +4,8 @@ import math
 import rospy
 
 from util import rotateQuaternion, getHeading
-from random import gauss
-import random
+from random import random, gauss
+
 from time import time
 
 
@@ -21,7 +21,7 @@ class PFLocaliser(PFLocaliserBase):
         super(PFLocaliser, self).__init__()
 
         # ----- Set motion model parameters
-        # potentially upper bounds? according to jon
+        # These need to be changed to non-zero values
         self.ODOM_ROTATION_NOISE = 0  # Odometry model rotation noise
         # Odometry model x axis (forward) noise
         self.ODOM_TRANSLATION_NOISE = 0
@@ -115,5 +115,4 @@ class PFLocaliser(PFLocaliserBase):
         # This needs updating
         estimatePose.orientation = self.particlecloud.poses[0].orientation
         return estimatePose
-        
         # pass
