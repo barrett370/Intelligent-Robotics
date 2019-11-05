@@ -54,7 +54,7 @@ class PFLocaliser(PFLocaliserBase):
             # need to generate noise in noise placeholder in the loop with gaussian
             noiseValue = gauss(0, 1)
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
-            generatedAngle = random.vonmisesvariate(0, 0)
+            generatedAngle = random.vonmisesvariate(mu=0, kappa=0)
             newPose.position.x = initialpose.pose.pose.position.x + noiseValue
             newPose.position.y = initialpose.pose.pose.position.y + noiseValue
             newPose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
