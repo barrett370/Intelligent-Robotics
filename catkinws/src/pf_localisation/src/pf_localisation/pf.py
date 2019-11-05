@@ -27,7 +27,7 @@ class PFLocaliser(PFLocaliserBase):
         self.ODOM_DRIFT_NOISE = 0 # Odometry model y axis (side-to-side) noise
  
         # ----- Sensor model parameters
-        self.NUMBER_PREDICTED_READINGS = 20     # Number of readings to predict
+        self.NUMBER_PREDICTED_READINGS = 500     # Number of readings to predict
         
        
     def initialise_particle_cloud(self, initialpose):
