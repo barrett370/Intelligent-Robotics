@@ -55,8 +55,10 @@ class PFLocaliser(PFLocaliserBase):
             noiseValue = gauss(0, 1)
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             generatedAngle = random.vonmisesvariate(mu=0, kappa=0)
-            newPose.position.x = initialpose.pose.pose.position.x + noiseValue
-            newPose.position.y = initialpose.pose.pose.position.y + noiseValue
+            newPose.position.x = initialpose.pose.pose.position.x + \
+                noiseValue * self.ODOM_TRANSLATION_NOISE
+            newPose.position.y = initialpose.pose.pose.position.y + \
+                noiseValue * self.ODOM_DRIFT_NOISE
             newPose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
             newPose.orientation = rotateQuaternion(
                 Quaternion(w=1.0), generatedAngle)
