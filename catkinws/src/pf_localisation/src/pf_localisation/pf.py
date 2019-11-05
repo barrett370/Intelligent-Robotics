@@ -21,7 +21,8 @@ class PFLocaliser(PFLocaliserBase):
         super(PFLocaliser, self).__init__()
         
         # ----- Set motion model parameters
-        self.ODOM_ROTATION_NOISE = 0 # Odometry model rotation noise
+        # potentially upper bounds? according to jon
+        self.ODOM_ROTATION_NOISE = 0# Odometry model rotation noise
         self.ODOM_TRANSLATION_NOISE = 0 # Odometry model x axis (forward) noise
         self.ODOM_DRIFT_NOISE = 0 # Odometry model y axis (side-to-side) noise
  
@@ -46,13 +47,13 @@ class PFLocaliser(PFLocaliserBase):
         print(initialpose.pose.pose.position.x,initialpose.pose.pose.position.y)
         self.particlecloud = PoseArray() # populated with 500 poses
         newPose = Pose()
-        # noise_placeholder = 10
+        # noiseValue = 10
         INIT_HEADING = 0 	# Initial orientation of robot (radians)
         for i in range(500):
             #need to generate noise in noise placeholder in the loop with gaussian
-            noise_placeholder = gauss(0,1)
-            newPose.position.x = initialpose.pose.pose.position.x + noise_placeholder
-            newPose.position.y = initialpose.pose.pose.position.y + noise_placeholder
+            noiseValue = gauss(0,1)
+            newPose.position.x = initialpose.pose.pose.position.x + noiseValue
+            newPose.position.y = initialpose.pose.pose.position.y + noiseValue
             newPose.position.z = initialpose.pose.pose.position.z # z wont have any noise
             newPose.orientation = rotateQuaternion(Quaternion(w=1.0), INIT_HEADING)  
             # add to particle cloud
