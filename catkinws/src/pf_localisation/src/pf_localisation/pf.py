@@ -125,7 +125,6 @@ class PFLocaliser(PFLocaliserBase):
 
         sum_x = 0
         sum_y = 0
-        self.particlecloud.poses
 
         # Work out the average of the coords
 
