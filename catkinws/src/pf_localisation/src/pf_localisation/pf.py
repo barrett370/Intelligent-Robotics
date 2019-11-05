@@ -14,6 +14,22 @@ from time import time
 # best to do so from the child class itself (i.e. in PFLocaliser class in pf.py).
 # However, you may play with different values for parameters in the other files (eg. sensor_model.py) for conducting experiments.
 
+def systematic_resampling(S, M):
+    S_n = []
+    cdf = [W[0]]
+    for i in range(1, M):
+        cdf[i] = cdf[i - 1] + S[i][1]
+    U = []
+    U[0] = random.uniform(0, (1 / M), 1)
+    for i in range(M):
+        for j in range(M):
+            while U[j] > cdf[i]:
+                i += 1
+            S_n.append(S[i])
+            U[j + 1] = U[j] + (1 / M)
+    return S_n
+
+
 class PFLocaliser(PFLocaliserBase):
 
     def __init__(self):
@@ -28,7 +44,7 @@ class PFLocaliser(PFLocaliserBase):
         self.ODOM_DRIFT_NOISE = 0  # Odometry model y axis (side-to-side) noise
 
         # ----- Sensor model parameters
-        self.NUMBER_PREDICTED_READINGS = 20     # Number of readings to predict
+        self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
 
     def initialise_particle_cloud(self, initialpose):
         """
@@ -52,11 +68,12 @@ class PFLocaliser(PFLocaliserBase):
         # INIT_HEADING = 0 	# Initial orientation of robot (radians)
         for i in range(500):
             # need to generate noise in noise placeholder in the loop with gaussian
-            noiseValue = gauss(0, 1)
+            random_gauss = gauss(0, 1)
+            noise_value = 1
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             generatedAngle = random.vonmisesvariate(mu=0, kappa=0)
-            newPose.position.x = initialpose.pose.pose.position.x + noiseValue
-            newPose.position.y = initialpose.pose.pose.position.y + noiseValue
+            newPose.position.x = initialpose.pose.pose.position.x + (random_gauss * noise_value)
+            newPose.position.y = initialpose.pose.pose.position.y + (random_gauss * noise_value)
             newPose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
             newPose.orientation = rotateQuaternion(
                 Quaternion(w=1.0), generatedAngle)
@@ -74,7 +91,16 @@ class PFLocaliser(PFLocaliserBase):
             | scan (sensor_msgs.msg.LaserScan): laser scan to use for update
 
          """
+        S = []
+        for particle in self.particlecloud:
+            S.append(particle, self.sensor_model.get_weight(particle))
         pass
+        S_n = systematic_resampling(S, len(S))
+        new_particles = PoseArray()
+        for each in S_n:
+            new_particles.append(each[0])
+
+        self.particlecloud = new_particles
 
     def estimate_pose(self):
         """
@@ -113,5 +139,5 @@ class PFLocaliser(PFLocaliserBase):
         # This needs updating
         estimatePose.orientation = self.particlecloud.poses[0].orientation
         return estimatePose
-        
+
         # pass
