@@ -4,13 +4,12 @@ from functools import reduce
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
-import numpy
-import math
-import random
-from .utils import strip_nan
+
 from .constants import Constants
+from .utils import strip_nan
 
 const = Constants(False)
+
 class MotionLaser:
     def __init__(self):
         self.turn = False
@@ -23,18 +22,10 @@ class MotionLaser:
         self.move_and_turn = False
 
     def callback(self, msg):
-        # global average_count
-        # # global RATE
-        # global sum_readings
-        # global turn
-        # global move_and_turn
-        # global desired_bearing
-        # global correction
-        # global right_avg
         self.correction = False
-        if const.average_count % const.RATE == 0:
+        if self.average_count % const.RATE == 0:
             # plt.clf()
-            mapped_readings = list(map(lambda x: x / const.RATE, const.sum_readings))
+            mapped_readings = list(map(lambda x: x / const.RATE, self.sum_readings))
             # plt.plot(mapped_readings)
 
             # fig.canvas.draw()
@@ -54,7 +45,7 @@ class MotionLaser:
             centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
             right_avg = reduce(lambda a, b: a + b, right) / len(right)
             print(left_avg, centre_avg, right_avg)
-            print("right_avg: "+str(right_avg))
+            print("right_avg: " + str(right_avg))
             avg_data = []
             # pad averages for graphing
             for i in range(len(mapped_readings)):
@@ -75,9 +66,9 @@ class MotionLaser:
             if centre_avg <= const.FRONT_MIN or centre_right_avg <= 0.3:  # turn
                 # SPACE RIGHT?
                 print("no space front or right, pivoting left")
-                turn = True
-                desired_bearing = const.LEFT
-                move_and_turn = False
+                self.turn = True
+                self.desired_bearing = const.LEFT
+                self.move_and_turn = False
             else:
                 # SPACE RIGHT?
                 if right_avg >= const.RIGHT_MIN:
@@ -109,8 +100,8 @@ class MotionLaser:
             for value in msg.ranges:
                 strip_nan(temp_values, value)
 
-            self.sum_readings = [x + y for x, y in zip(temp_values, const.sum_readings)]
-        const.average_count += 1
+            self.sum_readings = [x + y for x, y in zip(temp_values, self.sum_readings)]
+        self.average_count += 1
 
     def talker(self):
         sub = rospy.Subscriber('/base_scan', LaserScan, self.callback)
@@ -124,7 +115,7 @@ class MotionLaser:
         current_bearing = 0
         TURN_SCALAR = 1000.0
         while not rospy.is_shutdown():
-            if turn and current_bearing < abs(TURN_SCALAR * self.desired_bearing):
+            if self.turn and current_bearing < abs(TURN_SCALAR * self.desired_bearing):
                 # base_data.angular.z = desired_bearing / 360000
                 turn_adjustment = 1
                 if self.correction:
@@ -134,8 +125,8 @@ class MotionLaser:
                 if self.desired_bearing > 0:
                     base_data.angular.z = 0.25 * turn_adjustment
                 else:
-                    base_data.angular.z = -0.25 * turn_adjustment * ((self.right_avg*self.right_avg)/2.25)
-                    print(str(self.right_avg)+','+str(turn_adjustment))
+                    base_data.angular.z = -0.25 * turn_adjustment * ((self.right_avg * self.right_avg) / 2.25)
+                    print(str(self.right_avg) + ',' + str(turn_adjustment))
                 # base_data.angular.z  = 0.002*desired_bearing
                 if self.move_and_turn:
                     base_data.linear.x = 0.25

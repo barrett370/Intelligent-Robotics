@@ -2,22 +2,22 @@
 class Constants:
     def __init__(self, sim_mode):
         self.sim_mode = sim_mode # sets the vairables if in sim mode
-        self.flip = 1
-        self.turn = False
+        # self.flip = 1
+        # self.turn = False
 
-        self.right_avg = 0
+        # self.right_avg = 0
         self.RIGHT = -90
         self.LEFT = 90
         self.BACKWARDS = 180
         self.FORWARD = 0
-        self.average_count = 0
-        self.sum_readings = []
-        self.history = [self.FORWARD, self.FORWARD, self.FORWARD]
-        self.desired_bearing = 0
+        # self.average_count = 0
+        # self.sum_readings = []
+        # self.history = [self.FORWARD, self.FORWARD, self.FORWARD]
+        # self.desired_bearing = 0
         self.RATE = 3  # no. calcs in average
         self.HZ = 10
-        correction = False
-        self.move_and_turn = False
+        # correction = False
+        # self.move_and_turn = False
         if self.sim_mode:
             # Laser groupings
             self.LEFT_LOWER = 0
