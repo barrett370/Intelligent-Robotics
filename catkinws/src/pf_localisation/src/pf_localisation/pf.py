@@ -38,6 +38,7 @@ class PFLocaliser(PFLocaliserBase):
 
         # ----- Set motion model parameters
         # These need to be changed to non-zero values
+        self.particlecloud = PoseArray()
         self.ODOM_ROTATION_NOISE = 0  # Odometry model rotation noise
         # Odometry model x axis (forward) noise
         self.ODOM_TRANSLATION_NOISE = 0
