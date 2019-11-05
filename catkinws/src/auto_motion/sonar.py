@@ -14,15 +14,20 @@ class Sonar:
         self.pub = rospy.Publisher('/cmd_vel', Twist)
         rate = rospy.Rate(10)
         self.cmd = Twist()
+        self.ranges = []
         while not rospy.is_shutdown():
             if len(list(filter(lambda x: x<0.5,self.ranges)))>0:
+                print(list(filter(lambda x: x<0.5,self.ranges)))
                 self.cmd.linear.x = 0
             else:
-                self.cmd.linear.x = 0.5
-
+                self.cmd.linear.x = 0.1
+            self.pub.publish(self.cmd)
             rate.sleep()
 
     def callback(self, msg):
         pprint(msg.ranges)
         self.ranges = msg.ranges
 
+
+if __name__ == '__main__':
+    Sonar()
