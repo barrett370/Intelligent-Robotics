@@ -4,8 +4,8 @@ import math
 import rospy
 
 from util import rotateQuaternion, getHeading
-from random import random, gauss
-
+from random import gauss
+import random
 from time import time
 
 
@@ -113,4 +113,5 @@ class PFLocaliser(PFLocaliserBase):
         # This needs updating
         estimatePose.orientation = self.particlecloud.poses[0].orientation
         return estimatePose
+        
         # pass
