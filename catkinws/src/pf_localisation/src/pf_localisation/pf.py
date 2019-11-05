@@ -16,7 +16,7 @@ from time import time
 
 def systematic_resampling(S, M):
     S_n = []
-    cdf = [W[0]]
+    cdf = [S[0][1]]
     for i in range(1, M):
         cdf[i] = cdf[i - 1] + S[i][1]
     U = []
@@ -96,12 +96,12 @@ class PFLocaliser(PFLocaliserBase):
          """
         S = []
         for particle in self.particlecloud:
-            S.append(particle, self.sensor_model.get_weight(particle))
+            S.append((particle, self.sensor_model.get_weight(scan, particle)))
         pass
         S_n = systematic_resampling(S, len(S))
         new_particles = PoseArray()
         for each in S_n:
-            new_particles.append(each[0])
+            new_particles.poses.append(each[0])
 
         self.particlecloud = new_particles
 
