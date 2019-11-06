@@ -37,7 +37,7 @@ class PFLocaliser(PFLocaliserBase):
     def __init__(self):
         # ----- Call the superclass constructor
         super(PFLocaliser, self).__init__()
-
+        self.p_cloud = PoseArray()
         # ----- Set motion model parameters
         # These need to be changed to non-zero values
         # self.particlecloud = PoseArray()
@@ -63,6 +63,7 @@ class PFLocaliser(PFLocaliserBase):
         :Return:
             | (geometry_msgs.msg.PoseArray) poses of the particles
         """
+        # p_cloud = PoseArray()s
         print(initialpose.pose.pose.position.x,
               initialpose.pose.pose.position.y)
         # self.particlecloud = PoseArray()  # populated with 500 poses
@@ -84,10 +85,10 @@ class PFLocaliser(PFLocaliserBase):
             new_pose.orientation = rotateQuaternion(
                 new_pose.orientation, generated_angle)
             # add to particle cloud
-            self.particlecloud.poses.append(
+            p_cloud.poses.append(
                 new_pose)  # append particle cloud to
         print("Initialised particle cloud")
-        return self.particlecloud  # returns the particle cloud now populated with poses
+        return p_cloud  # returns the particle cloud now populated with poses
 
     def update_particle_cloud(self, scan):
         """
@@ -99,16 +100,16 @@ class PFLocaliser(PFLocaliserBase):
 
          """
         S = []
-        for particle in self.particlecloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
+        for particle in self.p_cloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
             S.append((particle, self.sensor_model.get_weight(scan, particle)))
         pass
         S_n = systematic_resampling(S, len(S))
         new_particles = PoseArray()
         for each in S_n:
             new_particles.poses.append(each[0])
-        if self.particlecloud != new_particles:
+        if self.p_cloud != new_particles:
             print("Particle Cloud updated")
-        self.particlecloud = new_particles
+        self.p_cloud = new_particles
 
     def estimate_pose(self):
         """
@@ -128,7 +129,7 @@ class PFLocaliser(PFLocaliserBase):
          """
 
         # Work out the average of the coords
-        particles = self.particlecloud.poses
+        particles = self.p_cloud.poses
         euclidean_dists = np.array([])
 
         def f_euc_dist(p):
