@@ -1,7 +1,7 @@
 from functools import reduce
 
-from .sensor_response import Response
-from .utils import strip_nan
+import sensor_response
+import utils
 
 class Laser:
     def __init__(self, constants):
@@ -22,7 +22,7 @@ class Laser:
     def input(self, msg):
         temp_values = []
         for value in msg.ranges:
-            strip_nan(temp_values, value)
+            utils.strip_nan(temp_values, value)
 
         self.sum_readings = [x + y for x, y in zip(temp_values, self.sum_readings)]
 
@@ -64,7 +64,7 @@ class Laser:
                 avg_data.append(right_avg)
 
         # SPACE FORWARD?
-        out = Response(centre_avg, centre_left_avg, centre_right_avg, left_avg, right_avg)
+        out = sensor_response.Response(centre_avg, centre_left_avg, centre_right_avg, left_avg, right_avg)
         self.sum_readings = []
         # if centre_avg <= self.const.FRONT_MIN or centre_right_avg <= 0.3:  # turn
         #     # SPACE RIGHT?

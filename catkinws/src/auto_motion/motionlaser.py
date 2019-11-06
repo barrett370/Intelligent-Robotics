@@ -4,11 +4,11 @@ import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
-from .constants import Constants
-from .laser import Laser
-from .sonar import Sonar
+import constants
+import laser
+import sonar
 
-const = Constants(False)
+const = constants.Constants(False)
 
 class MotionLaser:
     def __init__(self):
@@ -23,9 +23,9 @@ class MotionLaser:
         self.move_and_turn = False
         self.mapped_readings = []
         self.sonar_mapped_readings = []
-        self.laser = Laser(const)
+        self.laser = laser.Laser(const)
         self.laser_output = None
-        self.sonar = Sonar(const)
+        self.sonar = sonar.Sonar(const)
         self.sonar_output = None
 
     def laser_callback(self, msg):

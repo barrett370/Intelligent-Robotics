@@ -1,7 +1,7 @@
 from functools import reduce
 
-from .sensor_response import Response
-from .utils import strip_nan
+import sensor_response
+import utils
 
 class Sonar:
     def __init__(self, const):
@@ -12,7 +12,7 @@ class Sonar:
     def input(self, msg):
         temp_values = []
         for value in msg.ranges:
-            strip_nan(temp_values, value)
+            utils.strip_nan(temp_values, value)
 
         self.sum_readings = [x + y for x, y in zip(temp_values, self.sum_readings)]
 
@@ -32,5 +32,5 @@ class Sonar:
         centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
         right_avg = reduce(lambda a, b: a + b, right) / len(right)
 
-        out = Response(centre_avg, centre_left_avg, centre_right_avg, left_avg, right_avg)
+        out = sensor_response.Response(centre_avg, centre_left_avg, centre_right_avg, left_avg, right_avg)
         return out
