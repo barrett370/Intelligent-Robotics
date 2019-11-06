@@ -73,10 +73,15 @@ class ParticleFilterLocalisationNode(object):
         a filter predict step with odeometry followed by an update step using
         the latest laser.
         """
+        print('wating for initial pose')
         if self._initial_pose_received:
+            print('setting t_odom...')
             t_odom = self._particle_filter.predict_from_odometry(odometry)
+            print('setting t_filter...')
             t_filter = self._particle_filter.update_filter(self._latest_scan)
+            print('odom with init')
             if t_odom + t_filter > 0.1:
+                print('inner odom')
                 rospy.logwarn("Filter cycle overran timeslot")
                 rospy.loginfo("Odometry update: %fs"%t_odom)
                 rospy.loginfo("Particle update: %fs"%t_filter)
