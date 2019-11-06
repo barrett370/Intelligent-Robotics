@@ -97,7 +97,7 @@ class PFLocaliser(PFLocaliserBase):
 
          """
         S = []
-        for particle in self.particlecloud:
+        for particle in self.particlecloud.poses: # added .poses as self.particlecloud doesn't seem to be iterable
             S.append((particle, self.sensor_model.get_weight(scan, particle)))
         pass
         S_n = systematic_resampling(S, len(S))
