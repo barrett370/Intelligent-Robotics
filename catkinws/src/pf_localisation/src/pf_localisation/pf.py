@@ -106,10 +106,11 @@ class PFLocaliser(PFLocaliserBase):
         # print(self.p_cloud)
         return self.p_cloud  # returns the particle cloud now populated with poses
 
+
     def filter_nan(self, scan_data):
-        for i in range(len(scan_data)):
-            if scan_data[i] == "nan":
-                scan_data[i] = 5.5
+        for i in range(len(scan_data.ranges)):
+            if str(scan_data.ranges[i]) == "nan":
+                scan_data.ranges[i] = 5.5
         return scan_data
 
     def update_particle_cloud(self, scan):
