@@ -124,13 +124,9 @@ class PFLocaliser(PFLocaliserBase):
             | (geometry_msgs.msg.Pose) robot's estimated pose.
          """
 
-        sum_x = 0
-        sum_y = 0
-
         # Work out the average of the coords
         euclidean_dists = np.array()
         for particle in self.particlecloud.poses:
-            euclidean_dists.append(math.sqrt(math.pow(particle.position.x,2) + math.pow(particle.position.y,2)))
-        
+            np.append(euclidean_dists, ( math.sqrt(math.pow(particle.position.x,2) + math.pow(particle.position.y,2))))
+
         mean_euc_dist = np.mean(euclidean_dists)
-        
