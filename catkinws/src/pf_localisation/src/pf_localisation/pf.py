@@ -169,8 +169,9 @@ class PFLocaliser(PFLocaliserBase):
             print(angles)
             est_pose = Pose()
             print(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
-            av_angle = rotateQuaternion(
-                Quaternion(), av_ang_w)
+            # av_angle = rotateQuaternion(
+            #     Quaternion(), av_ang_w)
+            av_angle = Quaternion(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
 
             # av_ang = Quaternion(w=av_ang_w)
             print("Estimated position as")
