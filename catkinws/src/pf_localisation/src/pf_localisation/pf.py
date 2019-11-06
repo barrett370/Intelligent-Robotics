@@ -76,13 +76,13 @@ class PFLocaliser(PFLocaliserBase):
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             generated_angle = random.vonmisesvariate(mu=0, kappa=0)
             new_pose.position.x = initialpose.pose.pose.position.x + \
-                                 random_gauss * self.ODOM_TRANSLATION_NOISE
+                                  random_gauss * self.ODOM_TRANSLATION_NOISE
             new_pose.position.y = initialpose.pose.pose.position.y + \
-                                 random_gauss * self.ODOM_DRIFT_NOISE
+                                  random_gauss * self.ODOM_DRIFT_NOISE
 
             new_pose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
             new_pose.orientation = rotateQuaternion(
-                Quaternion(w=1.0), generated_angle)
+                new_pose.orientation, generated_angle)
             # add to particle cloud
             self.particlecloud.poses.append(
                 new_pose)  # append particle cloud to
@@ -130,8 +130,11 @@ class PFLocaliser(PFLocaliserBase):
         # Work out the average of the coords
         particles = self.particlecloud.poses
         euclidean_dists = np.array([])
-        def f_euc_dist(p): return (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
-                                                                                  2)))  # can convert to disctionary if this proves too inefficient
+
+        def f_euc_dist(p):
+            return (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
+                                                                   2)))  # can convert to disctionary if this proves too inefficient
+
         for particle in particles:
             np.append(euclidean_dists, f_euc_dist(particle))
         mean_euc_dist = np.mean(euclidean_dists)
@@ -149,7 +152,7 @@ class PFLocaliser(PFLocaliserBase):
             #         return particle
             xs = np.array([])
             ys = np.array([])
-            angles =[] 
+            angles = []
             for particle in particles:
                 np.append(xs, particle.position.x)
                 np.append(ys, particle.position.y)
@@ -164,12 +167,17 @@ class PFLocaliser(PFLocaliserBase):
                 av_ang_z += angle.z
                 av_ang_w += angle.orientation
             print(angles)
-            print(av_ang_x,av_ang_y,av_ang_z,av_ang_w)
-            av_ang = Quaternion(x=av_ang_x, y=av_ang_y, z=av_ang_z, w=av_ang_w)
+            print(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
+            av_ang = rotateQuaternion(Quaternion(), av_ang_w)
+
 
             # av_ang = Quaternion(w=av_ang_w)
             print("Estimated position as")
-            est_pose =  Pose(np.mean(xs), np.mean(ys), av_ang)
+            est_pose = Pose()
+            est_pose.x = np.mean(xs)
+            est_pose.y = np.mean(ys)
+            est_pose.orientation = av_ang
+
             print(est_pose)
             self.estimatedpose = est_pose
             return est_pose
