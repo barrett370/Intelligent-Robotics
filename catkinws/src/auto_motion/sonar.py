@@ -17,7 +17,6 @@ class Sonar:
             self.sum_readings = temp_values
         else:
             self.sum_readings = [x + y for x, y in zip(temp_values, self.sum_readings)]
-
         self.average_count += 1
 
     def output(self):
@@ -25,8 +24,8 @@ class Sonar:
         left = mapped_readings[0:1]
         centre_left = mapped_readings[2:3]
         centre = mapped_readings[3:5]
-        centre_right = mapped_readings[6]
-        right = mapped_readings[7]
+        centre_right = [mapped_readings[6]]
+        right = [mapped_readings[7]]
 
         left_avg = reduce(lambda a, b: a + b, left) / len(left)
         centre_left_avg = reduce(lambda a, b: a + b, centre_left) / len(centre_left)
@@ -35,4 +34,5 @@ class Sonar:
         right_avg = reduce(lambda a, b: a + b, right) / len(right)
 
         out = sensor_response.Response(centre_avg, centre_left_avg, centre_right_avg, left_avg, right_avg)
+        self.sum_readings =[]
         return out

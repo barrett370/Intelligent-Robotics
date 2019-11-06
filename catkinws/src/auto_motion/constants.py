@@ -49,6 +49,6 @@ class Constants:
             self.RIGHT_OPTIMAL = 0.5
             self.RIGHT_MAX = 1.5
             self.RIGHT_MIN = 1.0
-            self.FRONT_MIN = 1.5
+            self.FRONT_MIN = 1
             self.LEFT_MIN = 1.0
             self.MAX_RANGE = 5.5

@@ -54,8 +54,8 @@ class Laser:
         centre_avg = reduce(lambda a, b: a + b, centre) / len(centre)
         centre_right_avg = reduce(lambda a, b: a + b, centre_right) / len(centre_right)
         right_avg = reduce(lambda a, b: a + b, right) / len(right)
-        print(left_avg, centre_avg, right_avg)
-        print("right_avg: " + str(right_avg))
+        # print(left_avg, centre_avg, right_avg)
+        # print("right_avg: " + str(right_avg))
         avg_data = []
         # pad averages for graphing
         for i in range(len(mapped_readings)):
