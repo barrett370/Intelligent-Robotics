@@ -5,7 +5,7 @@ import utils
 
 class Laser:
     def __init__(self, constants):
-        self.average_count = 0
+        # self.average_count = 0
         # self.left_avg = 0
         # self.centre_left_avg = 0
         # self.centre_avg = 0
@@ -20,16 +20,25 @@ class Laser:
         self.const = constants
 
     def input(self, msg):
+        # print('laser - input')
         temp_values = []
         for value in msg.ranges:
             utils.strip_nan(temp_values, value)
-
-        self.sum_readings = [x + y for x, y in zip(temp_values, self.sum_readings)]
-
-        self.average_count += 1
+        zipped = zip(temp_values,self.sum_readings)
+        # print(zipped)
+        if self.sum_readings == []:
+            self.sum_readings = temp_values
+        else:
+            # for i in range(len(temp_values)):
+            #     self.sum_readings[i] =  self.sum_readings[i] + temp_values[i]
+            self.sum_readings = [x + y for (x, y) in zip(temp_values, self.sum_readings)]
+        # print('sum readings: '+ str(self.sum_readings))
+        # self.average_count += 1
 
     def output(self):
+        # print('laser - output')
         mapped_readings = list(map(lambda x: x / self.const.RATE, self.sum_readings))
+        # print(self.sum_readings)
         # plt.plot(mapped_readings)
 
         # fig.canvas.draw()
