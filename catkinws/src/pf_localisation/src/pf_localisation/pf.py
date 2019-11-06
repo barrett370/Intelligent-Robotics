@@ -19,15 +19,15 @@ def systematic_resampling(S, M):
     S_n = []
     cdf = [S[0][1]]
     for i in range(1, M):
-        cdf[i] = cdf[i - 1] + S[i][1]
+        cdf.append(cdf[i - 1] + S[i][1])
     U = []
-    U[0] = random.uniform(0, (1 / M), 1)
+    U.append(np.random.uniform(0, (1 / M), 1))
     for i in range(M):
         for j in range(M):
             while U[j] > cdf[i]:
                 i += 1
             S_n.append(S[i])
-            U[j + 1] = U[j] + (1 / M)
+            U.append(U[j] + (1 / M))
 
     return S_n
 
@@ -129,7 +129,7 @@ class PFLocaliser(PFLocaliserBase):
 
         # Work out the average of the coords
         particles = self.particlecloud.poses
-        euclidean_dists = np.array()
+        euclidean_dists = np.array([])
         def f_euc_dist(p): return (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
                                                                                   2)))  # can convert to disctionary if this proves too inefficient
         for particle in particles:
@@ -147,11 +147,11 @@ class PFLocaliser(PFLocaliserBase):
             # for particle in particles:
             #     if f_euc_dist(particle) == mean_euc_dist:
             #         return particle
-            xs = np.array()
-            ys = np.array()
-            angles = np.array()
+            xs = np.array([])
+            ys = np.array([])
+            angles = np.array([])
             for particle in particles:
-                np.append(xs, particle.positon.x)
+                np.append(xs, particle.position.x)
                 np.append(ys, particle.position.y)
                 np.append(angles, particle.position)
             av_ang_x = 0
