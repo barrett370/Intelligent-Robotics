@@ -34,6 +34,18 @@ def systematic_resampling(S, M):
     return S_n
 
 
+def resample_v2(samples):
+    new_samples = []
+    for sample in samples:
+        for i in range(sample[1]):
+            new_samples.append(sample)
+    ret_samples = []
+    for i in range(len(samples)):
+        ret_samples.append(new_samples[random.randint(0, len(new_samples))])
+
+    return ret_samples
+
+
 class PFLocaliser(PFLocaliserBase):
 
     def __init__(self):
@@ -81,10 +93,11 @@ class PFLocaliser(PFLocaliserBase):
             new_pose.position.x = initialpose.pose.pose.position.x + gauss(0, 7)
             new_pose.position.y = initialpose.pose.pose.position.y + gauss(0, 7)
             new_pose.position.z = initialpose.pose.pose.position.z
-  # z wont have any noise
+            # z wont have any noise
             # new_pose.orientation = rotateQuaternion(
             #     new_pose.orientation, generated_angle)
-            new_pose.orientation = Quaternion(new_pose.position.x,new_pose.position.y,new_pose.position.z, generated_angle)
+            new_pose.orientation = Quaternion(new_pose.position.x, new_pose.position.y, new_pose.position.z,
+                                              generated_angle)
             # add to particle cloud
             self.p_cloud.poses.append(
                 new_pose)  # append particle cloud to
@@ -105,7 +118,8 @@ class PFLocaliser(PFLocaliserBase):
         S = []
         for particle in self.p_cloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
             S.append((particle, self.sensor_model.get_weight(scan, particle)))
-        S_n = systematic_resampling(S, len(S))
+        # S_n = systematic_resampling(S, len(S))
+        S_n = resample_v2(S)
         new_particles = PoseArray()
         for each in S_n:
             new_particles.poses.append(each[0])
