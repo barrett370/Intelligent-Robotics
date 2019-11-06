@@ -6,7 +6,7 @@ import rospy
 from util import rotateQuaternion, getHeading
 from random import gauss
 import random
-
+import numpy as np
 from time import time
 
 
@@ -75,9 +75,9 @@ class PFLocaliser(PFLocaliserBase):
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             generatedAngle = random.vonmisesvariate(mu=0, kappa=0)
             newPose.position.x = initialpose.pose.pose.position.x + \
-                                 random_gauss * self.ODOM_TRANSLATION_NOISE
+                random_gauss * self.ODOM_TRANSLATION_NOISE
             newPose.position.y = initialpose.pose.pose.position.y + \
-                                 random_gauss * self.ODOM_DRIFT_NOISE
+                random_gauss * self.ODOM_DRIFT_NOISE
 
             newPose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
             newPose.orientation = rotateQuaternion(
@@ -97,7 +97,7 @@ class PFLocaliser(PFLocaliserBase):
 
          """
         S = []
-        for particle in self.particlecloud.poses: # added .poses as self.particlecloud doesn't seem to be iterable
+        for particle in self.particlecloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
             S.append((particle, self.sensor_model.get_weight(scan, particle)))
         pass
         S_n = systematic_resampling(S, len(S))
@@ -128,6 +128,12 @@ class PFLocaliser(PFLocaliserBase):
         sum_y = 0
 
         # Work out the average of the coords
+        euclidean_dists = np.array()
+        for particle in self.particlecloud.poses:
+            euclidean_dists.append(math.sqrt(math.pow(particle.position.x,2) + math.pow(particle.position.y,2)))
+        
+        mean_euc_dist = np.mean(euclidean_dists)
+        
 
         for i in range(0, len(self.particlecloud.poses)):
             sum_x += self.particlecloud.poses[i].position.x
