@@ -134,20 +134,3 @@ class PFLocaliser(PFLocaliserBase):
         
         mean_euc_dist = np.mean(euclidean_dists)
         
-
-        for i in range(0, len(self.particlecloud.poses)):
-            sum_x += self.particlecloud.poses[i].position.x
-            sum_y += self.particlecloud.poses[i].position.y
-
-        average_x = sum_x / 500
-        average_y = sum_y / 500
-
-        estimatePose = Pose()
-        estimatePose.position.x = average_x
-        estimatePose.position.y = average_y
-        estimatePose.position.z = self.particlecloud.poses[0].position.z
-        # This needs updating
-        estimatePose.orientation = self.particlecloud.poses[0].orientation
-        return estimatePose
-
-        # pass
