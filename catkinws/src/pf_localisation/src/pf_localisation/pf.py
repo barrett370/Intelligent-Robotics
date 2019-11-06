@@ -82,8 +82,9 @@ class PFLocaliser(PFLocaliserBase):
                                   random_gauss * self.ODOM_DRIFT_NOISE
 
             new_pose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
-            new_pose.orientation = rotateQuaternion(
-                new_pose.orientation, generated_angle)
+            # new_pose.orientation = rotateQuaternion(
+            #     new_pose.orientation, generated_angle)
+            new_pose.orientation = Quaternion(new_pose.position.x,new_pose.position.y,new_pose.position.z, generated_angle)
             # add to particle cloud
             self.p_cloud.poses.append(
                 new_pose)  # append particle cloud to
