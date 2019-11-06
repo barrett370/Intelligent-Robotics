@@ -18,6 +18,7 @@ class Constants:
         self.HZ = 10
         # correction = False
         # self.move_and_turn = False
+        print('sim_mode: '+ str(False))
         if self.sim_mode:
             # Laser groupings
             self.LEFT_LOWER = 0

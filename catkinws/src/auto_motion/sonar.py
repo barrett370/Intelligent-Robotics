@@ -13,8 +13,10 @@ class Sonar:
         temp_values = []
         for value in msg.ranges:
             utils.strip_nan(temp_values, value)
-
-        self.sum_readings = [x + y for x, y in zip(temp_values, self.sum_readings)]
+        if self.sum_readings == []:
+            self.sum_readings = temp_values
+        else:
+            self.sum_readings = [x + y for x, y in zip(temp_values, self.sum_readings)]
 
         self.average_count += 1
 

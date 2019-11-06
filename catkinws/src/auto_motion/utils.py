@@ -36,7 +36,6 @@ def average_list(xs):
                 sum += x
     return sum / len(xs)
 
-
 def strip_nan(some_readings, value):
     if str(value) == "nan":
         val = 5.5

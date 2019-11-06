@@ -3,6 +3,7 @@
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
+from p2os_msgs.msg import SonarArray
 
 import constants
 import laser
@@ -14,7 +15,8 @@ class MotionLaser:
     def __init__(self):
         self.turn = False
         self.right_avg = 0
-        self.average_count = 1
+        self.laser_average_count = 1
+        self.sonar_average_count = 1
         self.sum_readings = []
         self.sonar_sum_readings = []
         self.history = [const.FORWARD, const.FORWARD, const.FORWARD]
@@ -29,11 +31,10 @@ class MotionLaser:
         self.sonar_output = None
 
     def laser_callback(self, msg):
-        # print(self.average_count)
-        # print(const.RATE)
-        # print(self.average_count % const.RATE)
         self.correction = False
-        if self.average_count % const.RATE == 0:
+        if len(msg.ranges)==0:
+            return
+        if self.laser_average_count % const.RATE == 0:
             out = None
             try:
                 out = self.laser.output()
@@ -44,17 +45,18 @@ class MotionLaser:
                 self.laser_output = out
         else:
             self.laser.input(msg)
-        self.average_count += 1
+        self.laser_average_count += 1
 
     def sonar_callback(self, msg):
-        if self.average_count % const.RATE == 0:
+        if self.sonar_average_count % const.RATE == 0:
             self.sonar_output = self.laser.output()
         else:
-            print('import sonar')
             self.sonar.input(msg)
+        self.sonar_average_count += 1
 
     def talker(self):
         sub = rospy.Subscriber('/base_scan', LaserScan, self.laser_callback)
+        sonar_sub = rospy.Subscriber('/sonar',SonarArray,self.sonar_callback)
         print('subscribed to /scan')
         pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
         print('setup publisher to cmd_vel')
@@ -65,19 +67,28 @@ class MotionLaser:
         current_bearing = 0
         TURN_SCALAR = 1000.0
         while not rospy.is_shutdown():
-            # if self.laser_output is None or self.sonar_output is None:
+            pub_s = False
+            if self.laser_output is None or self.sonar_output is None:
             #     continue
-            if self.laser_output is None:
+            # if self.laser_output is None:
                 continue
-            if self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:  # turn
-                # SPACE RIGHT?
-                print("LASER: no space front or right, pivoting left")
-                self.turn = True
-                self.desired_bearing = const.LEFT
-                self.move_and_turn = False
-            # elif self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.5:
-            #     print("SONAR: no space front or right, pivoting left")
-            #     print(self.sonar_output)
+            if self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.5 or self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
+                if self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.5:
+                    print("SONAR: no space front or right, pivoting left")
+                    # print(self.sonar_output)
+                    self.turn = True
+                    self.desired_bearing = const.LEFT
+                    self.move_and_turn = False
+                    pub_s=True
+                if self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
+                     # SPACE RIGHT?
+                    print("LASER: no space front or right, pivoting left")
+                    self.turn = True
+                    self.desired_bearing = const.LEFT
+                    self.move_and_turn = False
+            # elif self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:  # turn
+            #     # SPACE RIGHT?
+            #     print("LASER: no space front or right, pivoting left")
             #     self.turn = True
             #     self.desired_bearing = const.LEFT
             #     self.move_and_turn = False
@@ -129,8 +140,9 @@ class MotionLaser:
                 base_data.linear.x = 0.2
                 current_bearing = 0
                 turn = False
-            print('publishing')
-            pub.publish(base_data)
+            if pub_s:
+                print('publishing')
+                pub.publish(base_data)
             rate.sleep()
 
 if __name__ == '__main__':
