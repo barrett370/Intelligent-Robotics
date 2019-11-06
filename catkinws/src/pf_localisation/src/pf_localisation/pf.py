@@ -86,6 +86,7 @@ class PFLocaliser(PFLocaliserBase):
             # add to particle cloud
             self.particle_cloud.poses.append(
                 new_pose)  # append particle cloud to
+        print("Initialised particle cloud")
         return self.particle_cloud  # returns the particle cloud now populated with poses
 
     def update_particle_cloud(self, scan):
@@ -164,4 +165,7 @@ class PFLocaliser(PFLocaliserBase):
                 av_ang_w += angle.w
 
             av_ang = Quaternion(x=av_ang_x, y=av_ang_y, z=av_ang_z, w=av_ang_w)
-            return Pose(np.mean(xs), np.mean(ys), av_ang)
+            print("Estimated position as")
+            est_pose =  Pose(np.mean(xs), np.mean(ys), av_ang)
+            print(est_pose)
+            return est_pose
