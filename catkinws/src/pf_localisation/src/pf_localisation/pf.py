@@ -130,3 +130,5 @@ class PFLocaliser(PFLocaliserBase):
             np.append(euclidean_dists, ( math.sqrt(math.pow(particle.position.x,2) + math.pow(particle.position.y,2))))
 
         mean_euc_dist = np.mean(euclidean_dists)
+        sd_euc_dist = np.std(euclidean_dists)
+        
