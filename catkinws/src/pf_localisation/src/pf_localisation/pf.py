@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from geometry_msgs.msg import Pose, PoseArray, Quaternion
 from pf_base import PFLocaliserBase
 import math
@@ -89,6 +91,7 @@ class PFLocaliser(PFLocaliserBase):
             self.p_cloud.poses.append(
                 new_pose)  # append particle cloud to
         print("Initialised particle cloud")
+        print(self.p_cloud[1:5])
         return self.p_cloud  # returns the particle cloud now populated with poses
 
     def update_particle_cloud(self, scan):
@@ -103,14 +106,13 @@ class PFLocaliser(PFLocaliserBase):
         S = []
         for particle in self.p_cloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
             S.append((particle, self.sensor_model.get_weight(scan, particle)))
-        pass
         S_n = systematic_resampling(S, len(S))
         new_particles = PoseArray()
         for each in S_n:
             new_particles.poses.append(each[0])
         if self.p_cloud != new_particles:
             print("Particle Cloud updated")
-        self.p_cloud = new_particles
+        self.p_cloud = deepcopy(new_particles)
 
     def estimate_pose(self):
         """
