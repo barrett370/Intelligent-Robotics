@@ -85,10 +85,10 @@ class PFLocaliser(PFLocaliserBase):
             new_pose.orientation = rotateQuaternion(
                 new_pose.orientation, generated_angle)
             # add to particle cloud
-            p_cloud.poses.append(
+            self.p_cloud.poses.append(
                 new_pose)  # append particle cloud to
         print("Initialised particle cloud")
-        return p_cloud  # returns the particle cloud now populated with poses
+        return self.p_cloud  # returns the particle cloud now populated with poses
 
     def update_particle_cloud(self, scan):
         """
