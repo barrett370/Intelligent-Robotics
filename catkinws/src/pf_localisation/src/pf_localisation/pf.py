@@ -45,7 +45,7 @@ class PFLocaliser(PFLocaliserBase):
         # Odometry model x axis (forward) noise
         self.ODOM_TRANSLATION_NOISE = 0
         self.ODOM_DRIFT_NOISE = 0  # Odometry model y axis (side-to-side) noise
-
+        self.estimatedpose = Pose()
         # ----- Sensor model parameters
         self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
 
@@ -168,4 +168,5 @@ class PFLocaliser(PFLocaliserBase):
             print("Estimated position as")
             est_pose =  Pose(np.mean(xs), np.mean(ys), av_ang)
             print(est_pose)
+            self.estimatedpose = est_pose
             return est_pose
