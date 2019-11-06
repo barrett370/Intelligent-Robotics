@@ -37,7 +37,7 @@ def systematic_resampling(S, M):
 def resample_v2(samples):
     new_samples = []
     for sample in samples:
-        for i in range(sample[1]):
+        for i in range(int(sample[1])):
             new_samples.append(sample)
     ret_samples = []
     for i in range(len(samples)):
@@ -106,6 +106,12 @@ class PFLocaliser(PFLocaliserBase):
         # print(self.p_cloud)
         return self.p_cloud  # returns the particle cloud now populated with poses
 
+    def filter_nan(self, scan_data):
+        for i in range(len(scan_data)):
+            if scan_data[i] == "nan":
+                scan_data[i] = 5.5
+        return scan_data
+
     def update_particle_cloud(self, scan):
         """
         This should use the supplied laser scan to update the current
@@ -116,7 +122,8 @@ class PFLocaliser(PFLocaliserBase):
 
          """
         S = []
-        for particle in self.p_cloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
+        scan = self.filter_nan(scan)
+        for particle in self.particlecloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
             S.append((particle, self.sensor_model.get_weight(scan, particle)))
         # S_n = systematic_resampling(S, len(S))
         S_n = resample_v2(S)
@@ -125,7 +132,7 @@ class PFLocaliser(PFLocaliserBase):
             new_particles.poses.append(each[0])
         if self.p_cloud != new_particles:
             print("Particle Cloud updated")
-        self.p_cloud = deepcopy(new_particles)
+        self.particlecloud = deepcopy(new_particles)
 
     def estimate_pose(self):
         """
