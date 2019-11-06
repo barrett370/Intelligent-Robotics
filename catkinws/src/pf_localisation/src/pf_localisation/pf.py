@@ -132,6 +132,7 @@ class PFLocaliser(PFLocaliserBase):
             new_particles.poses.append(each[0])
         if self.p_cloud != new_particles:
             print("Particle Cloud updated")
+
         self.particlecloud = deepcopy(new_particles)
 
     def estimate_pose(self):
@@ -153,17 +154,19 @@ class PFLocaliser(PFLocaliserBase):
 
         # Work out the average of the coords
         particles = self.p_cloud.poses
-        euclidean_dists = np.array([])
+        euclidean_dists = []
 
         def f_euc_dist(p):
             return (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
                                                                    2)))  # can convert to disctionary if this proves too inefficient
 
         for particle in particles:
-            np.append(euclidean_dists, f_euc_dist(particle))
+            euclidean_dists.append(f_euc_dist(particle))
+            # np.append(euclidean_dists, f_euc_dist(particle))
         mean_euc_dist = np.mean(euclidean_dists)
         sd_euc_dist = np.std(euclidean_dists)
-        if sd_euc_dist > 1:  # tweak value
+        print('sd '+str(sd_euc_dist))
+        if sd_euc_dist > 1000000:  # tweak value
             keep_particles = PoseArray()
             for particle in particles:
                 euc_dist = f_euc_dist(particle)
@@ -174,12 +177,12 @@ class PFLocaliser(PFLocaliserBase):
             # for particle in particles:
             #     if f_euc_dist(particle) == mean_euc_dist:
             #         return particle
-            xs = np.array([])
-            ys = np.array([])
+            xs = []
+            ys = []
             angles = []
             for particle in particles:
-                np.append(xs, particle.position.x)
-                np.append(ys, particle.position.y)
+                xs.append(particle.position.x)
+                ys.append(particle.position.y)
                 angles.append(particle.orientation)
             av_ang_x = 0
             av_ang_y = 0
