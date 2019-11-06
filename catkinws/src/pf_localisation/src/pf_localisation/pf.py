@@ -75,9 +75,9 @@ class PFLocaliser(PFLocaliserBase):
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             generatedAngle = random.vonmisesvariate(mu=0, kappa=0)
             newPose.position.x = initialpose.pose.pose.position.x + \
-                random_gauss * self.ODOM_TRANSLATION_NOISE
+                                 random_gauss * self.ODOM_TRANSLATION_NOISE
             newPose.position.y = initialpose.pose.pose.position.y + \
-                random_gauss * self.ODOM_DRIFT_NOISE
+                                 random_gauss * self.ODOM_DRIFT_NOISE
 
             newPose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
             newPose.orientation = rotateQuaternion(
@@ -125,10 +125,32 @@ class PFLocaliser(PFLocaliserBase):
          """
 
         # Work out the average of the coords
-        euclidean_dists = np.array()
-        for particle in self.particlecloud.poses:
-            np.append(euclidean_dists, ( math.sqrt(math.pow(particle.position.x,2) + math.pow(particle.position.y,2))))
+        current_pose = self.particle_cluster(self.particlecloud.poses)
 
+    def particle_cluster(self, particles):
+        euclidean_dists = np.array()
+        f_euc_dist = lambda p: (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
+                                                                               2)))  # can convert to disctionary if this proves too inefficient
+        for particle in particles:
+            np.append(euclidean_dists, f_euc_dist(particle))
         mean_euc_dist = np.mean(euclidean_dists)
         sd_euc_dist = np.std(euclidean_dists)
-        
+        if sd_euc_dist > 1:  # tweak value
+            keep_particles = PoseArray()
+            for particle in particles:
+                euc_dist = f_euc_dist(particle)
+                if mean_euc_dist - sd_euc_dist < euc_dist < mean_euc_dist + euc_dist:
+                    keep_particles.poses.append(particle)
+            self.particle_cluster(keep_particles)
+        else:
+            # for particle in particles:
+            #     if f_euc_dist(particle) == mean_euc_dist:
+            #         return particle
+            xs = np.array()
+            ys = np.array()
+            angles = np.array()
+            for particle in particles:
+                np.append(xs, particle.positon.x)
+                np.append(ys, particle.position.y)
+                np.append(angles, particle.position.orientation)
+            return Pose(np.mean(xs), np.mean(ys), np.mean(angles))

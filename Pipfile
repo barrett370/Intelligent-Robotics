@@ -16,6 +16,7 @@ pyre-check ="*"
 psutil = "*"
 pywatchman = "*"
 numpy = "*"
+jupyter = "*"
 
 [requires]
 python_version = "3.7"
