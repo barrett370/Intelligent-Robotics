@@ -149,11 +149,11 @@ class PFLocaliser(PFLocaliserBase):
             #         return particle
             xs = np.array([])
             ys = np.array([])
-            angles = np.array([])
+            angles =[] 
             for particle in particles:
                 np.append(xs, particle.position.x)
                 np.append(ys, particle.position.y)
-                np.append(angles, particle.position)
+                angles.append(particle.position)
             av_ang_x = 0
             av_ang_y = 0
             av_ang_z = 0
@@ -162,9 +162,12 @@ class PFLocaliser(PFLocaliserBase):
                 av_ang_x += angle.x
                 av_ang_y += angle.y
                 av_ang_z += angle.z
-                av_ang_w += angle.w
-
+                av_ang_w += angle.orientation
+            print(angles)
+            print(av_ang_x,av_ang_y,av_ang_z,av_ang_w)
             av_ang = Quaternion(x=av_ang_x, y=av_ang_y, z=av_ang_z, w=av_ang_w)
+
+            # av_ang = Quaternion(w=av_ang_w)
             print("Estimated position as")
             est_pose =  Pose(np.mean(xs), np.mean(ys), av_ang)
             print(est_pose)
