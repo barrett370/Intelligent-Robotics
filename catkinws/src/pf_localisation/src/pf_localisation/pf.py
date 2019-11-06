@@ -65,7 +65,7 @@ class PFLocaliser(PFLocaliserBase):
         """
         print(initialpose.pose.pose.position.x,
               initialpose.pose.pose.position.y)
-        self.particlecloud = PoseArray()  # populated with 500 poses
+        # self.particlecloud = PoseArray()  # populated with 500 poses
         # noiseValue = 10
         # INIT_HEADING = 0 	# Initial orientation of robot (radians)
         for i in range(500):
