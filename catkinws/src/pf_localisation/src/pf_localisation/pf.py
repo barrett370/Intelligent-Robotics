@@ -43,13 +43,13 @@ class PFLocaliser(PFLocaliserBase):
         # ----- Set motion model parameters
         # These need to be changed to non-zero values
         # self.particlecloud = PoseArray()
-        self.ODOM_ROTATION_NOISE = 0  # Odometry model rotation noise
-        # Odometry model x axis (forward) noise
-        self.ODOM_TRANSLATION_NOISE = 0
-        self.ODOM_DRIFT_NOISE = 0  # Odometry model y axis (side-to-side) noise
-        # self.estimatedpose = Pose()
-        # ----- Sensor model parameters
-        self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
+        # self.ODOM_ROTATION_NOISE = 0  # Odometry model rotation noise
+        # # Odometry model x axis (forward) noise
+        # self.ODOM_TRANSLATION_NOISE = 1
+        # self.ODOM_DRIFT_NOISE = 1  # Odometry model y axis (side-to-side) noise
+        # # self.estimatedpose = Pose()
+        # # ----- Sensor model parameters
+        # self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
 
     def initialise_particle_cloud(self, initialpose):
         """
@@ -74,24 +74,23 @@ class PFLocaliser(PFLocaliserBase):
         for i in range(500):
             new_pose = Pose()
             # need to generate noise in noise placeholder in the loop with gaussian
-            random_gauss = gauss(0, 1)
+            random_gauss = gauss(0, 7)
             noise_value = 1
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             generated_angle = random.vonmisesvariate(mu=0, kappa=0)
-            new_pose.position.x = initialpose.pose.pose.position.x + \
-                                  random_gauss * self.ODOM_TRANSLATION_NOISE
-            new_pose.position.y = initialpose.pose.pose.position.y + \
-                                  random_gauss * self.ODOM_DRIFT_NOISE
-
-            new_pose.position.z = initialpose.pose.pose.position.z  # z wont have any noise
+            new_pose.position.x = initialpose.pose.pose.position.x + gauss(0, 7)
+            new_pose.position.y = initialpose.pose.pose.position.y + gauss(0, 7)
+            new_pose.position.z = initialpose.pose.pose.position.z
+  # z wont have any noise
             # new_pose.orientation = rotateQuaternion(
             #     new_pose.orientation, generated_angle)
             new_pose.orientation = Quaternion(new_pose.position.x,new_pose.position.y,new_pose.position.z, generated_angle)
             # add to particle cloud
             self.p_cloud.poses.append(
                 new_pose)  # append particle cloud to
+            print(new_pose)
         print("Initialised particle cloud")
-        print(self.p_cloud[1:5])
+        # print(self.p_cloud)
         return self.p_cloud  # returns the particle cloud now populated with poses
 
     def update_particle_cloud(self, scan):
@@ -170,7 +169,6 @@ class PFLocaliser(PFLocaliserBase):
                 av_ang_y += angle.y
                 av_ang_z += angle.z
                 av_ang_w += angle.w
-            print(angles)
             est_pose = Pose()
             print(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
             # av_angle = rotateQuaternion(
@@ -179,10 +177,10 @@ class PFLocaliser(PFLocaliserBase):
 
             # av_ang = Quaternion(w=av_ang_w)
             print("Estimated position as")
-            est_pose.x = np.mean(xs)
-            est_pose.y = np.mean(ys)
+            est_pose.position.x = np.mean(xs)
+            est_pose.position.y = np.mean(ys)
             est_pose.orientation = av_angle
 
             print(est_pose)
-            self.estimatedpose = est_pose
+            # self.estimatedpose = est_pose
             return est_pose
