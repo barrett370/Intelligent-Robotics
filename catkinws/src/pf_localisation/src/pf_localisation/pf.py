@@ -40,12 +40,12 @@ class PFLocaliser(PFLocaliserBase):
 
         # ----- Set motion model parameters
         # These need to be changed to non-zero values
-        self.particle_cloud = PoseArray()
+        # self.particlecloud = PoseArray()
         self.ODOM_ROTATION_NOISE = 0  # Odometry model rotation noise
         # Odometry model x axis (forward) noise
         self.ODOM_TRANSLATION_NOISE = 0
         self.ODOM_DRIFT_NOISE = 0  # Odometry model y axis (side-to-side) noise
-        self.estimatedpose = Pose()
+        # self.estimatedpose = Pose()
         # ----- Sensor model parameters
         self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
 
@@ -65,7 +65,7 @@ class PFLocaliser(PFLocaliserBase):
         """
         print(initialpose.pose.pose.position.x,
               initialpose.pose.pose.position.y)
-        self.particle_cloud = PoseArray()  # populated with 500 poses
+        self.particlecloud = PoseArray()  # populated with 500 poses
         # noiseValue = 10
         # INIT_HEADING = 0 	# Initial orientation of robot (radians)
         for i in range(500):
@@ -84,10 +84,10 @@ class PFLocaliser(PFLocaliserBase):
             new_pose.orientation = rotateQuaternion(
                 Quaternion(w=1.0), generated_angle)
             # add to particle cloud
-            self.particle_cloud.poses.append(
+            self.particlecloud.poses.append(
                 new_pose)  # append particle cloud to
         print("Initialised particle cloud")
-        return self.particle_cloud  # returns the particle cloud now populated with poses
+        return self.particlecloud  # returns the particle cloud now populated with poses
 
     def update_particle_cloud(self, scan):
         """
@@ -99,16 +99,16 @@ class PFLocaliser(PFLocaliserBase):
 
          """
         S = []
-        for particle in self.particle_cloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
+        for particle in self.particlecloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
             S.append((particle, self.sensor_model.get_weight(scan, particle)))
         pass
         S_n = systematic_resampling(S, len(S))
         new_particles = PoseArray()
         for each in S_n:
             new_particles.poses.append(each[0])
-        if self.particle_cloud != new_particles:
+        if self.particlecloud != new_particles:
             print("Particle Cloud updated")
-        self.particle_cloud = new_particles
+        self.particlecloud = new_particles
 
     def estimate_pose(self):
         """
@@ -128,7 +128,7 @@ class PFLocaliser(PFLocaliserBase):
          """
 
         # Work out the average of the coords
-        particles = self.particle_cloud.poses
+        particles = self.particlecloud.poses
         euclidean_dists = np.array()
         def f_euc_dist(p): return (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
                                                                                   2)))  # can convert to disctionary if this proves too inefficient
