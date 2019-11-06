@@ -125,9 +125,7 @@ class PFLocaliser(PFLocaliserBase):
          """
 
         # Work out the average of the coords
-        current_pose = self.particle_cluster(self.particlecloud.poses)
-
-    def particle_cluster(self, particles):
+        particles = self.particlecloud.poses
         euclidean_dists = np.array()
         f_euc_dist = lambda p: (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
                                                                                2)))  # can convert to disctionary if this proves too inefficient
