@@ -116,6 +116,9 @@ class SensorModel(object):
         
         for i, obs_bearing in self.reading_points:
             # ----- For each range...
+            # print("Ranges")
+            # print(scan.ranges[i])
+            # print(scan)
             obs_range = scan.ranges[i]
             
             # ----- Laser reports max range as zero, so set it to range_max
@@ -145,9 +148,12 @@ class SensorModel(object):
     
         # ----- Part 1: good, but noisy, hit
         z = obs_range - map_range
+        
         pz += ( self.z_hit *
                 math.exp(-(z * z) / (2 * self.sigma_hit * self.sigma_hit)) )
-    
+        # print("pz:")
+        # print(
+        #         math.exp(-(z * z) ))
         # ----- Part 2: short reading from unexpected obstacle (e.g., a person)
         if z < 0:
             pz += ( self.z_short * self.lambda_short *

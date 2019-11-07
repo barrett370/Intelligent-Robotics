@@ -66,6 +66,8 @@ class ParticleFilterLocalisationNode(object):
         self._last_published_pose = deepcopy(self._particle_filter.estimatedpose)
         self._initial_pose_received = True
         self._cloud_publisher.publish(self._particle_filter.particlecloud)
+        print("Initialised particle cloud")
+
 
     def _odometry_callback(self, odometry):
         """
@@ -77,6 +79,7 @@ class ParticleFilterLocalisationNode(object):
             t_odom = self._particle_filter.predict_from_odometry(odometry)
             t_filter = self._particle_filter.update_filter(self._latest_scan)
             if t_odom + t_filter > 0.1:
+                rospy.loginfo(len(self._particle_filter.particlecloud.poses))
                 rospy.logwarn("Filter cycle overran timeslot")
                 rospy.loginfo("Odometry update: %fs"%t_odom)
                 rospy.loginfo("Particle update: %fs"%t_filter)
