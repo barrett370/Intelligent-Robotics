@@ -18,44 +18,25 @@ from time import time
 # However, you may play with different values for parameters in the other files (eg. sensor_model.py) for conducting experiments.
 
 def systematic_resampling(S, W):
-    # print("M=" + str(M))
-    # S_n = []
-    # cdf = [S[0][1]]
-    # for i in range(1, 
-    # M):
-    #     cdf.append(cdf[i - 1] + S[i][1])
-    # U = []
-    # U.append(np.random.uniform(0, (1 / M), 1))
-    # for i in range(M):
-    #     for j in range(M):
-    #         while U[j] > cdf[i]:
-    #             i += 1
-    #         S_n.append(S[i])
-    #         U.append(U[j] + (1 / M))
-    # print("len S_n")
-    # print(len(S_n))
-    # return S_n
-
-    # cdf = [S[0][1]]
-
-    # for i in range(1, M):
-    #     cdf.append(cdf[i - 1] + (S[i][1]/W))
+    # cumulative density function
     cdf = []
+    # keep track of running total
     cdf_counter = 0
+    # create cdf entry for each sample
     for (p, w) in S:
         cdf.append((p, cdf_counter + w / W))
         cdf_counter += w / W
     U = random.uniform(0, 1 / len(S))
-    i = 0
+    counter = 0
     S_n = PoseArray()
     for j in range(0, len(S)):
-        while U > cdf[i][1]:
-            i += 1
+        while U > cdf[counter][1]:
+            counter += 1
         new_particle = Pose()
-        new_particle.position.x = cdf[i][0].position.x + random.gauss(0, 0.1)
-        new_particle.position.y = cdf[i][0].position.y + random.gauss(0, 0.1)
+        new_particle.position.x = cdf[counter][0].position.x + random.gauss(0, 0.1)
+        new_particle.position.y = cdf[counter][0].position.y + random.gauss(0, 0.1)
         new_particle.orientation = rotateQuaternion(Quaternion(w=1),
-                                                    getHeading(cdf[i][0].orientation) + random.gauss(0, 0.05))
+                                                    getHeading(cdf[counter][0].orientation) + random.gauss(0, 0.05))
         S_n.poses.append(new_particle)
         U += (1 / len(S))
 
@@ -90,7 +71,7 @@ class PFLocaliser(PFLocaliserBase):
         # # ----- Sensor model parameters
         # self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
         self.NUM_PARTICLES = 1000
-        self.RANDOM_FRAC = 0.25
+        self.RANDOM_FRAC = 0.05
 
     def resample_v2(self, samples):
         new_samples = []
@@ -204,7 +185,7 @@ class PFLocaliser(PFLocaliserBase):
         # find standard devation of euclidean distances
         sd_euc_dist = np.std(euclidean_dists)
         # if standard deviation is above a threshhold, discard outliers and recurse
-        if sd_euc_dist > 100:  # tweak value
+        if sd_euc_dist > 10:  # tweak value
             keep_particles = []
             for particle in particles:
                 euc_dist = f_euc_dist(particle)
