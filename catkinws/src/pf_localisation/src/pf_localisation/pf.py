@@ -17,7 +17,7 @@ from time import time
 # best to do so from the child class itself (i.e. in PFLocaliser class in pf.py).
 # However, you may play with different values for parameters in the other files (eg. sensor_model.py) for conducting experiments.
 
-def systematic_resampling(S,W):
+def systematic_resampling(S, W):
     # print("M=" + str(M))
     # S_n = []
     # cdf = [S[0][1]]
@@ -35,31 +35,31 @@ def systematic_resampling(S,W):
     # print("len S_n")
     # print(len(S_n))
     # return S_n
-    
+
     # cdf = [S[0][1]]
 
     # for i in range(1, M):
     #     cdf.append(cdf[i - 1] + (S[i][1]/W))
     cdf = []
     cdf_counter = 0
-    for (p,w) in S:
-        cdf.append((p,cdf_counter+ w / W))
-        cdf_counter += w/ W
-    U = random.uniform(0,1 / len(S))
-    i = 0 
+    for (p, w) in S:
+        cdf.append((p, cdf_counter + w / W))
+        cdf_counter += w / W
+    U = random.uniform(0, 1 / len(S))
+    i = 0
     S_n = PoseArray()
-    for j in range(0,len(S)):
+    for j in range(0, len(S)):
         while U > cdf[i][1]:
             i += 1
         new_particle = Pose()
-        new_particle.position.x = cdf[i][0].position.x + random.gauss(0,0.1)
-        new_particle.position.y = cdf[i][0].position.y + random.gauss(0,0.1)
-        new_particle.orientation = rotateQuaternion(Quaternion(w=1), getHeading(cdf[i][0].orientation)+ random.gauss(0,0.05))
+        new_particle.position.x = cdf[i][0].position.x + random.gauss(0, 0.1)
+        new_particle.position.y = cdf[i][0].position.y + random.gauss(0, 0.1)
+        new_particle.orientation = rotateQuaternion(Quaternion(w=1),
+                                                    getHeading(cdf[i][0].orientation) + random.gauss(0, 0.05))
         S_n.poses.append(new_particle)
-        U += (1/len(S))
-    
-    return S_n
+        U += (1 / len(S))
 
+    return S_n
 
 
 def filter_nan(scan_data):
@@ -135,56 +135,39 @@ class PFLocaliser(PFLocaliserBase):
         :Return:
             | (geometry_msgs.msg.PoseArray) poses of the particles
         """
-        # p_cloud = PoseArray()s
+
         print(initialpose.pose.pose.position.x,
               initialpose.pose.pose.position.y)
         # self.particlecloud = PoseArray()  # populated with 500 poses
         # noiseValue = 10
         # INIT_HEADING = 0 	# Initial orientation of robot (radians)
-        noise_value = 0.9
         self.p_cloud = self.rand_particles(1000)
-        # for i in range(1000):
-        #     new_pose = Pose()
-        #     # need to generate noise in noise placeholder in the loop with gaussian
-        #     # random_gauss = gauss(0, 7)
-
-        #     # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
-        #     generated_angle = random.vonmisesvariate(mu=0, kappa=0)
-        #     new_pose.position.x = initialpose.pose.pose.position.x + (gauss(0, 7)*noise_value)
-        #     new_pose.position.y = initialpose.pose.pose.position.y + (gauss(0, 7)*noise_value)
-        #     new_pose.position.z = initialpose.pose.pose.position.z
-        #     # z wont have any noise
-        #     # new_pose.orientation = rotateQuaternion(
-        #     #     new_pose.orientation, generated_angle)
-        #     new_pose.orientation = Quaternion(new_pose.position.x, new_pose.position.y, new_pose.position.z,
-        #                                     generated_angle)
-        #     # add to particle cloud
-        #     self.p_cloud.poses.append(
-        #         new_pose)  # append particle cloud to
-        # print(new_pose)
-
-        # print(self.p_cloud)
-        # self.particlecloud = deepcopy(self.p_cloud)
-        # self.p_cloud = self.rand_particles(self.NUM_PARTICLES)
         return self.p_cloud  # returns the particle cloud now populated with poses
 
     def update_particle_cloud(self, scan):
         samples = []
         scan = filter_nan(scan)
+        # Create tuple array of Poses and corresponding weights
         for particle in self.particlecloud.poses:
             samples.append((particle, self.sensor_model.get_weight(scan, particle)))
+        # sort tuple array by descending weight
         sorted_samples = sorted(samples, key=lambda x: x[1], reverse=True)
-        top_sorted_samples = sorted_samples[0:int((1-self.RANDOM_FRAC) * self.NUM_PARTICLES)]
+        # take top fraction of poses
+        top_sorted_samples = sorted_samples[0:int((1 - self.RANDOM_FRAC) * self.NUM_PARTICLES)]
+        # calculate the total weight in the particle cloud
         total_weight = sum([x[1] for x in top_sorted_samples])
+        # select remaining fraction of particles randomly
         rand_particles = self.rand_particles(self.NUM_PARTICLES * self.RANDOM_FRAC)
-        re_top_sorted_samples = systematic_resampling(top_sorted_samples,total_weight)
+        # systematically re-sample from top fraction of previous particles
+        re_top_sorted_samples = systematic_resampling(top_sorted_samples, total_weight)
         # re_top_sorted_samples = self.resample_v2(top_sorted_samples)
         new_particles = re_top_sorted_samples
-        
 
+        # concat weighted and resampled poses with random particles
         new_particles.poses += rand_particles.poses
-        print(len(new_particles.poses))
-        assert (len(new_particles.poses)==self.NUM_PARTICLES)
+
+        assert (len(new_particles.poses) == self.NUM_PARTICLES)
+
         self.particlecloud = new_particles
         # self.particlecloud.header.frame_id = "/map"
 
@@ -205,29 +188,31 @@ class PFLocaliser(PFLocaliserBase):
             | (geometry_msgs.msg.Pose) robot's estimated pose.
          """
 
-        # Work out the average of the coords
-        particles = self.particlecloud.poses
-        return self.particle_cluster(particles)
+        # set of recursive method to estimate current pose
+        return self.particle_cluster(self.particlecloud.poses)
 
     def particle_cluster(self, particles):
         euclidean_dists = []
+        # function to find euclidean distance of particle from origin
         f_euc_dist = lambda p: (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y, 2)))
-        # can convert to disctionary if this proves too inefficient
+        # can convert to dictionary if this proves too inefficient
+        # for each particle build array of euclidean distances
         for particle in particles:
             euclidean_dists.append(f_euc_dist(particle))
+        # find mean distance from origin
         mean_euc_dist = np.mean(euclidean_dists)
+        # find standard devation of euclidean distances
         sd_euc_dist = np.std(euclidean_dists)
-        if sd_euc_dist > 1000:  # tweak value
+        # if standard deviation is above a threshhold, discard outliers and recurse
+        if sd_euc_dist > 100:  # tweak value
             keep_particles = []
             for particle in particles:
                 euc_dist = f_euc_dist(particle)
                 if mean_euc_dist - sd_euc_dist < euc_dist < mean_euc_dist + euc_dist:
                     keep_particles.append(particle)
-            self.particle_cluster(keep_particles)
+            return self.particle_cluster(keep_particles)
+        # otherwise calculate mean Pose and return that
         else:
-            # for particle in particles:
-            #     if f_euc_dist(particle) == mean_euc_dist:
-            #         return particle
             xs = []
             ys = []
             angles = []
@@ -245,18 +230,13 @@ class PFLocaliser(PFLocaliserBase):
                 av_ang_z += angle.z
                 av_ang_w += angle.w
             est_pose = Pose()
-            # print(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
-            # av_angle = rotateQuaternion(
-            #     Quaternion(), av_ang_w)
             av_angle = Quaternion(av_ang_x / len(angles), av_ang_y / len(angles), av_ang_z / len(angles),
                                   av_ang_w / len(angles))
 
-            # av_ang = Quaternion(w=av_ang_w)
-            # print("Estimated position as")
             est_pose.position.x = np.mean(xs)
             est_pose.position.y = np.mean(ys)
             est_pose.orientation = av_angle
-            # est_pose.header.frame_id = "/map"
 
-            # print(est_pose)
+            print("Estimated position as")
+            print(est_pose)
             return est_pose
