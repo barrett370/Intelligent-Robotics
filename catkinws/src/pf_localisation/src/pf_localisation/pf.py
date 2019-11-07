@@ -41,9 +41,15 @@ def resample_v2(samples):
             new_samples.append(sample)
     ret_samples = []
     for i in range(len(samples)):
-        ret_samples.append(new_samples[random.randint(0, len(new_samples))])
-
+        ret_samples.append(new_samples[random.randint(0, len(new_samples) - 1)])
     return ret_samples
+
+
+def filter_nan(scan_data):
+    for i in range(len(scan_data.ranges)):
+        if str(scan_data.ranges[i]) == "nan":
+            scan_data.ranges[i] = 5.5
+    return scan_data
 
 
 class PFLocaliser(PFLocaliserBase):
@@ -83,7 +89,7 @@ class PFLocaliser(PFLocaliserBase):
         # self.particlecloud = PoseArray()  # populated with 500 poses
         # noiseValue = 10
         # INIT_HEADING = 0 	# Initial orientation of robot (radians)
-        for i in range(500):
+        for i in range(1000):
             new_pose = Pose()
             # need to generate noise in noise placeholder in the loop with gaussian
             random_gauss = gauss(0, 7)
@@ -106,13 +112,6 @@ class PFLocaliser(PFLocaliserBase):
         # print(self.p_cloud)
         return self.p_cloud  # returns the particle cloud now populated with poses
 
-
-    def filter_nan(self, scan_data):
-        for i in range(len(scan_data.ranges)):
-            if str(scan_data.ranges[i]) == "nan":
-                scan_data.ranges[i] = 5.5
-        return scan_data
-
     def update_particle_cloud(self, scan):
         """
         This should use the supplied laser scan to update the current
@@ -122,15 +121,15 @@ class PFLocaliser(PFLocaliserBase):
             | scan (sensor_msgs.msg.LaserScan): laser scan to use for update
 
          """
-        S = []
-        scan = self.filter_nan(scan)
+        samples = []
+        scan = filter_nan(scan)
         for particle in self.particlecloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
-            S.append((particle, self.sensor_model.get_weight(scan, particle)))
-        # S_n = systematic_resampling(S, len(S))
-        S_n = resample_v2(S)
+            samples.append((particle, self.sensor_model.get_weight(scan, particle)))
+        # re_samples = systematic_resampling(S, len(S))
+        re_samples = resample_v2(samples)
         new_particles = PoseArray()
-        for each in S_n:
-            new_particles.poses.append(each[0])
+        for sample in re_samples:
+            new_particles.poses.append(sample[0])  # strip just particle out of (particle, weight) tuple
         if self.p_cloud != new_particles:
             print("Particle Cloud updated")
 
@@ -166,7 +165,7 @@ class PFLocaliser(PFLocaliserBase):
             # np.append(euclidean_dists, f_euc_dist(particle))
         mean_euc_dist = np.mean(euclidean_dists)
         sd_euc_dist = np.std(euclidean_dists)
-        print('sd '+str(sd_euc_dist))
+        print('sd ' + str(sd_euc_dist))
         if sd_euc_dist > 1000000:  # tweak value
             keep_particles = PoseArray()
             for particle in particles:
@@ -195,10 +194,11 @@ class PFLocaliser(PFLocaliserBase):
                 av_ang_z += angle.z
                 av_ang_w += angle.w
             est_pose = Pose()
-            print(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
+            # print(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
             # av_angle = rotateQuaternion(
             #     Quaternion(), av_ang_w)
-            av_angle = Quaternion(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
+            av_angle = Quaternion(av_ang_x / len(angles), av_ang_y / len(angles), av_ang_z / len(angles),
+                                  av_ang_w / len(angles))
 
             # av_ang = Quaternion(w=av_ang_w)
             print("Estimated position as")
