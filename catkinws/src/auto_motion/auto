@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+
+import rospy
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+from p2os_msgs.msg import SonarArray
+
+import constants
+import laser
+import sonar
+import coloredlogs, logging
+logger = logging.getLogger(__name__)
+coloredlogs.install(fmt='%(levelname)s %(message)s',level='DEBUG',logger=logger)
+
+const = constants.Constants(False)
+
+class MotionLaser:
+    def __init__(self):
+        logger.info('init')
+        self.turn = False
+        self.right_avg = 0
+        self.laser_average_count = 1
+        self.sonar_average_count = 1
+        self.sum_readings = []
+        self.sonar_sum_readings = []
+        self.history = [const.FORWARD, const.FORWARD, const.FORWARD]
+        self.desired_bearing = 0
+        self.correction = False
+        self.move_and_turn = False
+        self.mapped_readings = []
+        self.sonar_mapped_readings = []
+        self.laser = laser.Laser(const)
+        self.laser_output = None
+        self.sonar = sonar.Sonar(const)
+        self.sonar_output = None
+
+    def laser_callback(self, msg):
+        self.correction = False
+        if len(msg.ranges)==0:
+            return
+        if self.laser_average_count % const.RATE == 0:
+            out = None
+            try:
+                out = self.laser.output()
+            except:
+                pass
+            if out is not None:
+                self.laser_output = out
+        else:
+            self.laser.input(msg)
+        self.laser_average_count += 1
+
+    def sonar_callback(self, msg):
+
+        if self.sonar_average_count % const.RATE == 0:
+            self.sonar_output = self.sonar.output()
+        else:
+            self.sonar.input(msg)
+        self.sonar_average_count += 1
+
+    def run(self):
+        sub = rospy.Subscriber('/base_scan', LaserScan, self.laser_callback)
+        sonar_sub = rospy.Subscriber('/sonar',SonarArray,self.sonar_callback)
+        print('subscribed to /scan')
+        pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
+        print('setup publisher to cmd_vel')
+        rospy.init_node('Mover', anonymous=True)
+        print('setup node')
+        rate = rospy.Rate(const.HZ)  # 10hz
+        base_data = Twist()
+        current_bearing = 0
+        TURN_SCALAR = 1000.0
+        while not rospy.is_shutdown():
+            pub_s = False
+            if self.laser_output is None or self.sonar_output is None:
+                continue
+
+            if self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.2 or self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
+                if self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.2:
+                    logger.warn("SONAR: {}, {}".format(str(self.sonar_output.centre_avg),str(self.sonar_output.centre_right_avg)))
+                    self.turn = True
+                    self.desired_bearing = const.LEFT
+                    self.move_and_turn = False
+                    pub_s=True
+                if self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
+                    # SPACE RIGHT?
+                    logger.info("LASER: {}, {}".format(str(self.laser_output.centre_avg),str(self.laser_output.centre_right_avg)))
+                    self.turn = True
+                    self.desired_bearing = const.LEFT
+                    self.move_and_turn = False
+            else:
+                # SPACE RIGHT?
+                if self.laser_output.right_avg >= const.RIGHT_MIN:
+                    logger.debug("space right, turning")
+                    self.turn = True
+                    self.move_and_turn = True
+                    self.desired_bearing = const.RIGHT
+                elif self.laser_output.right_avg < const.RIGHT_OPTIMAL:
+                    logger.debug("Too close, turning left")
+                    self.turn = True
+                    self.move_and_turn = True
+                    self.correction = True
+                    self.desired_bearing = const.LEFT
+                elif const.RIGHT_OPTIMAL < self.laser_output.right_avg < const.RIGHT_MIN:
+                    logger.debug("Too far, turning right")
+                    self.turn = True
+                    self.move_and_turn = True
+                    self.correction = True
+                    self.desired_bearing = const.RIGHT
+                else:
+                    self.turn = False
+                    self.desired_bearing = const.FORWARD
+                    self.move_and_turn = False
+            if self.turn and current_bearing < abs(TURN_SCALAR * self.desired_bearing):
+                turn_adjustment = 1
+                if self.correction:
+                    turn_adjustment = 0.9
+                else:
+                    turn_adjustment = 1
+                if self.desired_bearing > 0:
+                    base_data.angular.z = 0.25 * turn_adjustment
+                else:
+                    base_data.angular.z = -0.25 * turn_adjustment * (self.laser_output.right_avg)
+                if self.move_and_turn:
+                    base_data.linear.x = 0.25
+                else:
+                    base_data.linear.x = 0.0
+                current_bearing = current_bearing + 1
+            else:
+                base_data.angular.z = 0
+                base_data.linear.x = 0.2
+                current_bearing = 0
+                turn = False
+            pub.publish(base_data)
+            rate.sleep()
+
+if __name__ == '__main__':
+    try:
+        m = MotionLaser()
+        m.run()
+    except rospy.ROSInterruptException:
+        pass

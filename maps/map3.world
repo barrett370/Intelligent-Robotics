@@ -60,7 +60,7 @@ window
 floorplan
 (
   name "lgfloor"
-  bitmap "map3.pgm"
+  bitmap "map4.pgm"
   size [33.1 31.95 0.5]
   pose [ 0 0 0 0 ]
 )
