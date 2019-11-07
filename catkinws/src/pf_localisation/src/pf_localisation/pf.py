@@ -17,21 +17,49 @@ from time import time
 # best to do so from the child class itself (i.e. in PFLocaliser class in pf.py).
 # However, you may play with different values for parameters in the other files (eg. sensor_model.py) for conducting experiments.
 
-def systematic_resampling(S, M):
-    S_n = []
-    cdf = [S[0][1]]
-    for i in range(1, M):
-        cdf.append(cdf[i - 1] + S[i][1])
-    U = []
-    U.append(np.random.uniform(0, (1 / M), 1))
-    for i in range(M):
-        for j in range(M):
-            while U[j] > cdf[i]:
-                i += 1
-            S_n.append(S[i])
-            U.append(U[j] + (1 / M))
+def systematic_resampling(S,W):
+    # print("M=" + str(M))
+    # S_n = []
+    # cdf = [S[0][1]]
+    # for i in range(1, 
+    # M):
+    #     cdf.append(cdf[i - 1] + S[i][1])
+    # U = []
+    # U.append(np.random.uniform(0, (1 / M), 1))
+    # for i in range(M):
+    #     for j in range(M):
+    #         while U[j] > cdf[i]:
+    #             i += 1
+    #         S_n.append(S[i])
+    #         U.append(U[j] + (1 / M))
+    # print("len S_n")
+    # print(len(S_n))
+    # return S_n
+    
+    # cdf = [S[0][1]]
 
+    # for i in range(1, M):
+    #     cdf.append(cdf[i - 1] + (S[i][1]/W))
+    cdf = []
+    cdf_counter = 0
+    for (p,w) in S:
+        cdf.append((p,cdf_counter+ w / W))
+        cdf_counter += w/ W
+    U = random.uniform(0,1 / len(S))
+    i = 0 
+    S_n = PoseArray()
+    for j in range(0,len(S)):
+        while U > cdf[i][1]:
+            i += 1
+        new_particle = Pose()
+        new_particle.position.x = cdf[i][0].position.x + random.gauss(0,0.1)
+        new_particle.position.y = cdf[i][0].position.y + random.gauss(0,0.1)
+        new_particle.orientation = rotateQuaternion(Quaternion(w=1), getHeading(cdf[i][0].orientation)+ random.gauss(0,0.05))
+        S_n.poses.append(new_particle)
+        U += (1/len(S))
+    
     return S_n
+
 
 
 def filter_nan(scan_data):
@@ -135,7 +163,6 @@ class PFLocaliser(PFLocaliserBase):
         #         new_pose)  # append particle cloud to
         # print(new_pose)
 
-        print("Initialised particle cloud")
         # print(self.p_cloud)
         # self.particlecloud = deepcopy(self.p_cloud)
         # self.p_cloud = self.rand_particles(self.NUM_PARTICLES)
@@ -148,13 +175,15 @@ class PFLocaliser(PFLocaliserBase):
             samples.append((particle, self.sensor_model.get_weight(scan, particle)))
         sorted_samples = sorted(samples, key=lambda x: x[1], reverse=True)
         top_sorted_samples = sorted_samples[0:int((1-self.RANDOM_FRAC) * self.NUM_PARTICLES)]
+        total_weight = sum([x[1] for x in top_sorted_samples])
         rand_particles = self.rand_particles(self.NUM_PARTICLES * self.RANDOM_FRAC)
-        re_top_sorted_samples = self.resample_v2(top_sorted_samples)
-        new_particles = PoseArray()
-        for sample in re_top_sorted_samples:
-            new_particles.poses.append(sample[0])
+        re_top_sorted_samples = systematic_resampling(top_sorted_samples,total_weight)
+        # re_top_sorted_samples = self.resample_v2(top_sorted_samples)
+        new_particles = re_top_sorted_samples
+        
 
         new_particles.poses += rand_particles.poses
+        print(len(new_particles.poses))
         assert (len(new_particles.poses)==self.NUM_PARTICLES)
         self.particlecloud = new_particles
         # self.particlecloud.header.frame_id = "/map"

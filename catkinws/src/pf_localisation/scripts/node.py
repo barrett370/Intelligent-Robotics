@@ -66,6 +66,8 @@ class ParticleFilterLocalisationNode(object):
         self._last_published_pose = deepcopy(self._particle_filter.estimatedpose)
         self._initial_pose_received = True
         self._cloud_publisher.publish(self._particle_filter.particlecloud)
+        print("Initialised particle cloud")
+
 
     def _odometry_callback(self, odometry):
         """
