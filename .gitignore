@@ -1,4 +1,5 @@
 
+.vscode/
 .idea/
 devel/
 logs/
@@ -52,17 +53,17 @@ qtcreator-*
 # Catkin custom files
 CATKIN_IGNORE
 CMakeCache.txt
-CMakeLists.txt
+#CMakeLists.txt
 CMakeFiles
 Makefile
 cmake_install.cmake
 install_manifest.txt
 build
 devel
-catkin/src/.pyre/pyre.stderr
+catkinws/src/.pyre/pyre.stderr
 
 .pyre/pyre.stderr
 
-catkin/src/.pyre_configuration
+catkinws/src/.pyre_configuration
 
-catkin/src/scripts/.pyre/pyre.stderr
+catkinws/src/scripts/.pyre/pyre.stderr

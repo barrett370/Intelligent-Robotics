@@ -1,14 +1,14 @@
 DOCUMENTATION:
     - SETUP.md
-    - catkin/**/*.md
+    - catkinws/**/*.md
 
 TEST:
-    - catkin/**/tests/*.py
+    - catkinws/**/tests/*.py
     - src/**/tests/*.py
 
 ROS:
-    - catkin/src/**/*
-    - catkin/src/*
+    - catkinws/src/**/*
+    - catkinws/src/*
 
 CI:
     - .circleci/*

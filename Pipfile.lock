@@ -43,6 +43,7 @@
                 "sha256:67bffdd93dd1b5b80caccc046d6bdde91b7e8a2ca3c5d472d1673c97d4469e98",
                 "sha256:fc2e5ae2dcfc288739dbf9758b67b94e138506dca4f06f81cfc8bcdd3164b234"
             ],
+            "index": "pypi",
             "version": "==0.4.14"
         },
         "cycler": {
