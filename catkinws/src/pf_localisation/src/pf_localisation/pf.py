@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from geometry_msgs.msg import Pose, PoseArray, Quaternion
+from geometry_msgs.msg import Pose, PoseArray, Quaternion, PoseWithCovarianceStamped
 from pf_base import PFLocaliserBase
 import math
 import rospy
@@ -107,9 +107,10 @@ class PFLocaliser(PFLocaliserBase):
             # add to particle cloud
             self.p_cloud.poses.append(
                 new_pose)  # append particle cloud to
-            print(new_pose)
+            # print(new_pose)
         print("Initialised particle cloud")
         # print(self.p_cloud)
+        self.particlecloud = deepcopy(self.p_cloud)
         return self.p_cloud  # returns the particle cloud now populated with poses
 
     def update_particle_cloud(self, scan):
@@ -121,19 +122,21 @@ class PFLocaliser(PFLocaliserBase):
             | scan (sensor_msgs.msg.LaserScan): laser scan to use for update
 
          """
+        print('len of particlecloud: '+ str(len(self.particlecloud.poses)))
         samples = []
-        scan = filter_nan(scan)
+        # scan = filter_nan(scan)
         for particle in self.particlecloud.poses:  # added .poses as self.particlecloud doesn't seem to be iterable
             samples.append((particle, self.sensor_model.get_weight(scan, particle)))
         # re_samples = systematic_resampling(S, len(S))
         re_samples = resample_v2(samples)
-        new_particles = PoseArray()
+        new_particles = []
         for sample in re_samples:
-            new_particles.poses.append(sample[0])  # strip just particle out of (particle, weight) tuple
-        if self.p_cloud != new_particles:
-            print("Particle Cloud updated")
+            new_particles.append(sample[0])  # strip just particle out of (particle, weight) tuple
+        # if self.p_cloud != new_particles:
+        #     print("Particle Cloud updated")
 
-        self.particlecloud = deepcopy(new_particles)
+        self.particlecloud.poses = deepcopy(new_particles)
+        self.particlecloud.header.frame_id = "/map"
 
     def estimate_pose(self):
         """
@@ -153,59 +156,61 @@ class PFLocaliser(PFLocaliserBase):
          """
 
         # Work out the average of the coords
-        particles = self.p_cloud.poses
-        euclidean_dists = []
+        particles = self.particlecloud.poses
+        print('particlecloud: '+str(type(self.particlecloud)))
+        print(type(particles))
+        return self.particle_cluster(particles)
+        
 
-        def f_euc_dist(p):
-            return (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
-                                                                   2)))  # can convert to disctionary if this proves too inefficient
 
-        for particle in particles:
-            euclidean_dists.append(f_euc_dist(particle))
-            # np.append(euclidean_dists, f_euc_dist(particle))
-        mean_euc_dist = np.mean(euclidean_dists)
-        sd_euc_dist = np.std(euclidean_dists)
-        print('sd ' + str(sd_euc_dist))
-        if sd_euc_dist > 1000000:  # tweak value
-            keep_particles = PoseArray()
+    def particle_cluster(self, particles):
+            euclidean_dists = []
+            f_euc_dist = lambda p: (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
+                                                                                2)))  # can convert to disctionary if this proves too inefficient
             for particle in particles:
-                euc_dist = f_euc_dist(particle)
-                if mean_euc_dist - sd_euc_dist < euc_dist < mean_euc_dist + euc_dist:
-                    keep_particles.poses.append(particle)
-            self.particle_cluster(keep_particles)
-        else:
-            # for particle in particles:
-            #     if f_euc_dist(particle) == mean_euc_dist:
-            #         return particle
-            xs = []
-            ys = []
-            angles = []
-            for particle in particles:
-                xs.append(particle.position.x)
-                ys.append(particle.position.y)
-                angles.append(particle.orientation)
-            av_ang_x = 0
-            av_ang_y = 0
-            av_ang_z = 0
-            av_ang_w = 0
-            for angle in angles:
-                av_ang_x += angle.x
-                av_ang_y += angle.y
-                av_ang_z += angle.z
-                av_ang_w += angle.w
-            est_pose = Pose()
-            # print(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
-            # av_angle = rotateQuaternion(
-            #     Quaternion(), av_ang_w)
-            av_angle = Quaternion(av_ang_x / len(angles), av_ang_y / len(angles), av_ang_z / len(angles),
-                                  av_ang_w / len(angles))
+                euclidean_dists.append(f_euc_dist(particle))
+            mean_euc_dist = np.mean(euclidean_dists)
+            sd_euc_dist = np.std(euclidean_dists)
+            if sd_euc_dist > 100:  # tweak value
+                keep_particles = []
+                for particle in particles:
+                    euc_dist = f_euc_dist(particle)
+                    if mean_euc_dist - sd_euc_dist < euc_dist < mean_euc_dist + euc_dist:
+                        keep_particles.append(particle)
+                self.particle_cluster(keep_particles)
+            else:
+                # for particle in particles:
+                #     if f_euc_dist(particle) == mean_euc_dist:
+                #         return particle
+                xs = []
+                ys = []
+                angles = []
+                for particle in particles:
+                    xs.append(particle.position.x)
+                    ys.append(particle.position.y)
+                    angles.append(particle.orientation)
+                av_ang_x = 0
+                av_ang_y = 0
+                av_ang_z = 0
+                av_ang_w = 0
+                for angle in angles:
+                    av_ang_x += angle.x
+                    av_ang_y += angle.y
+                    av_ang_z += angle.z
+                    av_ang_w += angle.w
+                est_pose = Pose()
+                # print(av_ang_x, av_ang_y, av_ang_z, av_ang_w)
+                # av_angle = rotateQuaternion(
+                #     Quaternion(), av_ang_w)
+                av_angle = Quaternion(av_ang_x / len(angles), av_ang_y / len(angles), av_ang_z / len(angles),
+                                    av_ang_w / len(angles))
 
-            # av_ang = Quaternion(w=av_ang_w)
-            print("Estimated position as")
-            est_pose.position.x = np.mean(xs)
-            est_pose.position.y = np.mean(ys)
-            est_pose.orientation = av_angle
+                # av_ang = Quaternion(w=av_ang_w)
+                # print("Estimated position as")
+                est_pose.position.x = np.mean(xs)
+                est_pose.position.y = np.mean(ys)
+                est_pose.orientation = av_angle
+                # est_pose.header.frame_id = "/map"
 
-            print(est_pose)
-            # self.estimatedpose = est_pose
-            return est_pose
+                # print(est_pose)
+                return est_pose
