@@ -44,7 +44,6 @@ class MotionLaser:
                 out = self.laser.output()
             except:
                 pass
-                # print('error getting laser out')
             if out is not None:
                 self.laser_output = out
         else:
@@ -59,7 +58,7 @@ class MotionLaser:
             self.sonar.input(msg)
         self.sonar_average_count += 1
 
-    def talker(self):
+    def run(self):
         sub = rospy.Subscriber('/base_scan', LaserScan, self.laser_callback)
         sonar_sub = rospy.Subscriber('/sonar',SonarArray,self.sonar_callback)
         print('subscribed to /scan')
@@ -74,31 +73,21 @@ class MotionLaser:
         while not rospy.is_shutdown():
             pub_s = False
             if self.laser_output is None or self.sonar_output is None:
-            #     continue
-            # if self.laser_output is None:
                 continue
-            # logger.warn("SONAR: {}, {}".format(str(self.sonar_output.centre_avg),str(self.sonar_output.centre_right_avg)))
 
             if self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.2 or self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
                 if self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.2:
                     logger.warn("SONAR: {}, {}".format(str(self.sonar_output.centre_avg),str(self.sonar_output.centre_right_avg)))
-                    # print(self.sonar_output)
                     self.turn = True
                     self.desired_bearing = const.LEFT
                     self.move_and_turn = False
                     pub_s=True
                 if self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
-                     # SPACE RIGHT?
+                    # SPACE RIGHT?
                     logger.info("LASER: {}, {}".format(str(self.laser_output.centre_avg),str(self.laser_output.centre_right_avg)))
                     self.turn = True
                     self.desired_bearing = const.LEFT
                     self.move_and_turn = False
-            # elif self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:  # turn
-            #     # SPACE RIGHT?
-            #     print("LASER: no space front or right, pivoting left")
-            #     self.turn = True
-            #     self.desired_bearing = const.LEFT
-            #     self.move_and_turn = False
             else:
                 # SPACE RIGHT?
                 if self.laser_output.right_avg >= const.RIGHT_MIN:
@@ -123,7 +112,6 @@ class MotionLaser:
                     self.desired_bearing = const.FORWARD
                     self.move_and_turn = False
             if self.turn and current_bearing < abs(TURN_SCALAR * self.desired_bearing):
-                # base_data.angular.z = desired_bearing / 360000
                 turn_adjustment = 1
                 if self.correction:
                     turn_adjustment = 0.9
@@ -133,13 +121,9 @@ class MotionLaser:
                     base_data.angular.z = 0.25 * turn_adjustment
                 else:
                     base_data.angular.z = -0.25 * turn_adjustment * (self.laser_output.right_avg)
-                            # (self.laser_output.right_avg * (self.laser_output.right_avg/0.3)+0.75) / 2.25)
-                    # print(str(self.laser_output.right_avg) + ',' + str(turn_adjustment))
-                # base_data.angular.z  = 0.002*desired_bearing
                 if self.move_and_turn:
                     base_data.linear.x = 0.25
                 else:
-                    # base_data.linear.x = 0
                     base_data.linear.x = 0.0
                 current_bearing = current_bearing + 1
             else:
@@ -147,14 +131,12 @@ class MotionLaser:
                 base_data.linear.x = 0.2
                 current_bearing = 0
                 turn = False
-            # if pub_s:
-                # logging.debug('publishing')
             pub.publish(base_data)
             rate.sleep()
 
 if __name__ == '__main__':
     try:
         m = MotionLaser()
-        m.talker()
+        m.run()
     except rospy.ROSInterruptException:
         pass
