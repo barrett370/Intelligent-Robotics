@@ -34,16 +34,6 @@ def systematic_resampling(S, M):
     return S_n
 
 
-def resample_v2(samples):
-    new_samples = []
-    for sample in samples:
-        for i in range(int(sample[1])):
-            new_samples.append(sample)
-    ret_samples = []
-    for i in range(3*(len(samples)/4)):
-        ret_samples.append(new_samples[random.randint(0, len(new_samples) - 1)])
-    return ret_samples
-
 
 def filter_nan(scan_data):
     for i in range(len(scan_data.ranges)):
@@ -68,6 +58,38 @@ class PFLocaliser(PFLocaliserBase):
         # # self.estimatedpose = Pose()
         # # ----- Sensor model parameters
         # self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
+        self.NUM_PARTICLES = 1000
+
+    def resample_v2(self,samples):
+        new_samples = []
+        for sample in samples:
+            for i in range(int(sample[1])):
+                new_samples.append(sample)
+        ret_samples = []
+        for i in range(3*self.NUM_PARTICLES/4)):
+            ret_samples.append(new_samples[random.randint(0, len(new_samples) - 1)])
+        return ret_samples
+
+
+    def rand_particles(self,N):
+        ret = PoseArray()
+        width = self.occupancy_map.info.width
+        height = self.occupancy_map.info.height
+
+        while len(ret.poses) < N:
+            generated_angle = random.vonmisesvariate(mu=0, kappa=0)
+            x = random.randint(0,width-1) # maybe use gauss
+            y = random.randint(0,height-1)
+            new_pose = Pose()
+            pose.position.x = x
+            pose.position.y = y
+            pose.orientation = rotateQuaternion(Quaternion(w=1.0),generated_angle)
+
+            
+            if self.occupancy_map.scan_data[x+y*width] == 0:
+                ret.poses.append(pose)
+        return ret
+
 
     def initialise_particle_cloud(self, initialpose):
         """
@@ -90,25 +112,27 @@ class PFLocaliser(PFLocaliserBase):
         # noiseValue = 10
         # INIT_HEADING = 0 	# Initial orientation of robot (radians)
         noise_value = 0.9
-        for i in range(500):
-            new_pose = Pose()
-            # need to generate noise in noise placeholder in the loop with gaussian
-            # random_gauss = gauss(0, 7)
+        self.p_cloud = rand_particles(1000)
+        # for i in range(500):
+            # new_pose = Pose()
+            # # need to generate noise in noise placeholder in the loop with gaussian
+            # # random_gauss = gauss(0, 7)
             
-            # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
-            generated_angle = random.vonmisesvariate(mu=0, kappa=0)
-            new_pose.position.x = initialpose.pose.pose.position.x + (gauss(0, 7)*noise_value)
-            new_pose.position.y = initialpose.pose.pose.position.y + (gauss(0, 7)*noise_value)
-            new_pose.position.z = initialpose.pose.pose.position.z 
-            # z wont have any noise
-            # new_pose.orientation = rotateQuaternion(
-            #     new_pose.orientation, generated_angle)
-            new_pose.orientation = Quaternion(new_pose.position.x, new_pose.position.y, new_pose.position.z,
-                                              generated_angle)
-            # add to particle cloud
-            self.p_cloud.poses.append(
-                new_pose)  # append particle cloud to
-            # print(new_pose)
+            # # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
+            # generated_angle = random.vonmisesvariate(mu=0, kappa=0)
+            # new_pose.position.x = initialpose.pose.pose.position.x + (gauss(0, 7)*noise_value)
+            # new_pose.position.y = initialpose.pose.pose.position.y + (gauss(0, 7)*noise_value)
+            # new_pose.position.z = initialpose.pose.pose.position.z 
+            # # z wont have any noise
+            # # new_pose.orientation = rotateQuaternion(
+            # #     new_pose.orientation, generated_angle)
+            # new_pose.orientation = Quaternion(new_pose.position.x, new_pose.position.y, new_pose.position.z,
+            #                                   generated_angle)
+            # # add to particle cloud
+            # self.p_cloud.poses.append(
+            #     new_pose)  # append particle cloud to
+            # # print(new_pose)
+
         print("Initialised particle cloud")
         # print(self.p_cloud)
         self.particlecloud = deepcopy(self.p_cloud)
@@ -133,26 +157,10 @@ class PFLocaliser(PFLocaliserBase):
         new_particles = []
         for sample in re_samples:
             new_particles.append(sample[0])  # strip just particle out of (particle, weight) tuple
-        for i in range(len(self.particlecloud.poses)/4):
-            new_pose = Pose()
-            # need to generate noise in noise placeholder in the loop with gaussian
-            # random_gauss = gauss(0, 7)
-            
-            # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
-            generated_angle = random.vonmisesvariate(mu=0, kappa=0)
-            new_pose.position.x = initialpose.pose.pose.position.x + (gauss(0, 7)*noise_value)
-            new_pose.position.y = initialpose.pose.pose.position.y + (gauss(0, 7)*noise_value)
-            new_pose.position.z = initialpose.pose.pose.position.z 
-            # z wont have any noise
-            # new_pose.orientation = rotateQuaternion(
-            #     new_pose.orientation, generated_angle)
-            new_pose.orientation = Quaternion(new_pose.position.x, new_pose.position.y, new_pose.position.z,
-                                              generated_angle)
-            # add to particle cloud
-            new_particles.append(new_pose)  # append particle cloud to
-            # print(new_pose)
-        # if self.p_cloud != new_particles:
-        #     print("Particle Cloud updated")
+        
+        random_particles = rand_particles(NUM_PARTICLES/8)
+    
+
 
         self.particlecloud.poses = deepcopy(new_particles)
         self.particlecloud.header.frame_id = "/map"
