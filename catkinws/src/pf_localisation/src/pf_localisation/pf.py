@@ -40,7 +40,7 @@ def resample_v2(samples):
         for i in range(int(sample[1])):
             new_samples.append(sample)
     ret_samples = []
-    for i in range(len(samples)):
+    for i in range(3*(len(samples)/4)):
         ret_samples.append(new_samples[random.randint(0, len(new_samples) - 1)])
     return ret_samples
 
@@ -133,6 +133,24 @@ class PFLocaliser(PFLocaliserBase):
         new_particles = []
         for sample in re_samples:
             new_particles.append(sample[0])  # strip just particle out of (particle, weight) tuple
+        for i in range(len(self.particlecloud.poses)/4):
+            new_pose = Pose()
+            # need to generate noise in noise placeholder in the loop with gaussian
+            # random_gauss = gauss(0, 7)
+            
+            # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
+            generated_angle = random.vonmisesvariate(mu=0, kappa=0)
+            new_pose.position.x = initialpose.pose.pose.position.x + (gauss(0, 7)*noise_value)
+            new_pose.position.y = initialpose.pose.pose.position.y + (gauss(0, 7)*noise_value)
+            new_pose.position.z = initialpose.pose.pose.position.z 
+            # z wont have any noise
+            # new_pose.orientation = rotateQuaternion(
+            #     new_pose.orientation, generated_angle)
+            new_pose.orientation = Quaternion(new_pose.position.x, new_pose.position.y, new_pose.position.z,
+                                              generated_angle)
+            # add to particle cloud
+            new_particles.append(new_pose)  # append particle cloud to
+            # print(new_pose)
         # if self.p_cloud != new_particles:
         #     print("Particle Cloud updated")
 
