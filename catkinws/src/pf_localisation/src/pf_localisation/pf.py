@@ -89,16 +89,17 @@ class PFLocaliser(PFLocaliserBase):
         # self.particlecloud = PoseArray()  # populated with 500 poses
         # noiseValue = 10
         # INIT_HEADING = 0 	# Initial orientation of robot (radians)
-        for i in range(1000):
+        noise_value = 0.9
+        for i in range(500):
             new_pose = Pose()
             # need to generate noise in noise placeholder in the loop with gaussian
-            random_gauss = gauss(0, 7)
-            noise_value = 1
+            # random_gauss = gauss(0, 7)
+            
             # mu and kappa are set to 0 to generate a random value in a distribution between 0 and 2pi radians
             generated_angle = random.vonmisesvariate(mu=0, kappa=0)
-            new_pose.position.x = initialpose.pose.pose.position.x + gauss(0, 7)
-            new_pose.position.y = initialpose.pose.pose.position.y + gauss(0, 7)
-            new_pose.position.z = initialpose.pose.pose.position.z
+            new_pose.position.x = initialpose.pose.pose.position.x + (gauss(0, 7)*noise_value)
+            new_pose.position.y = initialpose.pose.pose.position.y + (gauss(0, 7)*noise_value)
+            new_pose.position.z = initialpose.pose.pose.position.z 
             # z wont have any noise
             # new_pose.orientation = rotateQuaternion(
             #     new_pose.orientation, generated_angle)
@@ -157,16 +158,14 @@ class PFLocaliser(PFLocaliserBase):
 
         # Work out the average of the coords
         particles = self.particlecloud.poses
-        print('particlecloud: '+str(type(self.particlecloud)))
-        print(type(particles))
         return self.particle_cluster(particles)
         
 
 
     def particle_cluster(self, particles):
             euclidean_dists = []
-            f_euc_dist = lambda p: (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,
-                                                                                2)))  # can convert to disctionary if this proves too inefficient
+            f_euc_dist = lambda p: (math.sqrt(math.pow(p.position.x, 2) + math.pow(p.position.y,2)))
+            # can convert to disctionary if this proves too inefficient
             for particle in particles:
                 euclidean_dists.append(f_euc_dist(particle))
             mean_euc_dist = np.mean(euclidean_dists)
