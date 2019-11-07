@@ -35,9 +35,13 @@ def systematic_resampling(S, M):
 
 
 def filter_nan(scan_data):
+    out = []
     for i in range(len(scan_data.ranges)):
         if str(scan_data.ranges[i]) == "nan":
-            scan_data.ranges[i] = 5.5
+            out.append(5.5)
+        else:
+            out.append(scan_data.ranges[i])
+    scan_data.ranges = deepcopy(out)
     return scan_data
 
 
@@ -58,6 +62,7 @@ class PFLocaliser(PFLocaliserBase):
         # # ----- Sensor model parameters
         # self.NUMBER_PREDICTED_READINGS = 20  # Number of readings to predict
         self.NUM_PARTICLES = 1000
+        self.RANDOM_FRAC = 0.25
 
     def resample_v2(self, samples):
         new_samples = []
@@ -65,7 +70,7 @@ class PFLocaliser(PFLocaliserBase):
             for i in range(int(sample[1])):
                 new_samples.append(sample)
         ret_samples = []
-        for i in range((3 * self.NUM_PARTICLES) / 4):
+        for i in range(len(samples)):
             ret_samples.append(new_samples[random.randint(0, len(new_samples) - 1)])
         return ret_samples
 
@@ -138,11 +143,12 @@ class PFLocaliser(PFLocaliserBase):
 
     def update_particle_cloud(self, scan):
         samples = []
+        scan = filter_nan(scan)
         for particle in self.particlecloud.poses:
             samples.append((particle, self.sensor_model.get_weight(scan, particle)))
-        sorted_samples = sorted(samples, key=lambda x: [1], reverse=True)
-        top_sorted_samples = sorted_samples[0:3 * (self.NUM_PARTICLES / 4)]
-        rand_particles = self.rand_particles(self.NUM_PARTICLES / 4)
+        sorted_samples = sorted(samples, key=lambda x: x[1], reverse=True)
+        top_sorted_samples = sorted_samples[0:int((1-self.RANDOM_FRAC) * self.NUM_PARTICLES)]
+        rand_particles = self.rand_particles(self.NUM_PARTICLES * self.RANDOM_FRAC)
         re_top_sorted_samples = self.resample_v2(top_sorted_samples)
         new_particles = PoseArray()
         for sample in re_top_sorted_samples:
@@ -182,7 +188,7 @@ class PFLocaliser(PFLocaliserBase):
             euclidean_dists.append(f_euc_dist(particle))
         mean_euc_dist = np.mean(euclidean_dists)
         sd_euc_dist = np.std(euclidean_dists)
-        if sd_euc_dist > 100:  # tweak value
+        if sd_euc_dist > 1000:  # tweak value
             keep_particles = []
             for particle in particles:
                 euc_dist = f_euc_dist(particle)
