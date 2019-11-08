@@ -69,24 +69,24 @@ class MotionLaser:
         rate = rospy.Rate(const.HZ)  # 10hz
         base_data = Twist()
         current_bearing = 0
-        TURN_SCALAR = 1000.0
+        TURN_SCALAR = 500.0
         while not rospy.is_shutdown():
             pub_s = False
             if self.laser_output is None or self.sonar_output is None:
                 continue
 
-            if self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.2 or self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
-                if self.sonar_output.centre_avg <= 0.5 or self.sonar_output.centre_right_avg <= 0.2:
-                    logger.warn("SONAR: {}, {}".format(str(self.sonar_output.centre_avg),str(self.sonar_output.centre_right_avg)))
-                    self.turn = True
-                    self.desired_bearing = const.LEFT
-                    self.move_and_turn = False
-                    pub_s=True
-                if self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
-                    # SPACE RIGHT?
-                    logger.info("LASER: {}, {}".format(str(self.laser_output.centre_avg),str(self.laser_output.centre_right_avg)))
-                    self.turn = True
-                    self.desired_bearing = const.LEFT
+            if self.sonar_output.centre_avg <= 0.6 or self.sonar_output.centre_right_avg <= 0.4:
+                logger.warn("SONAR: {}, {}".format(str(self.sonar_output.centre_avg),str(self.sonar_output.centre_right_avg)))
+                self.turn = True
+                self.desired_bearing = const.LEFT
+                self.move_and_turn = False
+                pub_s=True
+            elif self.laser_output.centre_avg <= const.FRONT_MIN or self.laser_output.centre_right_avg <= 0.3:
+                # SPACE RIGHT?
+                logger.info("LASER: {}, {}".format(str(self.laser_output.centre_avg),str(self.laser_output.centre_right_avg)))
+                self.turn = True
+                self.desired_bearing = const.LEFT
+                if self.laser_output.centre_avg <= 0.5:
                     self.move_and_turn = False
             else:
                 # SPACE RIGHT?
@@ -114,13 +114,13 @@ class MotionLaser:
             if self.turn and current_bearing < abs(TURN_SCALAR * self.desired_bearing):
                 turn_adjustment = 1
                 if self.correction:
-                    turn_adjustment = 0.9
+                    turn_adjustment = 0.7
                 else:
                     turn_adjustment = 1
                 if self.desired_bearing > 0:
-                    base_data.angular.z = 0.25 * turn_adjustment
+                    base_data.angular.z = 0.25 * turn_adjustment * (self.laser_output.right_avg+1)
                 else:
-                    base_data.angular.z = -0.25 * turn_adjustment * (self.laser_output.right_avg)
+                    base_data.angular.z = -0.25 * turn_adjustment * (self.laser_output.left_avg)
                 if self.move_and_turn:
                     base_data.linear.x = 0.25
                 else:
