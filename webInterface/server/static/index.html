@@ -77,7 +77,9 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
         integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
+
         var socket = io();
+
         socket.on('connect', function () {
             socket.emit('connected', { data: 'I\'m connected!' });
         });
@@ -102,7 +104,6 @@
 
         //control the robot via keyboard
         document.addEventListener('keypress', logKey);
-
         function logKey(e) {
             if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
                 socket.emit('keyPress', { data: e.key });
@@ -111,6 +112,9 @@
 
     </script>
     <script>
+
+        //Enables Landmarks to be dragable
+
         function makeDraggable(evt) {
             var svg = evt.target;
             svg.addEventListener('mousedown', startDrag);
@@ -165,6 +169,7 @@
                 }
             }
 
+            //Send update of new position if landmark has been moved, other wise prompts user to delete it
             function endDrag(evt) {
                 selectedElement = false;
                 if (evt.target.tagName == "circle") {
@@ -173,14 +178,12 @@
                         console.log(evt.target.attributes.transform.value)
                         socket.emit('newLandmark', { name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
                     } else {
-                        if (confirm("Delete "+ evt.target.textContent + "?")) {
-
+                        if (confirm("Delete " + evt.target.textContent + "?")) {
+                            socket.emit('removeLandmark', { name: evt.target.textContent })
                         }
                     }
-                } 
+                }
 
-
-                // socket.emit('newLandmark', { name: evt.target.textContent, x: m.x, y: m.y });
             }
 
         }
@@ -211,6 +214,9 @@
     </div>
 </body>
 <script>
+
+    //Handles creation of new landmarks
+
     var svg = document.getElementById('svg-main')
     function clicked(event) {
         let m = oMousePosSVG(event);
@@ -228,14 +234,6 @@
         var p = p.matrixTransform(ctm);
         return p;
     }
-
-
-
-
-
-
-
-
 </script>
 
 </html>

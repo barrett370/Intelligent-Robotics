@@ -62,6 +62,12 @@ def setLandmarkXY(locString,x,y):
     locationsDict[locString]= {"x":x,"y":y}
     return  "success"
 
+#Remove a landmark
+@app.route("/removeLandmark/<locString>")
+def removeLandmark(locString):
+    locationsDict.pop(locString)
+    return  "success"
+
 #Get the relative location of the robot
 @app.route("/getRelLoc")
 def getRelLoc():
