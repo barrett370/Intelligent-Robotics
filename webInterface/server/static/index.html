@@ -104,18 +104,19 @@
         document.addEventListener('keypress', logKey);
 
         function logKey(e) {
-            if(e.key=="w" || e.key=="a" || e.key=="s" || e.key=="d" ){
+            if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
                 socket.emit('keyPress', { data: e.key });
             }
         }
+       
     </script>
 
 </head>
 
 <body>
     <div>
-        <svg viewBox="0 0 15 10">
-            <image href="/img/map.png" x="0" y="0" height="95%" transform="translate(2,0)" />
+        <svg id="svg-main" viewBox="0 0 15 10">
+            <image onclick="clicked(evt)" href="/img/map.png" x="0" y="0" height="95%" transform="translate(2,0)" />
             <g id="locations-g"></g>
             <g id="robot-g"></g>
         </svg>
@@ -133,7 +134,22 @@
     </div>
 </body>
 <script>
+ var svg = document.getElementById('svg-main') 
+ function clicked(event) {
+  let m = oMousePosSVG(event);
+    console.log(m.x,m.y);
+    var landmarkName = prompt("Create a new Landmark:", "Landmark Name");
+    socket.emit('newLandmark', { name: landmarkName,x:m.x,y:m.y });
+}
 
+function oMousePosSVG(e) {
+      var p = svg.createSVGPoint();
+      p.x = e.clientX;
+      p.y = e.clientY;
+      var ctm = svg.getScreenCTM().inverse();
+      var p =  p.matrixTransform(ctm);
+      return p;
+}
 
 </script>
 

@@ -25,7 +25,10 @@ def map():
 
 @app.route('/broadcast')
 def broadcast():
-    socketio.emit("broadcast", {'landmarks': {"water cooler":{"x":2,"y":3}}})
+    req = requests.get("http://localhost:5000/getAllLandmarks")
+    print(req)
+    landmarks = req.json()
+    socketio.emit("setup", {'locations': landmarks})
     return "broadcasted"
 
 #{"water cooler":{"x":2,"y":3},"water cooler2":{"x":7,"y":5},"water cooler3":{"x":3,"y":5}}}
@@ -35,9 +38,12 @@ def handle_my_custom_event(json):
     socketio.emit("robot-update", {'x':5,'y':5})
     print('received json: ' + str(json))
 
+@socketio.on('newLandmark')
+def newLandmark(json):
+    requests.get("http://localhost:5000/setLandmark/"+json["name"])
+
 @socketio.on('keyPress')
 def keyPress(json):
-
     #TODO: Replace with code that talks to motors
     global robotX
     global robotY
