@@ -77,9 +77,10 @@
         #status-container {
             position: absolute;
             bottom: 0px;
+            left: -1px;
             width: 300px;
             height: 30px;
-            background: #888888;
+            background: #888888AA;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
         }
@@ -89,9 +90,22 @@
             color: white;
             font-size: 14px;
             text-align: center;
-            padding-top: 5px;
+            padding-top: 6px;
             border-style: solid;
-            border-width: 0px 0.5px 0px 0px;
+            border-width: 0px 0px 0px 0.5px;
+
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none;
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Old versions of Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
+            /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
         }
 
         /* .shadow {
@@ -132,11 +146,11 @@
         socket.on('statusUpdate', function (data) {
             console.log(data)
             statusString = ""
-            for(i in data){
-                if(data[i]==200){
-                    statusString += `<div class="status" style="background-color:#007bff">`+i+`</div>`
-                }else{
-                    statusString += `<div class="status" style="">`+i+`</div>`
+            for (i in data) {
+                if (data[i] == 200) {
+                    statusString += `<div class="status" style="background-color:#007bff">` + i + `</div>`
+                } else {
+                    statusString += `<div class="status" style="">` + i + `</div>`
                 }
             }
             document.getElementById("status-container").innerHTML = statusString

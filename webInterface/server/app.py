@@ -15,7 +15,7 @@ robotX = 5 #Dummy x position of robot
 robotY= 5 # Dummy Y position of robot
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, logger=False, engineio_logger=False)
+socketio = SocketIO(app, logger=False, engineio_logger=False, cors_allowed_origins="*")
 
 @app.route('/')
 def root(): 
