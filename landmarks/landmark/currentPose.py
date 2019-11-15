@@ -1,3 +1,4 @@
+# pyre-ignore-all-errors[21]
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
