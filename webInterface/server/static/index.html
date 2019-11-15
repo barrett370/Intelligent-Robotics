@@ -4,10 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Howard Control</title>
     <style>
+
+        :root{
+            --expand:0px;
+        }
+
+
         body {
             display: grid;
             grid-template-columns: 4fr 1fr;
@@ -32,9 +40,9 @@
         #settings-bar {
             background-color: #f8f8f8;
             display: grid;
-            transition: width 0.3s cubic-bezier(.25, .8, .25, 1);
+            transition: grid-template-rows 0.3s cubic-bezier(.25, .8, .25, 1);
             overflow: hidden;
-            grid-template-rows: 50px 50px 50px 50px 50px 50px 1fr 50px 50px;
+            grid-template-rows: 50px 50px var(--expand) 50px 50px 50px 1fr 50px 50px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
         }
 
@@ -59,6 +67,17 @@
             background-color: rgb(255, 255, 255);
             cursor: pointer;
             overflow: hidden;
+            -webkit-touch-callout: none;
+            /* iOS Safari */
+            -webkit-user-select: none;
+            /* Safari */
+            -khtml-user-select: none;
+            /* Konqueror HTML */
+            -moz-user-select: none;
+            /* Old versions of Firefox */
+            -ms-user-select: none;
+            /* Internet Explorer/Edge */
+            user-select: none;
         }
 
         .side-bar-label {
@@ -108,6 +127,13 @@
             /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
         }
 
+        #expandable{
+            display: grid;
+            grid-auto-rows: 50px;
+            overflow: hidden;
+            transition: --expand 0.3s cubic-bezier(.25, .8, .25, 1);
+        }
+
         /* .shadow {
             -webkit-box-shadow: -2px 0px 17px -1px rgba(0, 0, 0, 0.75);
             -moz-box-shadow: -2px 0px 17px -1px rgba(0, 0, 0, 0.75);
@@ -117,6 +143,13 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
         integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
+
+        ////////////////////////////////////////////////////////////////
+        ///////                 Local Vars                       ///////
+        ////////////////////////////////////////////////////////////////
+
+        var landmarks ={}
+
 
         var socket = io();
 
@@ -128,11 +161,17 @@
         socket.on('setup', function (data) {
             console.log(data)
             locationsString = ""
+            landmarks = data.locations
+            sideBarstring = ""
             for (i in data.locations) {
                 console.log(i)
+                sideBarstring += '<a class="side-bar-button">'+i+'</a>'
                 locationsString += '<circle cx="' + data.locations[i].x + '" cy="' + data.locations[i].y + '" r="0.05" class="draggable"  stroke="#007bff" stroke-width="0.02" fill="white" ><title>' + i + '</title></circle>'
             }
             document.getElementById("locations-g").innerHTML = locationsString
+            document.getElementById("expandable").innerHTML = sideBarstring
+            expand() 
+            expand() //reload the sidebar
         });
 
         // Update with the robots position
@@ -257,14 +296,14 @@
     </div>
     <div id="settings-bar">
         <div id="side-bar-header">
-            <!-- <a onclick="hamburger()"><svg id="hamburger" xmlns="http://www.w3.org/2000/svg"
-                width="24" height="24" viewBox="0 0 24 24">
-                <path d="M2 15.5v2h20v-2H2zm0-5v2h20v-2H2zm0-5v2h20v-2H2z" />
-                <path d="M0 0h24v24H0z" fill="none" /></svg>
-            </a>  -->
             <span class="side-bar-label unselectable">Howard Control</span></div>
-        <a class="side-bar-button" onclick="addWidget(3)"><img src="map.svg" alt="x"><span class="side-bar-label">Self
-                destruct</span></a>
+        <a class="side-bar-button" onclick="expand()"><i class="material-icons">
+                arrow_drop_down
+                </i><span class="side-bar-label">Locations</span></a>
+        <div id="expandable">
+
+
+        </div>
     </div>
     <div id="status-container" class="shadow">
         <div class="status "></div>
@@ -292,6 +331,17 @@
         var ctm = svg.getScreenCTM().inverse();
         var p = p.matrixTransform(ctm);
         return p;
+    }
+
+    //Expand/ collapse the sidebar
+    var expanded = false;
+    function expand(){
+        if(expanded){
+            document.documentElement.style.setProperty('--expand', '0px');
+        }else{
+            document.documentElement.style.setProperty('--expand', Object.keys(landmarks).length *50+'px');
+        }
+        expanded = !expanded
     }
 </script>
 
