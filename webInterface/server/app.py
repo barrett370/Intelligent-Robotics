@@ -23,13 +23,14 @@ def map():
     print("image")
     return app.send_static_file('img/map.png')
 
-@app.route('/broadcast')
-def broadcast():
+@app.route('/updateLocations')
+def updateLocations():
+    global landmarks
     req = requests.get("http://localhost:5000/getAllLandmarks")
     print(req)
     landmarks = req.json()
     socketio.emit("setup", {'locations': landmarks})
-    return "broadcasted"
+    return "updated"
 
 #{"water cooler":{"x":2,"y":3},"water cooler2":{"x":7,"y":5},"water cooler3":{"x":3,"y":5}}}
 @socketio.on('connected')
@@ -40,7 +41,11 @@ def handle_my_custom_event(json):
 
 @socketio.on('newLandmark')
 def newLandmark(json):
-    requests.get("http://localhost:5000/setLandmark/"+json["name"])
+    req = requests.get("http://localhost:5000/setLandmark/"+json["name"]+"/"+str(json["x"])+"/"+str(json["y"]))
+    print(req.status_code)
+    if(req.status_code==200):
+        updateLocations()
+
 
 @socketio.on('keyPress')
 def keyPress(json):
@@ -57,9 +62,6 @@ def keyPress(json):
     elif(key=="d"):
         robotX +=0.02
     socketio.emit("robot-update", {'x':robotX,'y':robotY})
-
-
-
 
 
 if __name__ == "__main__":

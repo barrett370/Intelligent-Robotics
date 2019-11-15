@@ -56,6 +56,12 @@ def setLandmark(locString):
     locationsDict[locString]= getCurrentPosition()
     return  "success"
 
+#create a new Landmark based on position
+@app.route("/setLandmark/<locString>/<x>/<y>")
+def setLandmarkXY(locString,x,y):
+    locationsDict[locString]= {"x":x,"y":y}
+    return  "success"
+
 #Get the relative location of the robot
 @app.route("/getRelLoc")
 def getRelLoc():
