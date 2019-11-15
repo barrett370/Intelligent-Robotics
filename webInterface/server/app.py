@@ -8,8 +8,11 @@ import logging
 logging.getLogger('flask_socketio').setLevel(logging.ERROR)
 
 #get the landmarks from landmark server
-req = requests.get("http://localhost:5000/getAllLandmarks")
-landmarks = req.json()
+try:
+    req = requests.get("http://localhost:5000/getAllLandmarks")
+    landmarks = req.json()
+except:
+    landmarks = {"water cooler":{"x":5,"y":5}}
 
 robotX = 5 #Dummy x position of robot
 robotY= 5 # Dummy Y position of robot
@@ -30,10 +33,13 @@ def map():
 @app.route('/updateLocations')
 def updateLocations():
     global landmarks
-    req = requests.get("http://localhost:5000/getAllLandmarks")
-    landmarks = req.json()
-    socketio.emit("setup", {'locations': landmarks})
-    return "updated"
+    try:
+        req = requests.get("http://localhost:5000/getAllLandmarks")
+        landmarks = req.json()
+        socketio.emit("setup", {'locations': landmarks})
+        return "updated"
+    except:
+        print("down")
 
 #{"water cooler":{"x":2,"y":3},"water cooler2":{"x":7,"y":5},"water cooler3":{"x":3,"y":5}}}
 @socketio.on('connected')
@@ -45,23 +51,32 @@ def handle_my_custom_event(json):
 
 @socketio.on('newLandmark')
 def newLandmark(json):
-    req = requests.get("http://localhost:5000/setLandmark/"+json["name"]+"/"+str(json["x"])+"/"+str(json["y"]))
-    if(req.status_code==200):
-        updateLocations()
+    try:
+        req = requests.get("http://localhost:5000/setLandmark/"+json["name"]+"/"+str(json["x"])+"/"+str(json["y"]))
+        if(req.status_code==200):
+            updateLocations()
+    except:
+        print("down")
 
 @socketio.on('removeLandmark')
 def removeLandmark(json):
-    req = requests.get("http://localhost:5000/removeLandmark/"+json["name"])
-    if(req.status_code==200):
-        updateLocations()
+    try:
+        req = requests.get("http://localhost:5000/removeLandmark/"+json["name"])
+        if(req.status_code==200):
+            updateLocations()
+    except:
+        print("down")
 
 
 
 @socketio.on('statusCheck')
 def statusCheck():
     status = {}
-    landmarks = requests.get("http://localhost:5000/healthCheck")
-    status["LANDMARK"] =landmarks.status_code
+    try:
+        landmarks = requests.get("http://localhost:5000/healthCheck")
+        status["LANDMARK"] = landmarks.status_code
+    except:
+        status["LANDMARK"] = 500
     status["VOICE"] = 500
     status["MOTION"] = 500
     socketio.emit("statusUpdate",status)
