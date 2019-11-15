@@ -1,5 +1,5 @@
 # pyre-ignore-all-errors[21]
-from vision.face_detection import FaceDetector
+from ..face_detection import FaceDetector
 
 if __name__ == "__main__":
     detector = FaceDetector(0,
