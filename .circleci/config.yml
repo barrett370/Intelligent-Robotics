@@ -27,7 +27,7 @@ jobs:
       - run:
           name: Pyre Type checking
           command: |
-            cd ./catkin/src && pipenv run pyre --source-directory="." check
+            pipenv run pyre check
       - run:
           name: Python Unit tests
           command: pipenv run py.test --junit-xml=test-reports/pytest.xml

@@ -1,0 +1,7 @@
+{
+  "binary": "/home/sam/.local/share/virtualenvs/Intelligent-Robotics-uRdCFDXT/bin/pyre.bin",
+  "source_directories": [
+    "vision"
+  ],
+  "typeshed": "/home/sam/.local/share/virtualenvs/Intelligent-Robotics-uRdCFDXT/lib/pyre_check/typeshed/"
+}
