@@ -7,6 +7,8 @@ import requests
 req = requests.get("http://localhost:5000/getAllLandmarks")
 print(req)
 landmarks = req.json()
+robotX = 5
+robotY= 5
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app)
@@ -32,6 +34,25 @@ def handle_my_custom_event(json):
     socketio.emit("setup", {'locations': landmarks})
     socketio.emit("robot-update", {'x':5,'y':5})
     print('received json: ' + str(json))
+
+@socketio.on('keyPress')
+def keyPress(json):
+
+    #TODO: Replace with code that talks to motors
+    global robotX
+    global robotY
+    key = json["data"]
+    if(key=="w"):
+        robotY-=0.02
+    elif(key=="a"):
+        robotX -= 0.02
+    elif(key=="s"):
+        robotY+=0.02
+    elif(key=="d"):
+        robotX +=0.02
+    socketio.emit("robot-update", {'x':robotX,'y':robotY})
+
+
 
 
 

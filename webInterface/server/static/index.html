@@ -10,7 +10,6 @@
     <style>
         body {
             display: grid;
-            /* grid-template-rows: 1fr 4fr 1fr; */
             grid-template-columns: 4fr 1fr;
         }
 
@@ -37,11 +36,6 @@
             overflow: hidden;
             grid-template-rows: 50px 50px 50px 50px 50px 50px 1fr 50px 50px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-            /* position: fixed; */
-            /* width: 50px; */
-            /* height: 100vh; */
-            /* top: 0px; */
-            /* z-index: 3; */
         }
 
 
@@ -54,31 +48,31 @@
             font-size: 1.4em;
             font-weight: 600;
             fill: white;
-            height:100%;
+            height: 100%;
         }
 
         .side-bar-button {
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.068), 0 1px 1px rgba(0, 0, 0, 0.034);
-    padding-top: 15px;
-    padding-left: 12px;
-    color: #5e5e5e;
-    background-color: rgb(255, 255, 255);
-    cursor: pointer;
-    overflow: hidden;
-}
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.068), 0 1px 1px rgba(0, 0, 0, 0.034);
+            padding-top: 15px;
+            padding-left: 12px;
+            color: #5e5e5e;
+            background-color: rgb(255, 255, 255);
+            cursor: pointer;
+            overflow: hidden;
+        }
 
-.side-bar-label{
-    z-index: 5;
-    position: absolute;
-    padding-top:2px;
-    padding-left: 20px;
-    white-space: nowrap;
-}
+        .side-bar-label {
+            z-index: 5;
+            position: absolute;
+            padding-top: 2px;
+            padding-left: 20px;
+            white-space: nowrap;
+        }
 
-.side-bar-button:hover {
-    background-color: #d4d4d4;
-    color: #505050;
-}
+        .side-bar-button:hover {
+            background-color: #d4d4d4;
+            color: #505050;
+        }
     </style>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
         integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
@@ -88,6 +82,7 @@
             socket.emit('connected', { data: 'I\'m connected!' });
         });
 
+        // Initial setup of the map
         socket.on('setup', function (data) {
             console.log(data)
             locationsString = ""
@@ -98,14 +93,21 @@
             document.getElementById("locations-g").innerHTML = locationsString
         });
 
+        // Update with the robots position
         socket.on('robot-update', function (data) {
-            console.log(data)
             robotString = ""
-            console.log(i)
             robotString += '<rect x="' + data.x + '" y="' + data.y + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
-
             document.getElementById("robot-g").innerHTML = robotString
         });
+
+        //control the robot via keyboard
+        document.addEventListener('keypress', logKey);
+
+        function logKey(e) {
+            if(e.key=="w" || e.key=="a" || e.key=="s" || e.key=="d" ){
+                socket.emit('keyPress', { data: e.key });
+            }
+        }
     </script>
 
 </head>
@@ -113,22 +115,21 @@
 <body>
     <div>
         <svg viewBox="0 0 15 10">
-            <!-- <polygon fill=red stroke-width=0 
-                             points="0,10 20,10 10,0" /> -->
-            <image href="/img/map.png" x="0" y="0" height="95%" />
+            <image href="/img/map.png" x="0" y="0" height="95%" transform="translate(2,0)" />
             <g id="locations-g"></g>
             <g id="robot-g"></g>
         </svg>
     </div>
     <div id="settings-bar">
-            <div id="side-bar-header">
-                <!-- <a onclick="hamburger()"><svg id="hamburger" xmlns="http://www.w3.org/2000/svg"
+        <div id="side-bar-header">
+            <!-- <a onclick="hamburger()"><svg id="hamburger" xmlns="http://www.w3.org/2000/svg"
                 width="24" height="24" viewBox="0 0 24 24">
                 <path d="M2 15.5v2h20v-2H2zm0-5v2h20v-2H2zm0-5v2h20v-2H2z" />
                 <path d="M0 0h24v24H0z" fill="none" /></svg>
             </a>  -->
             <span class="side-bar-label unselectable">Howard Control</span></div>
-            <a class="side-bar-button" onclick="addWidget(3)"><img src="map.svg" alt="x"><span class="side-bar-label">Self destruct</span></a>
+        <a class="side-bar-button" onclick="addWidget(3)"><img src="map.svg" alt="x"><span class="side-bar-label">Self
+                destruct</span></a>
     </div>
 </body>
 <script>
