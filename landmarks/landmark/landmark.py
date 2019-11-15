@@ -1,6 +1,13 @@
 from flask import Flask,abort
 import difflib
-from .currentPose import CurrentPose
+
+#to run the code if the robot is not running
+try:
+    from .currentPose import CurrentPose
+    pose = CurrentPose()
+except:
+    pose = {"x":0,"y":0} 
+
 
 
 locationsDict = {
@@ -9,7 +16,7 @@ locationsDict = {
 }
 
 
-pose = CurrentPose()
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -65,8 +72,10 @@ def getRelLoc():
 
 @app.route("/current")
 def getCurrentPosition():
-    # currentLocation = {"x":100, "y":20}
-    return pose.get_pose()
+    try:
+        return pose.get_pose()
+    except:
+        return pose
 
 if __name__ == "__main__":
     app.run()
