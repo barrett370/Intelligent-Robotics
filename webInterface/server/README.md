@@ -9,3 +9,4 @@ Current functionality
 - Move Landmarks
 - Delete Landmarks
 - Drive robot with wasd
+- Status checking of services

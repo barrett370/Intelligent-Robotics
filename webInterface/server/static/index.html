@@ -73,6 +73,32 @@
             background-color: #d4d4d4;
             color: #505050;
         }
+
+        #status-container {
+            position: absolute;
+            bottom: 0px;
+            width: 300px;
+            height: 30px;
+            background: #888888;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .status {
+            /* background: red; */
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            padding-top: 5px;
+            border-style: solid;
+            border-width: 0px 0.5px 0px 0px;
+        }
+
+        /* .shadow {
+            -webkit-box-shadow: -2px 0px 17px -1px rgba(0, 0, 0, 0.75);
+            -moz-box-shadow: -2px 0px 17px -1px rgba(0, 0, 0, 0.75);
+            box-shadow: -2px 0px 17px -1px rgba(0, 0, 0, 0.75);
+        } */
     </style>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
         integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
@@ -100,6 +126,20 @@
             robotString = ""
             robotString += '<rect x="' + data.x + '" y="' + data.y + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
             document.getElementById("robot-g").innerHTML = robotString
+        });
+
+        // Update status
+        socket.on('statusUpdate', function (data) {
+            console.log(data)
+            statusString = ""
+            for(i in data){
+                if(data[i]==200){
+                    statusString += `<div class="status" style="background-color:#007bff">`+i+`</div>`
+                }else{
+                    statusString += `<div class="status" style="">`+i+`</div>`
+                }
+            }
+            document.getElementById("status-container").innerHTML = statusString
         });
 
         //control the robot via keyboard
@@ -211,6 +251,11 @@
             <span class="side-bar-label unselectable">Howard Control</span></div>
         <a class="side-bar-button" onclick="addWidget(3)"><img src="map.svg" alt="x"><span class="side-bar-label">Self
                 destruct</span></a>
+    </div>
+    <div id="status-container" class="shadow">
+        <div class="status "></div>
+        <div class="status "></div>
+        <div class="status "></div>
     </div>
 </body>
 <script>

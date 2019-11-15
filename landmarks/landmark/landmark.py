@@ -19,7 +19,7 @@ locationsDict = {
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/healthCheck")
 def hello():
     return "Landmarks Server is Running"
 

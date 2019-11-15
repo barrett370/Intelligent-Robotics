@@ -40,6 +40,7 @@ def updateLocations():
 def handle_my_custom_event(json):
     socketio.emit("setup", {'locations': landmarks})
     socketio.emit("robot-update", {'x':robotX,'y':robotY})
+    statusCheck()
     print('received json: ' + str(json))
 
 @socketio.on('newLandmark')
@@ -53,6 +54,18 @@ def removeLandmark(json):
     req = requests.get("http://localhost:5000/removeLandmark/"+json["name"])
     if(req.status_code==200):
         updateLocations()
+
+
+
+@socketio.on('statusCheck')
+def statusCheck():
+    status = {}
+    landmarks = requests.get("http://localhost:5000/healthCheck")
+    status["LANDMARK"] =landmarks.status_code
+    status["VOICE"] = 500
+    status["MOTION"] = 500
+    socketio.emit("statusUpdate",status)
+
 
 
 @socketio.on('keyPress')
