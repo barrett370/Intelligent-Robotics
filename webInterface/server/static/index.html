@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>D</title>
+    <style>
+        body {
+            display: grid;
+            /* grid-template-rows: 1fr 4fr 1fr; */
+            grid-template-columns: 4fr 1fr;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #viewport {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+
+        #settings-bar {
+            background-color: #4287f5;
+        }
+    </style>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
+        integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+        socket.on('connect', function () {
+            socket.emit('connected', { data: 'I\'m connected!' });
+        });
+
+        socket.on('setup', function (data) {
+            console.log(data)
+            locationsString =""
+            for(i in data.locations){
+                console.log(i)
+                locationsString += '<circle cx="'+data.locations[i].x+'" cy="'+data.locations[i].y+'" r="0.05" stroke="red" stroke-width="0.02" fill="blue" ><title>'+i+'</title></circle>'
+            }
+            document.getElementById("locations-g").innerHTML=locationsString
+        });
+
+        socket.on('robot-update', function (data) {
+            console.log(data)
+            robotString =""
+                console.log(i)
+                robotString += '<rect x="'+data.x+'" y="'+data.y+'" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
+            
+            document.getElementById("robot-g").innerHTML=robotString
+        });
+    </script>
+
+</head>
+
+<body>
+    <div>
+        <svg viewBox="0 0 15 10">
+            <!-- <polygon fill=red stroke-width=0 
+                             points="0,10 20,10 10,0" /> -->
+            <image href="/img/map.png" x="0" y="0" height="95%" />
+            <g id="locations-g"></g>
+            <g id="robot-g"></g>
+        </svg>
+    </div>
+    <div id="settings-bar">
+        Settings
+    </div>
+</body>
+<script>
+
+
+</script>
+
+</html>
