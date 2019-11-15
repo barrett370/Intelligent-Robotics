@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>D</title>
+    <title>Howard Control</title>
     <style>
         body {
             display: grid;
@@ -19,6 +20,8 @@
             height: 100%;
             margin: 0;
             overflow: hidden;
+            font-family: 'Open Sans', sans-serif;
+            background-color: #cdcdcd;
         }
 
         #viewport {
@@ -28,8 +31,54 @@
         }
 
         #settings-bar {
-            background-color: #4287f5;
+            background-color: #f8f8f8;
+            display: grid;
+            transition: width 0.3s cubic-bezier(.25, .8, .25, 1);
+            overflow: hidden;
+            grid-template-rows: 50px 50px 50px 50px 50px 50px 1fr 50px 50px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            /* position: fixed; */
+            /* width: 50px; */
+            /* height: 100vh; */
+            /* top: 0px; */
+            /* z-index: 3; */
         }
+
+
+        #side-bar-header {
+            padding-top: 12px;
+            padding-left: 12px;
+            background-color: #007bff;
+            color: white;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.24);
+            font-size: 1.4em;
+            font-weight: 600;
+            fill: white;
+            height:100%;
+        }
+
+        .side-bar-button {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.068), 0 1px 1px rgba(0, 0, 0, 0.034);
+    padding-top: 15px;
+    padding-left: 12px;
+    color: #5e5e5e;
+    background-color: rgb(255, 255, 255);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.side-bar-label{
+    z-index: 5;
+    position: absolute;
+    padding-top:2px;
+    padding-left: 20px;
+    white-space: nowrap;
+}
+
+.side-bar-button:hover {
+    background-color: #d4d4d4;
+    color: #505050;
+}
     </style>
     <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
         integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
@@ -41,21 +90,21 @@
 
         socket.on('setup', function (data) {
             console.log(data)
-            locationsString =""
-            for(i in data.locations){
+            locationsString = ""
+            for (i in data.locations) {
                 console.log(i)
-                locationsString += '<circle cx="'+data.locations[i].x+'" cy="'+data.locations[i].y+'" r="0.05" stroke="red" stroke-width="0.02" fill="blue" ><title>'+i+'</title></circle>'
+                locationsString += '<circle cx="' + data.locations[i].x + '" cy="' + data.locations[i].y + '" r="0.05" stroke="#007bff" stroke-width="0.02" fill="white" ><title>' + i + '</title></circle>'
             }
-            document.getElementById("locations-g").innerHTML=locationsString
+            document.getElementById("locations-g").innerHTML = locationsString
         });
 
         socket.on('robot-update', function (data) {
             console.log(data)
-            robotString =""
-                console.log(i)
-                robotString += '<rect x="'+data.x+'" y="'+data.y+'" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
-            
-            document.getElementById("robot-g").innerHTML=robotString
+            robotString = ""
+            console.log(i)
+            robotString += '<rect x="' + data.x + '" y="' + data.y + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
+
+            document.getElementById("robot-g").innerHTML = robotString
         });
     </script>
 
@@ -72,7 +121,14 @@
         </svg>
     </div>
     <div id="settings-bar">
-        Settings
+            <div id="side-bar-header">
+                <!-- <a onclick="hamburger()"><svg id="hamburger" xmlns="http://www.w3.org/2000/svg"
+                width="24" height="24" viewBox="0 0 24 24">
+                <path d="M2 15.5v2h20v-2H2zm0-5v2h20v-2H2zm0-5v2h20v-2H2z" />
+                <path d="M0 0h24v24H0z" fill="none" /></svg>
+            </a>  -->
+            <span class="side-bar-label unselectable">Howard Control</span></div>
+            <a class="side-bar-button" onclick="addWidget(3)"><img src="map.svg" alt="x"><span class="side-bar-label">Self destruct</span></a>
     </div>
 </body>
 <script>
