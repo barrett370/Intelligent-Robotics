@@ -14,24 +14,24 @@ print("----------------------record device list---------------------")
 info = audio.get_host_api_info_by_index(0)
 numdevices = info.get('deviceCount')
 for i in range(0, numdevices):
-        if (audio.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
-            print ("Input Device id ", i, " - ", audio.get_device_info_by_host_api_device_index(0, i).get('name'))
+    if (audio.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
+        print("Input Device id ", i, " - ", audio.get_device_info_by_host_api_device_index(0, i).get('name'))
 
 print("-------------------------------------------------------------")
 
 index = (0)
-print("recording via index "+str(index))
+print("recording via index " + str(index))
 
 stream = audio.open(format=FORMAT, channels=CHANNELS,
-                rate=RATE, input=True,input_device_index = index,
-                frames_per_buffer=CHUNK)
-print ("recording started")
+                    rate=RATE, input=True, input_device_index=index,
+                    frames_per_buffer=CHUNK)
+print("recording started")
 Recordframes = []
 
 for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
     data = stream.read(CHUNK)
     Recordframes.append(data)
-print ("recording stopped")
+print("recording stopped")
 
 stream.stop_stream()
 stream.close()
