@@ -3,9 +3,28 @@ from flask import render_template
 from flask_socketio import SocketIO
 from flask_socketio import send, emit
 import requests 
-
+import asyncio
 import logging
-logging.getLogger('flask_socketio').setLevel(logging.ERROR)
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Quaternion
+
+
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+loop = asyncio.get_event_loop()
+
+
+
+
+
+#to run the code if the robot is not running
+try:
+    import rospy
+    from .currentPose import CurrentPose
+    pose = CurrentPose()
+except:
+    pose = {"x":0,"y":0} 
+
 
 #get the landmarks from landmark server
 try:
@@ -18,7 +37,25 @@ robotX = 5 #Dummy x position of robot
 robotY= 5 # Dummy Y position of robot
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, logger=False, engineio_logger=False, cors_allowed_origins="*")
+socketio = SocketIO(app,cors_allowed_origins="*")
+
+
+def callback(msg):
+        # print(msg)
+        pose = msg.pose.pose.position
+        qur = msg.pose.pose.orientation
+        x = pose.x
+        y = pose.y
+        x_or = qur.x
+        y_or = qur.y
+        socketio.emit("robot-update", {'x':x,'y':y})
+        print(x,y)
+
+try:
+    sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped,callback)
+    rospy.init_node('poser', anonymous=False)
+except: 
+    print("ROS not found")
 
 @app.route('/')
 def root(): 
@@ -98,6 +135,24 @@ def keyPress(json):
     elif(key=="d"):
         robotX +=0.02
     socketio.emit("robot-update", {'x':robotX,'y':robotY})
+
+
+# import sched, time
+# s = sched.scheduler(time.time, time.sleep)
+# def do_something(sc): 
+#     print ("Doing stuff...")
+#     # do your stuff
+#     s.enter( 60, 1, do_something, (sc,))
+
+# s.enter(60, 1, do_something, (s,))
+# s.run()
+
+
+def getCurrentPosition():
+    try:
+        return pose.get_pose()
+    except: #This is done so it can run even if not connected to robot
+        return pose
 
 
 if __name__ == "__main__":

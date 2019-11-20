@@ -205,7 +205,7 @@
             for (i in data.locations) {
                 console.log(i)
                 sideBarstring += '<a class="side-bar-button">'+i+'<i class="material-icons directions">directions</i></a>'
-                locationsString += '<circle cx="' + data.locations[i].x + '" cy="' + data.locations[i].y + '" r="0.05" class="draggable"  stroke="#007bff" stroke-width="0.02" fill="white" ><title>' + i + '</title></circle>'
+                locationsString += '<circle cx="' + (((data.locations[i].x-0.2)*0.4)+2.1)  + '" cy="' + (((Math.abs(data.locations[i].y-17.2)-1.6)*0.491)+1.6) + '" r="0.05" class="draggable"  stroke="#007bff" stroke-width="0.02" fill="white" ><title>' + i + '</title></circle>'
             }
             document.getElementById("locations-g").innerHTML = locationsString
             document.getElementById("expandable").innerHTML = sideBarstring
@@ -216,7 +216,7 @@
         // Update with the robots position
         socket.on('robot-update', function (data) {
             robotString = ""
-            robotString += '<rect x="' + data.x + '" y="' + data.y + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
+            robotString += '<rect x="' + (((data.x-0.2)*0.4)+2.1) + '" y="' + (((Math.abs(data.y-17.2)-1.6)*0.491)+1.6) + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
             document.getElementById("robot-g").innerHTML = robotString
         });
 
@@ -366,7 +366,8 @@
         let m = oMousePosSVG(event);
         var landmarkName = prompt("Create a new Landmark:", "Landmark Name");
         if (landmarkName != null) {
-            socket.emit('newLandmark', { name: landmarkName, x: m.x, y: m.y });
+
+            socket.emit('newLandmark', { name: landmarkName, x: ((m.x-2.1)/0.4)+0.2, y: ((m.y-1.6)/0.491)+1.6+17.2 });
         }
     }
 
