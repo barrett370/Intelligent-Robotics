@@ -1,4 +1,6 @@
 from speech.utils import strip_leading_space
+
+
 # experimental
 def expand_abbreviations(instruction: str) -> str:
     if instruction.__contains__("'s"):
@@ -14,6 +16,10 @@ class InstructionParser:
     }
 
     def parse(self, instruction: str) -> bool:
+        """
+
+        :rtype: boolean of whether an instruction has been parsed & executed, allowing script to listen for wake word only
+        """
         instruction = expand_abbreviations(instruction)
         print(f"expanded instruction: {instruction} ")
         if instruction.__contains__("take me to"):
