@@ -308,7 +308,7 @@
                     if (evt.target.attributes.transform.value != "translate(0)") {
                         xy = evt.target.attributes.transform.value.match(/\(([^)]+)\)/)[1].split(",")
                         console.log(evt.target.attributes.transform.value)
-                        socket.emit('newLandmark', { name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
+                        socket.emit('newLandmark', { name: landmarkName, x: ((parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0])-2.1)/0.4)+0.2, y: ((parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1])-1.6)/0.491)+1.6+17.2 }) //name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
                     } else {
                         if (confirm("Delete " + evt.target.textContent + "?")) {
                             socket.emit('removeLandmark', { name: evt.target.textContent })
