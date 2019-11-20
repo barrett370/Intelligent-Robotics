@@ -47,17 +47,11 @@ class InstructionParser:
             if 'error' in keys:
                 os.system("mpg321 ./resources/snippets/error.mp3")
             elif 'check' in keys:
-                snippet = gTTS(text=resp['check'], lang=language, slow=False)
-                snippet.save("./resources/tmp.mp3")
                 os.system("mpg321 ./resources/snippets/check.mp3")
-                os.system("mpg321 ./resources/tmp.mp3")
-                os.system("rm ./resources/tmp.mp3")
+                requests.get(f"http://localhost:5001/say/{resp['check']}")
             else:
-                snippet = gTTS(text=str(resp['x']) + "," + str(resp['y']), lang=language, slow=False)
-                snippet.save("./resources/tmp.mp3")
                 os.system("mpg321 ./resources/snippets/found.mp3")
-                os.system("mpg321 ./resources/tmp.mp3")
-                os.system("rm ./resources/tmp.mp3")
+                requests.get(f"http://localhost:5001/say/{str(resp['x'])}, {str(resp['y'])}")
                 # interface with motion code
             return True
             # send to landmarks API
