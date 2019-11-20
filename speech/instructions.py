@@ -58,6 +58,7 @@ class InstructionParser:
                 os.system("mpg321 ./resources/snippets/found.mp3")
                 os.system("mpg321 ./resources/tmp.mp3")
                 os.system("rm ./resources/tmp.mp3")
+                # interface with motion code
             return True
             # send to landmarks API
         else:
