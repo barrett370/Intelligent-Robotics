@@ -1,5 +1,4 @@
 import time
-import re
 import sys
 
 # uses result_end_time currently only avaialble in v1p1beta, will be in v1 soon
@@ -8,6 +7,9 @@ import pyaudio
 from six.moves import queue
 
 # Audio recording parameters
+from speech.instructions import InstructionParser
+from speech.utils import strip_leading_space
+
 STREAMING_LIMIT = 10000
 SAMPLE_RATE = 16000
 CHUNK_SIZE = int(SAMPLE_RATE / 10)  # 100ms
@@ -132,24 +134,15 @@ class ResumableMicrophoneStream:
 
 
 listening_end = 0
-
-
-def strip_leading_space(string: str) -> str:
-    if string[0] == " ":
-        return strip_leading_space(string[1:])
-    else:
-        return string
+parser = InstructionParser()
 
 
 def parse_input_stream(responses):
     global listening_end
-    commands = {
-        "print something": lambda: print("Printed Something"),
-        "what is your name": lambda: print("My name is Howard!")
-    }
+
     for response in responses:
         if not response.results:
-            continue
+            break
 
         result = response.results[0]
         if not result.alternatives:
@@ -163,12 +156,12 @@ def parse_input_stream(responses):
                 sys.stdout.write("Wake Word Detected\n")
                 listening_end = get_current_time() + 1000000
             if listening_end > get_current_time():
-                try:
-                    transcript = strip_leading_space(transcript)
-                    print(f"checking for commands {transcript}")
-                    commands[transcript.lower()]()
-                except:
-                    pass
+                transcript = strip_leading_space(transcript)
+                print(f"checking for commands {transcript}")
+                # instructions[transcript.lower()]()
+                if parser.parse(transcript.lower()):
+                    print("completed instruction waiting for wake word")
+                    listening_end = get_current_time()
 
         # Parse following reponses for commands
 
@@ -270,8 +263,6 @@ def main():
 
             responses = client.streaming_recognize(streaming_config,
                                                    requests)
-            print(type(responses))
-
             # Now, put the transcription responses to use.
             parse_input_stream(responses)
             # listen_print_loop(responses, stream)
