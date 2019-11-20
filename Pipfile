@@ -17,6 +17,8 @@ pywatchman = "*"
 numpy = "*"
 matplotlib = "*"
 opencv-python = "*"
+face_recognition = "*"
+dlib = "*"
 
 [requires]
 python_version = "3.7"
