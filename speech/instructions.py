@@ -1,4 +1,11 @@
+import os
+
+import requests
+
 from speech.utils import strip_leading_space
+from gtts import gTTS
+
+language = 'en'
 
 
 # experimental
@@ -6,6 +13,13 @@ def expand_abbreviations(instruction: str) -> str:
     if instruction.__contains__("'s"):
         instruction = instruction.replace("'s", " is")
 
+    return instruction
+
+
+def strip_dets(instruction: str) -> str:
+    dets = ["the", "a", "an"]
+    for det in dets:
+        instruction = instruction.replace(det, "")
     return instruction
 
 
@@ -25,6 +39,25 @@ class InstructionParser:
         if instruction.__contains__("take me to"):
             location = strip_leading_space(instruction.split("take me to")[1])
             print(f"You want to be taken to {location}")
+            # Check if a valid location
+            req = requests.get(f"http://localhost:5000/getLandmark/{strip_dets(location)}")
+            resp: dict = req.json()
+            print(resp)
+            keys = resp.keys()
+            if 'error' in keys:
+                os.system("mpg321 ./resources/snippets/error.mp3")
+            elif 'check' in keys:
+                snippet = gTTS(text=resp['check'], lang=language, slow=False)
+                snippet.save("./resources/tmp.mp3")
+                os.system("mpg321 ./resources/snippets/check.mp3")
+                os.system("mpg321 ./resources/tmp.mp3")
+                os.system("rm ./resources/tmp.mp3")
+            else:
+                snippet = gTTS(text=str(resp['x']) + "," + str(resp['y']), lang=language, slow=False)
+                snippet.save("./resources/tmp.mp3")
+                os.system("mpg321 ./resources/snippets/found.mp3")
+                os.system("mpg321 ./resources/tmp.mp3")
+                os.system("rm ./resources/tmp.mp3")
             return True
             # send to landmarks API
         else:

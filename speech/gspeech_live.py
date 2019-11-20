@@ -155,7 +155,7 @@ def parse_input_stream(responses):
                 sys.stdout.write(RED)
                 sys.stdout.write("Wake Word Detected\n")
                 listening_end = get_current_time() + 1000000
-            if listening_end > get_current_time():
+            elif listening_end > get_current_time():
                 transcript = strip_leading_space(transcript)
                 print(f"checking for commands {transcript}")
                 # instructions[transcript.lower()]()
