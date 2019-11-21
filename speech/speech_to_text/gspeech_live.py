@@ -7,8 +7,8 @@ import pyaudio
 from six.moves import queue
 
 # Audio recording parameters
-from speech.instructions import InstructionParser
-from speech.utils import strip_leading_space
+from instructions import InstructionParser
+from utils import strip_leading_space
 
 STREAMING_LIMIT = 10000
 SAMPLE_RATE = 16000

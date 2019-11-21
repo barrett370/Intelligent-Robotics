@@ -2,8 +2,7 @@ import os
 
 import requests
 
-from speech.utils import strip_leading_space
-from gtts import gTTS
+from utils import strip_leading_space
 
 language = 'en'
 
