@@ -5,6 +5,7 @@ import difflib
 try:
     import currentPose
     pose = currentPose.CurrentPose()
+
 except:
     pose = {"x":0,"y":0} 
 
@@ -21,7 +22,8 @@ locationsDict = {
 
 app = Flask(__name__)
 
-@app.route("/healthCheck")
+
+@app.route("/healthcheck")
 def hello():
     return "Landmarks Server is Running"
 
@@ -50,7 +52,6 @@ def getLandmark(locString):
 @app.route("/getAllLandmarks")
 def getAllLandmarks():
     return locationsDict
-
 #create a new Landmark based on current posiition
 @app.route("/setLandmark/<locString>")
 def setLandmark(locString):
@@ -68,7 +69,6 @@ def setLandmarkXY(locString,x,y):
 def removeLandmark(locString):
     locationsDict.pop(locString)
     return  "success"
-
 #Get the relative location of the robot
 @app.route("/getRelLoc")
 def getRelLoc():

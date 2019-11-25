@@ -8,10 +8,10 @@ class CurrentPose:
         self.y = 0
         self.x_or = 0
         self.y_or = 0
-        self.sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped,self.callback)
+        self.sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped, self.callback)
         rospy.init_node('poser', anonymous=False)
 
-    def callback(self,msg):
+    def callback(self, msg):
         print(msg)
         pose = msg.pose.pose.position
         qur = msg.pose.pose.orientation
@@ -20,6 +20,7 @@ class CurrentPose:
         self.x_or = qur.x
         self.y_or = qur.y
     def get_pose(self):
+
         print({"x":self.x,"y":self.y})
-        return {"x":self.x,"y":self.y}
+        return {"x":self.x, "y":self.y}
 
