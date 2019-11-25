@@ -13,8 +13,9 @@ def healthcheck() -> str:
 
 @app.route("/say/<string>")
 def say(string: str) -> str:
-    language = 'en'
+    language = 'en-GB'
     snippet = gTTS(text=string, lang=language, slow=False)
+    os.system('pwd')
     snippet.save("../../resources/tmp.mp3")
     os.system("mpg321 ../../resources/tmp.mp3")
     return "success"

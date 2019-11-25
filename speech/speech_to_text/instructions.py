@@ -44,12 +44,13 @@ class InstructionParser:
             print(resp)
             keys = resp.keys()
             if 'error' in keys:
-                os.system("mpg321 ./resources/snippets/error.mp3")
+                os.system("mpg321 ../resources/snippets/error.mp3")
             elif 'check' in keys:
-                os.system("mpg321 ./resources/snippets/check.mp3")
+                os.system("mpg321 ../resources/snippets/check.mp3")
                 requests.get(f"http://localhost:5001/say/{resp['check']}")
             else:
-                os.system("mpg321 ./resources/snippets/found.mp3")
+                os.system('pwd')
+                os.system("mpg321 ../resources/snippets/found.mp3")
                 requests.get(f"http://localhost:5001/say/{str(resp['x'])}, {str(resp['y'])}")
                 # interface with motion code
             return True
