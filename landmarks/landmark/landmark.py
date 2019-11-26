@@ -3,21 +3,25 @@ import difflib
 
 #to run the code if the robot is not running
 try:
-    from .currentPose import CurrentPose
-    pose = CurrentPose()
+    import currentPose
+    pose = currentPose.CurrentPose()
+
 except:
     pose = {"x":0,"y":0} 
 
 
 
 locationsDict = {
-    "water cooler": {"x": 10,"y" :5} ,
-    "lift" : {"x" : 11, "y" :11}
+    "top left": {"x": 0.6,"y" :18.8} ,
+    "top right" : {"x" : 26.3, "y" :18.8},
+    "bottom left": {"x":2.1,"y":2.1},
+    "bottom right":{"x":25.8,"y":2.11}
 }
 
 
 
 app = Flask(__name__)
+
 
 @app.route("/healthcheck")
 def hello():
@@ -48,14 +52,23 @@ def getLandmark(locString):
 @app.route("/getAllLandmarks")
 def getAllLandmarks():
     return locationsDict
-
-
 #create a new Landmark based on current posiition
 @app.route("/setLandmark/<locString>")
 def setLandmark(locString):
     locationsDict[locString]= getCurrentPosition()
     return  "success"
 
+#create a new Landmark based on position
+@app.route("/setLandmark/<locString>/<x>/<y>")
+def setLandmarkXY(locString,x,y):
+    locationsDict[locString]= {"x":x,"y":y}
+    return  "success"
+
+#Remove a landmark
+@app.route("/removeLandmark/<locString>")
+def removeLandmark(locString):
+    locationsDict.pop(locString)
+    return  "success"
 #Get the relative location of the robot
 @app.route("/getRelLoc")
 def getRelLoc():

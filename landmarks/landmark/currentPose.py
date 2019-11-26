@@ -20,5 +20,7 @@ class CurrentPose:
         self.x_or = qur.x
         self.y_or = qur.y
     def get_pose(self):
+
+        print({"x":self.x,"y":self.y})
         return {"x":self.x, "y":self.y}
 

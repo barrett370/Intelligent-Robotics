@@ -21,3 +21,7 @@ init-pyre:
 .PHONY: type-check
 type-check:
 	cd ./catkin/src/ && pipenv run pyre check
+
+.PHONY: gen-resources
+generate:
+	cd ./speech && mkdir -p ./resources/snippets && pipenv run python gen-speech-snippets.py
