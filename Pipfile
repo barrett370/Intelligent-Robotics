@@ -20,6 +20,14 @@ opencv-python = "*"
 face_recognition = "*"
 dlib = "*"
 imutils = "*"
+flask = "*"
+flask-socketio = "*"
+speechrecognition = "*"
+pyaudio = "*"
+google-cloud-speech = "*"
+termcolor = "*"
+gTTS = "*"
+
 
 [requires]
 python_version = "3.7"
