@@ -22,7 +22,6 @@ locationsDict = {
 
 app = Flask(__name__)
 
-
 @app.route("/healthcheck")
 def hello():
     return "Landmarks Server is Running"
@@ -52,11 +51,13 @@ def getLandmark(locString):
 @app.route("/getAllLandmarks")
 def getAllLandmarks():
     return locationsDict
+
 #create a new Landmark based on current posiition
 @app.route("/setLandmark/<locString>")
 def setLandmark(locString):
     locationsDict[locString]= getCurrentPosition()
     return  "success"
+
 
 #create a new Landmark based on position
 @app.route("/setLandmark/<locString>/<x>/<y>")
@@ -69,6 +70,7 @@ def setLandmarkXY(locString,x,y):
 def removeLandmark(locString):
     locationsDict.pop(locString)
     return  "success"
+
 #Get the relative location of the robot
 @app.route("/getRelLoc")
 def getRelLoc():

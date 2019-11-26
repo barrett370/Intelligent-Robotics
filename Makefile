@@ -16,12 +16,13 @@ behave:
 
 .PHONY: init-pyre
 init-pyre:
-	cd ./catkin/src/ && pipenv run pyre init
+	cd ./vision && pipenv run pyre init
 
 .PHONY: type-check
 type-check:
-	cd ./catkin/src/ && pipenv run pyre check
+	cd ./vision && pipenv run pyre check
 
 .PHONY: gen-resources
 generate:
 	cd ./speech && mkdir -p ./resources/snippets && pipenv run python gen-speech-snippets.py
+

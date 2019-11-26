@@ -1,3 +1,5 @@
+
+# pyre-ignore-all-errors[21]
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
@@ -20,7 +22,6 @@ class CurrentPose:
         self.x_or = qur.x
         self.y_or = qur.y
     def get_pose(self):
-
         print({"x":self.x,"y":self.y})
         return {"x":self.x, "y":self.y}
 
