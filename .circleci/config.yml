@@ -15,6 +15,8 @@ jobs:
             - deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
       - run:
           command: |
+            sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0
+            sudo apt-get install ffmpeg libav-tools
             sudo pip install pipenv
             pipenv install
             mkdir test-reports
@@ -27,7 +29,8 @@ jobs:
       - run:
           name: Pyre Type checking
           command: |
-            cd ./catkin/src && pipenv run pyre --source-directory="." check
+            pipenv run pyre --source-directory "vision"
+            pipenv run pyre --source-directory "landmarks"
       - run:
           name: Python Unit tests
           command: pipenv run py.test --junit-xml=test-reports/pytest.xml
