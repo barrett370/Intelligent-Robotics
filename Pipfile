@@ -4,30 +4,41 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+# pytest = "*"
+pylint = "*"
 
 [packages]
-pytest = "*"
+# steps
 behave = "*"
-pyaml = "*"
+# pyaml = "*"
+# Ros
 rospkg = "*"
-catkin_pkg = "*"
-pyre-check ="*"
-psutil = "*"
-pywatchman = "*"
-numpy = "*"
-matplotlib = "*"
+# catkin_pkg = "*"
+# pyre-check ="*"
+# psutil = "*"
+# pywatchman = "*"
+
+
+# localisation
+# numpy = "*"
+# matplotlib = "*"
+
+# Vision
 opencv-python = "*"
 face_recognition = "*"
-dlib = "*"
+# dlib = "*"
 imutils = "*"
+
+# webInterface, landmarks, speech
 flask = "*"
+# webInterface
 flask-socketio = "*"
+# Speech
 speechrecognition = "*"
 pyaudio = "*"
 google-cloud-speech = "*"
-termcolor = "*"
+# termcolor = "*"
 gTTS = "*"
 
-
 [requires]
-python_version = "3.7"
+python_version = "3.6"
