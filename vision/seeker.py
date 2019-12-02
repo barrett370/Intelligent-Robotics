@@ -45,5 +45,11 @@ def setup():
     print('initialised node to mover')
     rate = rospy.Rate(HZ)  # 10hz
     base_data = Twist()
+    searching = True
     current_bearing = 0
     TURN_SCALAR = 500.0
+    while searching:
+        base_data.angular.z = 0.2
+        pub.publish(base_data)
+        rate.sleep()
+
