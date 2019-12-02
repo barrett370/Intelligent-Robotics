@@ -1,5 +1,5 @@
 <launch>
-
+ 	<arg name="pkg_dir" default="$(find guide_robot)"/>
    	<!-- Start p2os driver -->
 	<node pkg="p2os_driver" type="p2os_driver" name="p2os">
 	        <param name="port" value="/dev/ttyUSB0" />
@@ -13,6 +13,8 @@
 		<remap from="/laser" to="/base_scan" />
 		<remap from="/scan" to="/base_scan" />
 	</node>
+	    <param name="/use_sim_time" value="false"/>
+
 
 	<!-- transform laser co-ordinates into robot-base co-ordinate frame -->
 	<node pkg="tf" type="static_transform_publisher" name="stp_laser" output="screen" args="0.135 0 0.202 0 0 0 base_link laser 100" />
@@ -21,9 +23,17 @@
 	<arg name="map_file" default="$(find guide_robot)/map/CS_LG.yaml"/>
 
     	<!-- Run the map server -->
-    	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 	
 	<node pkg="guide_robot" type="delay_launch.sh"
-        args="3 guide_robot move_base.launch"
+        args="5 guide_robot move_base.launch"
         name="delayed_nav_launch" output="screen" />
+
+	<!-- <node pkg="guide_robot" type="run_landmarks.sh"
+    args="$(arg pkg_dir)"
+    name="landmarks" output="screen"/>
+
+    <node pkg="guide_robot" type="run_web.sh"
+    args="$(arg pkg_dir)"
+    name="web" output="screen"/> -->
 </launch> 

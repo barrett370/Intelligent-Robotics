@@ -11,9 +11,9 @@ phrases = {
 
 for key in phrases.keys():
     snippet = gTTS(text=phrases[key], lang=language, slow=False)
-    mp3_fp = BytesIO()
-    snippet.write_to_fp(mp3_fp)
-    # snippet.save(f"../resources/snippets/{key}.mp3")
-    playsound(mp3_fp)
-
+    #mp3_fp = BytesIO()
+    #snippet.write_to_fp(mp3_fp)
+    snippet.save(f"../resources/snippets/{key}.mp3")
+    #playsound(f"../resources/snippets/{key}.mp3")
+    os.system(f"mpg321 ../resources/snippets/{key}.mp3")
 # os.system("mpg321 welcome.mp3")

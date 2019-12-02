@@ -1,4 +1,4 @@
-import io
+import os
 import playsound
 
 from flask import Flask
@@ -16,10 +16,9 @@ def healthcheck() -> str:
 def say(string: str) -> str:
     language = 'en-GB'
     snippet = gTTS(text=string, lang=language, slow=False)
-    mp3_fp = io.BytesIO()
-    snippet.write_to_fp(mp3_fp)
     # snippet.save(f"../resources/snippets/{key}.mp3")
-    playsound.playsound(mp3_fp)
+    snippet.save("../../resources/tmp.mp3")
+    os.system("mpg321 ../../resources/tmp.mp3")
     return "success"
 
 

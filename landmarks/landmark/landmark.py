@@ -14,7 +14,9 @@ from geometry_msgs.msg import PoseStamped
 #     pose = {"x":0,"y":0} 
 
 pose = CurrentPose()
-pub = rospy.Publisher('/move_base/goal', PoseStamped, queue_size=100)
+
+pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
+
 # except:
 #     pose = {"x":0,"y":0} 
 
@@ -114,9 +116,12 @@ def go_to(landmark):
     goal.pose.position.x = loc['x']
     print(3)
     goal.pose.position.y = loc['y']
+    goal.pose.position.z = 0
     print(4)
-    goal.header.frame_id = "map"
+    goal.pose.orientation = Quaternion(0,0,1,0)
     print(5)
+    goal.header.frame_id = "map"
+    print(6)
     pub.publish(goal)
     print("set goal position")
     print(goal.pose.position)
