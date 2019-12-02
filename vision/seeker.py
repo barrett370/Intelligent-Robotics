@@ -12,7 +12,7 @@ RIGHT = -90
 LEFT = 90
 BACKWARDS = 180
 FORWARD = 0
-HZ = 1
+HZ = 10
 
 pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
 print('seeker set publisher to cmd_vel')
@@ -22,39 +22,39 @@ rate = rospy.Rate(HZ)  # 10hz
 base_data = Twist()
 searching = True
 
-while searching:
+# construct the argument parser and parse the arguments
+argParser = argparse.ArgumentParser()
+argParser.add_argument("-e", "--encodings", default="encodings.pickle",
+                       help="SEEKER :path to serialized db of facial encodings")
+argParser.add_argument("-o", "--output", type=str,  # default="output/webcam_face_recognition_output.avi",
+                       help="SEEKER: path to output video")
+argParser.add_argument("-y", "--display", type=int, default=1,
+                       help="SEEKER: whether or not to display output frame to screen")
+argParser.add_argument("-d", "--detection-method", type=str, default="hog",
+                       help="SEEKER face detection model to use: either `hog` or `cnn`")
+args = vars(argParser.parse_args())
+
+# load the known faces and embeddings
+print("SEEKER: [INFO] loading encodings...")
+data = pickle.loads(open(args["encodings"], "rb").read())
+
+# initialize the video stream and pointer to output video file, then
+# allow the camera sensor to warm up
+print("[INFO] starting video stream...")
+vs = VideoStream(src=0).start()
+writer = None
+time.sleep(2.0)
+
+while True:
     # base_data.angular.z = 0.2
     # pub.publish(base_data)
     # rate.sleep()
 
     ##
     # Below is facial recognition code that needs reworking
-
-    # construct the argument parser and parse the arguments
-    argParser = argparse.ArgumentParser()
-    argParser.add_argument("-e", "--encodings", default="encodings.pickle",
-                           help="SEEKER :path to serialized db of facial encodings")
-    argParser.add_argument("-o", "--output", type=str,  # default="output/webcam_face_recognition_output.avi",
-                           help="SEEKER: path to output video")
-    argParser.add_argument("-y", "--display", type=int, default=1,
-                           help="SEEKER: whether or not to display output frame to screen")
-    argParser.add_argument("-d", "--detection-method", type=str, default="hog",
-                           help="SEEKER face detection model to use: either `hog` or `cnn`")
-    args = vars(argParser.parse_args())
-
-    # load the known faces and embeddings
-    print("SEEKER: [INFO] loading encodings...")
-    data = pickle.loads(open(args["encodings"], "rb").read())
-
-    # initialize the video stream and pointer to output video file, then
-    # allow the camera sensor to warm up
-    print("[INFO] starting video stream...")
-    vs = VideoStream(src=0).start()
-    writer = None
-    time.sleep(2.0)
-
     # grab the frame from the threaded video stream
     frame = vs.read()
+    # print(1)
 
     # convert the input frame from BGR to RGB then resize it to have
     # a width of 750px (to speedup processing)
@@ -72,6 +72,7 @@ while searching:
 
     # loop over the facial embeddings
     for encoding in encodings:
+        # print(2)
         # attempt to match each face in the input image to our known
         # encodings
         matches = face_recognition.compare_faces(data["encodings"],
@@ -100,9 +101,10 @@ while searching:
 
         # update the list of names
         names.append(name)
-
+    # print(3)
     # loop over the recognized faces
     for ((top, right, bottom, left), name) in zip(boxes, names):
+        # print(4)
         # rescale the face coordinates
         top = int(top * r)
         right = int(right * r)
@@ -116,14 +118,14 @@ while searching:
         cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
                     0.75, (0, 255, 0), 2)
         print(name)
-
+    # print(5)
     # if the video writer is None *AND* we are supposed to write
     # the output video to disk initialize the writer
     if writer is None and args["output"] is not None:
         fourcc = cv2.VideoWriter_fourcc(*"MJPG")
         writer = cv2.VideoWriter(args["output"], fourcc, 20,
                                  (frame.shape[1], frame.shape[0]), True)
-
+    # print(6)
     # if the writer is not None, write the frame with recognized
     # faces t odisk
     if writer is not None:
@@ -147,4 +149,3 @@ while searching:
     if writer is not None:
         writer.release()
 
-setup()
