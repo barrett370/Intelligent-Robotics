@@ -18,7 +18,7 @@
 	<node pkg="tf" type="static_transform_publisher" name="stp_laser" output="screen" args="0.135 0 0.202 0 0 0 base_link laser 100" />
 	
 	<!-- start map server -->
-	<arg name="map_file" default="$(find guide_robot)/maps/LG-MAP-cleaned.yaml"/>
+	<arg name="map_file" default="$(find guide_robot)/map/CS_LG.yaml"/>
 
     	<!-- Run the map server -->
     	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
