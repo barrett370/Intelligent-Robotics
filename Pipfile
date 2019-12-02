@@ -18,18 +18,14 @@ rospkg = "*"
 # pyre-check ="*"
 # psutil = "*"
 # pywatchman = "*"
-
-
 # localisation
 # numpy = "*"
 # matplotlib = "*"
-
 # Vision
 #opencv-python = "*"
 #face_recognition = "*"
 # dlib = "*"
 imutils = "*"
-
 # webInterface, landmarks, speech
 flask = "*"
 # webInterface
@@ -40,6 +36,7 @@ speechrecognition = "*"
 google-cloud-speech = "*"
 # termcolor = "*"
 gTTS = "*"
+playsound = "*"
 
 [requires]
 python_version = "3.7"

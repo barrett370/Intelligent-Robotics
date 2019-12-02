@@ -14,7 +14,7 @@ from geometry_msgs.msg import PoseStamped
 #     pose = {"x":0,"y":0} 
 
 pose = CurrentPose()
-pub = rospy.Publisher('/move_base/current_goal', PoseStamped, queue_size=100)
+pub = rospy.Publisher('/move_base/goal', PoseStamped, queue_size=100)
 # except:
 #     pose = {"x":0,"y":0} 
 

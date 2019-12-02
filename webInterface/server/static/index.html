@@ -204,7 +204,7 @@
             sideBarstring = ""
             for (i in data.locations) {
                 console.log(i)
-                sideBarstring += '<a class="side-bar-button">'+i+'<i class="material-icons directions">directions</i></a>'
+                sideBarstring += '<a class="side-bar-button" onclick="goTo(`'+i+'`)">'+i+'<i class="material-icons directions">directions</i></a>'
                 locationsString += '<circle cx="' + (((data.locations[i].x+11.47)/2.54)+3.24)  + '" cy="' + -(((data.locations[i].y-8.75)/2.53)-1.36) + '" r="0.05" class="draggable"  stroke="#007bff" stroke-width="0.02" fill="white" ><title>' + i + '</title></circle>'
             }
             document.getElementById("locations-g").innerHTML = locationsString
@@ -241,6 +241,14 @@
             if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
                 socket.emit('keyPress', { data: e.key });
             }
+        }
+
+        function goTo(loc){
+            socket.emit('goTo', { data: loc });
+        }
+
+        function say(){
+            socket.emit('say', { data: document.getElementById("howardSpeach").value });
         }
 
     </script>
@@ -347,7 +355,7 @@
         <div></div>
         <div id="voice-input">
             <input type="text" id="howardSpeach" placeholder="Howard say..">
-            <i class="material-icons select-none" style="padding-top:18px;padding-left:10px;cursor:pointer;" >
+            <i class="material-icons select-none" onclick="say()" style="padding-top:18px;padding-left:10px;cursor:pointer;" >
                 insert_comment
                 </i>
         </div>

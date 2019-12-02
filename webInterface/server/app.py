@@ -52,8 +52,6 @@ def callback(msg):
     qur = msg.pose.pose.orientation
     x = pose.x
     y = pose.y
-    # x_or = qur.x
-    # y_or = qur.y
     socketio.emit("robot-update", {'x':x, 'y':y})
     print(x,y)
 
@@ -97,6 +95,26 @@ def newLandmark(json):
             updateLocations()
     except:
         print("down")
+
+@socketio.on('goTo')
+def goTo(json):
+    try:
+        req = requests.get("http://localhost:5000/go/"+json["data"])
+        if(req.status_code==200):
+            console.log("on way")
+            # updateLocations()
+    except:
+        print("down")
+
+@socketio.on('say')
+def say(json):
+    try:
+        req = requests.get("http://localhost:5001/say/"+json["data"])
+        if(req.status_code==200):
+            console.log("said "+json["data"])
+            # updateLocations()
+    except:
+        print("say down")
 
 @socketio.on('removeLandmark')
 def removeLandmark(json):
