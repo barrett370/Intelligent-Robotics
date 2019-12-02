@@ -54,7 +54,7 @@ def setup():
         rate.sleep()
 
         ##
-        # Below is facial recongition code that needs reworking
+        # Below is facial recognition code that needs reworking
         ##
 
         # grab the frame from the threaded video stream
