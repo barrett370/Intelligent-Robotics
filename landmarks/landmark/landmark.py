@@ -7,12 +7,26 @@ from geometry_msgs.msg import PoseStamped
 try:
     import currentPose
     pose = currentPose.CurrentPose()
-
 except:
     pose = {"x":0,"y":0} 
 
+pose = CurrentPose()
+pub = rospy.Publisher('/move_base/current_goal', PoseStamped, queue_size=100)
+# except:
+#     pose = {"x":0,"y":0} 
 
 
+# def callback(msg):
+#     # print(msg)
+#     pose = msg.pose.pose.position
+#     qur = msg.pose.pose.orientation
+#     x = pose.x
+#     y = pose.y
+#     x_or = qur.x
+#     y_or = qur.y
+
+
+# sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped, callback)
 locationsDict = {
     "top left": {"x": 0.6,"y" :18.8} ,
     "top right" : {"x" : 26.3, "y" :18.8},
@@ -24,7 +38,7 @@ pub = rospy.Publisher('/move_base/current_goal',PoseStamped)
 
 app = Flask(__name__)
 
-@app.route("/healthcheck")
+@app.route("/healthCheck")
 def hello():
     return "Landmarks Server is Running"
 
@@ -68,7 +82,6 @@ def setLandmark(locString):
     locationsDict[locString]= getCurrentPosition()
     return  "success"
 
-
 #create a new Landmark based on position
 @app.route("/setLandmark/<locString>/<x>/<y>")
 def setLandmarkXY(locString,x,y):
@@ -95,7 +108,27 @@ def getRelLoc():
     else: 
         return "You are not near anything"
 
-@app.route("/current")
+@app.route("/go/<landmark>")
+def go_to(landmark):
+    print(f'go: {landmark}')
+    loc = getLandmark(landmark)
+    print(1)
+    # loc = locationsDict[landmark]
+    goal = PoseStamped()
+    print(2)
+    goal.pose.position.x = loc['x']
+    print(3)
+    goal.pose.position.y = loc['y']
+    print(4)
+    goal.header.frame_id = "map"
+    print(5)
+    pub.publish(goal)
+    print("set goal position")
+    print(goal.pose.position)
+    return "success"
+
+
+# @app.route("/current")
 def getCurrentPosition():
     try:
         return pose.get_pose()
@@ -104,4 +137,3 @@ def getCurrentPosition():
 
 if __name__ == "__main__":
     app.run()
-

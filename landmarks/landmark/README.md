@@ -2,7 +2,7 @@
 
 Runs on port 5000
 
-## ` /healthcheck ` 
+## ` / ` 
 - test if the server is running `"Landmarks Server is Running"`
 
 ## ` /getLandmark/<locString> ` 
