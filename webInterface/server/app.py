@@ -8,22 +8,24 @@ import logging
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
+import sys
+import logging
+# from .currentPose import CurrentPose
+import rospy
 
-
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
-loop = asyncio.get_event_loop()
+# logging.getLogger('werkzeug').setLevel(logging.ERROR)
+# loop = asyncio.get_event_loop()
 
 
 
 
 
 #to run the code if the robot is not running
-try:
-    import rospy
-    from .currentPose import CurrentPose
-    pose = CurrentPose()
-except:
-    pose = {"x":0,"y":0} 
+# try:
+
+    # logging.error("Loaded pose node.")
+# except:
+#     pose = {"x":0,"y":0} 
 
 
 #get the landmarks from landmark server
@@ -31,31 +33,31 @@ try:
     req = requests.get("http://localhost:5000/getAllLandmarks")
     landmarks = req.json()
 except:
-    landmarks = {"water cooler":{"x":5,"y":5}}
+    landmarks = {"water cooler":{"x":5, "y":5}}
 
 robotX = 5 #Dummy x position of robot
-robotY= 5 # Dummy Y position of robot
+robotY = 5 # Dummy Y position of robot
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
+print("app configured")
 socketio = SocketIO(app,cors_allowed_origins="*")
+print("setup socket")
+# pose = CurrentPose(socketio, 'robot-update')
+
 
 
 def callback(msg):
-        # print(msg)
-        pose = msg.pose.pose.position
-        qur = msg.pose.pose.orientation
-        x = pose.x
-        y = pose.y
-        x_or = qur.x
-        y_or = qur.y
-        socketio.emit("robot-update", {'x':x,'y':y})
-        print(x,y)
+    pose = msg.pose.pose.position
+    qur = msg.pose.pose.orientation
+    x = pose.x
+    y = pose.y
+    # x_or = qur.x
+    # y_or = qur.y
+    socketio.emit("robot-update", {'x':x, 'y':y})
+    print(x,y)
 
-try:
-    sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped,callback)
-    rospy.init_node('poser', anonymous=False)
-except: 
-    print("ROS not found")
+rospy.init_node('poser', anonymous=True)
+sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 
 @app.route('/')
 def root(): 
@@ -65,7 +67,7 @@ def root():
 @app.route('/img/map.png')
 def map():
     print("image")
-    return app.send_static_file('img/map.png')
+    return app.send_static_file('img/CS_LG.png')
 
 @app.route('/updateLocations')
 def updateLocations():
@@ -82,7 +84,7 @@ def updateLocations():
 @socketio.on('connected')
 def handle_my_custom_event(json):
     socketio.emit("setup", {'locations': landmarks})
-    socketio.emit("robot-update", {'x':robotX,'y':robotY})
+    # socketio.emit("robot-update",  pose.get_pose())
     statusCheck()
     print('received json: ' + str(json))
 
@@ -134,7 +136,7 @@ def keyPress(json):
         robotY+=0.02
     elif(key=="d"):
         robotX +=0.02
-    socketio.emit("robot-update", {'x':robotX,'y':robotY})
+    socketio.emit("robot-update", pose.get_pose())
 
 
 # import sched, time

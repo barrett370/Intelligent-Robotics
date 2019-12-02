@@ -1,0 +1,3 @@
+<launch>
+    <node type="rviz" name="rviz" pkg="rviz" args="$(find guide_robot)/config/rviz.rviz" />
+</launch>
