@@ -50,7 +50,9 @@ def setup():
     TURN_SCALAR = 500.0
     while searching:
         base_data.angular.z = 0.2
-        print("running")
         pub.publish(base_data)
         rate.sleep()
+
+
+setup()
 
