@@ -239,6 +239,7 @@
         document.addEventListener('keyPress', logKey);
         function logKey(e) {
             if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
+                console.log(e.key)
                 socket.emit('keyPress', { data: e.key });
             }
         }

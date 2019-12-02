@@ -8,6 +8,8 @@ import logging
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Twist
+
 import sys
 import logging
 # from .currentPose import CurrentPose
@@ -57,7 +59,7 @@ def callback(msg):
 
 rospy.init_node('poser', anonymous=True)
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
-
+pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 @app.route('/')
 def root(): 
     print("/")
@@ -147,7 +149,9 @@ def keyPress(json):
     global robotX
     global robotY
     key = json["data"]
+    twist = Twist()
     if(key=="w"):
+        twist.linear.x=1
         robotY-=0.02
     elif(key=="a"):
         robotX -= 0.02
@@ -155,6 +159,8 @@ def keyPress(json):
         robotY+=0.02
     elif(key=="d"):
         robotX +=0.02
+    print(twist)
+    pub.publish(twist)
     socketio.emit("robot-update", pose.get_pose())
 
 
