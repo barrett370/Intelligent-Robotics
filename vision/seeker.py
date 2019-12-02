@@ -1,3 +1,25 @@
+
+
+
+# RIGHT = -90
+# LEFT = 90
+# BACKWARDS = 180
+# FORWARD = 0
+# HZ = 10
+
+# pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
+# print('seeker set publisher to cmd_vel')
+# rospy.init_node('Mover', anonymous=True)
+# print('initialised node to mover')
+# rate = rospy.Rate(HZ)  # 10hz
+# base_data = Twist()
+# searching = True
+    # base_data.angular.z = 0.2
+    # pub.publish(base_data)
+    # rate.sleep()
+
+# import the necessary packages
+
 import rospy
 from geometry_msgs.msg import Twist
 from imutils.video import VideoStream
@@ -7,20 +29,6 @@ import imutils
 import pickle
 import time
 import cv2
-
-RIGHT = -90
-LEFT = 90
-BACKWARDS = 180
-FORWARD = 0
-HZ = 10
-
-pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
-print('seeker set publisher to cmd_vel')
-rospy.init_node('Mover', anonymous=True)
-print('initialised node to mover')
-rate = rospy.Rate(HZ)  # 10hz
-base_data = Twist()
-searching = True
 
 # construct the argument parser and parse the arguments
 argParser = argparse.ArgumentParser()
@@ -35,7 +43,7 @@ argParser.add_argument("-d", "--detection-method", type=str, default="hog",
 args = vars(argParser.parse_args())
 
 # load the known faces and embeddings
-print("SEEKER: [INFO] loading encodings...")
+print("[INFO] loading encodings...")
 data = pickle.loads(open(args["encodings"], "rb").read())
 
 # initialize the video stream and pointer to output video file, then
@@ -45,16 +53,10 @@ vs = VideoStream(src=0).start()
 writer = None
 time.sleep(2.0)
 
+# loop over frames from the video file stream
 while True:
-    # base_data.angular.z = 0.2
-    # pub.publish(base_data)
-    # rate.sleep()
-
-    ##
-    # Below is facial recognition code that needs reworking
     # grab the frame from the threaded video stream
     frame = vs.read()
-    # print(1)
 
     # convert the input frame from BGR to RGB then resize it to have
     # a width of 750px (to speedup processing)
@@ -72,7 +74,6 @@ while True:
 
     # loop over the facial embeddings
     for encoding in encodings:
-        # print(2)
         # attempt to match each face in the input image to our known
         # encodings
         matches = face_recognition.compare_faces(data["encodings"],
@@ -97,14 +98,13 @@ while True:
             # of votes (note: in the event of an unlikely tie Python
             # will select first entry in the dictionary)
             name = max(counts, key=counts.get)
-            print(counts[name])
+            print("max counts:" + str(counts[name]))
 
         # update the list of names
         names.append(name)
-    # print(3)
+
     # loop over the recognized faces
     for ((top, right, bottom, left), name) in zip(boxes, names):
-        # print(4)
         # rescale the face coordinates
         top = int(top * r)
         right = int(right * r)
@@ -117,15 +117,15 @@ while True:
         y = top - 15 if top - 15 > 15 else top + 15
         cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
                     0.75, (0, 255, 0), 2)
-        print(name)
-    # print(5)
+        # print(name)
+
     # if the video writer is None *AND* we are supposed to write
     # the output video to disk initialize the writer
     if writer is None and args["output"] is not None:
         fourcc = cv2.VideoWriter_fourcc(*"MJPG")
         writer = cv2.VideoWriter(args["output"], fourcc, 20,
                                  (frame.shape[1], frame.shape[0]), True)
-    # print(6)
+
     # if the writer is not None, write the frame with recognized
     # faces t odisk
     if writer is not None:
@@ -141,11 +141,14 @@ while True:
         if key == ord("q"):
             break
 
-    # do a bit of cleanup
-    cv2.destroyAllWindows()
-    vs.stop()
+# do a bit of cleanup
+cv2.destroyAllWindows()
+vs.stop()
 
-    # check to see if the video writer point needs to be released
-    if writer is not None:
-        writer.release()
+# check to see if the video writer point needs to be released
+if writer is not None:
+    writer.release()
+
+
+
 
