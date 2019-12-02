@@ -1,5 +1,7 @@
 from flask import Flask,abort
 import difflib
+import rospy
+from geometry_msgs.msg import PoseStamped
 
 #to run the code if the robot is not running
 try:
@@ -17,8 +19,8 @@ locationsDict = {
     "bottom left": {"x":2.1,"y":2.1},
     "bottom right":{"x":25.8,"y":2.11}
 }
-
-
+# rospy.init_node('goal_setter',anonymous=True)
+pub = rospy.Publisher('/move_base/current_goal',PoseStamped)
 
 app = Flask(__name__)
 
@@ -47,6 +49,14 @@ def getLandmark(locString):
         else:
             return {"error": "nothing found"}
 
+@app.route("/go/<locString>")
+def go(locString:str):
+    landmark = getLandmark(locString)
+    goal = PoseStamped()
+    goal.pose.position.x = landmark['x']
+    goal.pose.position.y = landmark['y']
+    pub.publish(goal)
+    return f"Going to {locString} at x:{landmark['x']}, y: {landmark['y']}"
 #Return all landmarks
 @app.route("/getAllLandmarks")
 def getAllLandmarks():
@@ -94,3 +104,4 @@ def getCurrentPosition():
 
 if __name__ == "__main__":
     app.run()
+
