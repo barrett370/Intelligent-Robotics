@@ -12,16 +12,16 @@ import time
 import cv2
 
 # construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-e", "--encodings", required=True,
-                help="path to serialized db of facial encodings")
-ap.add_argument("-o", "--output", type=str,
-                help="path to output video")
-ap.add_argument("-y", "--display", type=int, default=1,
-                help="whether or not to display output frame to screen")
-ap.add_argument("-d", "--detection-method", type=str, default="hog",
-                help="face detection model to use: either `hog` or `cnn`")
-args = vars(ap.parse_args())
+argParser = argparse.ArgumentParser()
+argParser.add_argument("-e", "--encodings", default="encodings.pickle",
+                       help="SEEKER :path to serialized db of facial encodings")
+argParser.add_argument("-o", "--output", type=str,  # default="output/webcam_face_recognition_output.avi",
+                       help="SEEKER: path to output video")
+argParser.add_argument("-y", "--display", type=int, default=1,
+                       help="SEEKER: whether or not to display output frame to screen")
+argParser.add_argument("-d", "--detection-method", type=str, default="hog",
+                       help="SEEKER face detection model to use: either `hog` or `cnn`")
+args = vars(argParser.parse_args())
 
 # load the known faces and embeddings
 print("[INFO] loading encodings...")

@@ -14,11 +14,13 @@ BACKWARDS = 180
 FORWARD = 0
 HZ = 10
 
+
+# python recognize_faces_video.py --encodings encodings.pickle --output output/webcam_face_recognition_output.avi --display 1
 # construct the argument parser and parse the arguments
 argParser = argparse.ArgumentParser()
-argParser.add_argument("-e", "--encodings", required=True,
+argParser.add_argument("-e", "--encodings", default="encodings.pickle",
                        help="SEEKER :path to serialized db of facial encodings")
-argParser.add_argument("-o", "--output", type=str,
+argParser.add_argument("-o", "--output", type=str, default="output/webcam_face_recognition_output.avi",
                        help="SEEKER: path to output video")
 argParser.add_argument("-y", "--display", type=int, default=1,
                        help="SEEKER: whether or not to display output frame to screen")
