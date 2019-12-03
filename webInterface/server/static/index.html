@@ -13,6 +13,7 @@
 
         :root{
             --expand:0px;
+            --expand2:0px;
         }
 
 
@@ -43,7 +44,7 @@
             height: 100vh;
             transition: grid-template-rows 0.3s cubic-bezier(.25, .8, .25, 1);
             overflow: hidden;
-            grid-template-rows: 50px 50px var(--expand)  auto  50px;
+            grid-template-rows: 50px 50px var(--expand) 50px var(--expand2) auto  50px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
         }
 
@@ -135,6 +136,14 @@
             transition: --expand 0.3s cubic-bezier(.25, .8, .25, 1);
         }
 
+        #expandable2{
+            display: grid;
+            grid-auto-rows: 50px;
+            overflow: hidden;
+            transition: --expand 0.3s cubic-bezier(.25, .8, .25, 1);
+        }
+
+
         .directions{
             float: right;
             padding-right: 4%;
@@ -188,7 +197,7 @@
         ////////////////////////////////////////////////////////////////
 
         var landmarks ={}
-
+        var people ={}
 
         var socket = io();
 
@@ -211,6 +220,16 @@
             document.getElementById("expandable").innerHTML = sideBarstring
             expand() 
             expand() //reload the sidebar
+            peopleSidebarString=""
+            people = data.people
+            console.log(data)
+            for(i in data.people){
+                peopleSidebarString+='<a class="side-bar-button" onclick="find(`'+data.people[i]+'`)">'+data.people[i]+'<i class="material-icons directions">search</i></a>'
+            }
+            document.getElementById("expandable2").innerHTML = peopleSidebarString
+            expand2() 
+            expand2() //reload the sidebar
+
         });
 
         // Update with the robots position
@@ -368,6 +387,11 @@
 
 
         </div>
+        <a class="side-bar-button" onclick="expand2()"><i class="material-icons">
+            arrow_drop_down
+            </i><span class="side-bar-label">People</span></a>
+        <div id="expandable2">
+        </div>
         <div></div>
         <div id="voice-input">
             <input type="text" id="howardSpeach" placeholder="Howard say..">
@@ -414,6 +438,16 @@
             document.documentElement.style.setProperty('--expand', Object.keys(landmarks).length *50+'px');
         }
         expanded = !expanded
+    }
+    var expanded2 = false;
+
+    function expand2(){
+        if(expanded2){
+            document.documentElement.style.setProperty('--expand2', '0px');
+        }else{
+            document.documentElement.style.setProperty('--expand2', Object.keys(people).length *50+'px');
+        }
+        expanded2 = !expanded2
     }
 </script>
 

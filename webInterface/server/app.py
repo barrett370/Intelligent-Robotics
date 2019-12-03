@@ -37,6 +37,8 @@ import rospy
 # except:
 #     landmarks = {"water cooler":{"x":5, "y":5}}
 
+people = ["Jonathan","Geroge","Charlie","Sam","Anant"]
+
 robotX = 5 #Dummy x position of robot
 robotY = 5 # Dummy Y position of robot
 app = Flask(__name__, static_url_path='')
@@ -109,10 +111,11 @@ def map():
 @app.route('/updateLocations')
 def updateLocations():
     global landmarks
+    global people
     try:
         req = requests.get("http://localhost:5000/getAllLandmarks")
         landmarks = req.json()
-        socketio.emit("setup", {'locations': landmarks})
+        socketio.emit("setup", {'locations': landmarks,"people":people})
         return "updated"
     except:
         print("down")
