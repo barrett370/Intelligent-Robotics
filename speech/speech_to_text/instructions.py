@@ -22,12 +22,17 @@ def strip_dets(instruction: str) -> str:
     return instruction
 
 
+
 class InstructionParser:
     instructions = {
         "print something": lambda: print("Printed Something"),
-        "what is your name": lambda: print("My name is Howard!")
+        "what is your name": lambda: print("My name is Howard!"),
+        "where am i": self.get_current_loc 
     }
 
+    def get_current_loc(self):
+        req = requests.get("http://localhost:5000/getRelLoc")
+        requests.get(f"http://localhost:5001/say/{req}")
     def parse(self, instruction: str) -> bool:
         """
 
