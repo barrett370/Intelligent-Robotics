@@ -8,6 +8,8 @@ import logging
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Twist
+
 import sys
 import logging
 # from .currentPose import CurrentPose
@@ -15,7 +17,6 @@ import rospy
 
 # logging.getLogger('werkzeug').setLevel(logging.ERROR)
 # loop = asyncio.get_event_loop()
-
 
 
 
@@ -47,18 +48,17 @@ print("setup socket")
 
 
 def callback(msg):
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
     x = pose.x
     y = pose.y
-    # x_or = qur.x
-    # y_or = qur.y
     socketio.emit("robot-update", {'x':x, 'y':y})
     print(x,y)
 
 rospy.init_node('poser', anonymous=True)
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
-
+pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 @app.route('/')
 def root(): 
     print("/")
@@ -97,6 +97,26 @@ def newLandmark(json):
     except:
         print("down")
 
+@socketio.on('goTo')
+def goTo(json):
+    try:
+        req = requests.get("http://localhost:5000/go/"+json["data"])
+        if(req.status_code==200):
+            console.log("on way")
+            # updateLocations()
+    except:
+        print("down")
+
+@socketio.on('say')
+def say(json):
+    try:
+        req = requests.get("http://localhost:5001/say/"+json["data"])
+        if(req.status_code==200):
+            console.log("said "+json["data"])
+            # updateLocations()
+    except:
+        print("say down")
+
 @socketio.on('removeLandmark')
 def removeLandmark(json):
     try:
@@ -128,7 +148,9 @@ def keyPress(json):
     global robotX
     global robotY
     key = json["data"]
+    twist = Twist()
     if(key=="w"):
+        twist.linear.x=1
         robotY-=0.02
     elif(key=="a"):
         robotX -= 0.02
@@ -136,6 +158,8 @@ def keyPress(json):
         robotY+=0.02
     elif(key=="d"):
         robotX +=0.02
+    print(twist)
+    pub.publish(twist)
     socketio.emit("robot-update", pose.get_pose())
 
 
@@ -158,4 +182,4 @@ def getCurrentPosition():
 
 
 if __name__ == "__main__":
-    socketio.run(app, host='localhost', port=4200)
+    socketio.run(app, host='0.0.0.0', port=4200)
