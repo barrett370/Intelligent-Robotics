@@ -17,6 +17,8 @@ import logging
 import math
 import rospy
 
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+loop = asyncio.get_event_loop()
 
 people = ["Jonathan","Geroge","Charlie","Sam","Anant"]
 
