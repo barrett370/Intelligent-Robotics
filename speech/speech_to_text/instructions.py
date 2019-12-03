@@ -21,15 +21,20 @@ def strip_dets(instruction: str) -> str:
         instruction = instruction.replace(det, "")
     return instruction
 
-
+def get_loc():
+    print("get_loc")
+    req = requests.get("http://localhost:5000/getRelLoc")
+    print(req.json())
+    requests.get(f"http://localhost:5001/say/{req}")
 class InstructionParser:
     instructions = {
         "print something": lambda: print("Printed Something"),
-        "what is your name": lambda: print("My name is Howard!")
+        "what is your name": lambda: print("My name is Howard!"),
+        "where am i" : get_loc
     }
 
     def parse(self, instruction: str) -> bool:
-        """
+        """         
 
         :rtype: boolean of whether an instruction has been parsed & executed, allowing script to listen for wake word only
         """
