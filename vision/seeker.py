@@ -3,10 +3,8 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from imutils.video import VideoStream
 import face_recognition
-import argparse
 import imutils
 import pickle
-import time
 import cv2
 
 
