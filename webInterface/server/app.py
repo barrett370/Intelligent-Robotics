@@ -21,7 +21,6 @@ import rospy
 
 
 
-
 #to run the code if the robot is not running
 # try:
 
@@ -68,7 +67,7 @@ def root():
 @app.route('/img/map.png')
 def map():
     print("image")
-    return app.send_static_file('img/map.png')
+    return app.send_static_file('img/CS_LG.png')
 
 @app.route('/updateLocations')
 def updateLocations():
