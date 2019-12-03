@@ -2,8 +2,8 @@
   <node pkg="amcl" type="amcl" name="amcl" output="screen">
 
     <!-- Initial Position -->
-    <param name="initial_pose_x" value="-8.30"/>    <!-- x-coordinate -->
-    <param name="initial_pose_y" value="6.60"/>    <!-- y-coordinate -->
+    <param name="initial_pose_x" value="0"/>    <!-- x-coordinate -->
+    <param name="initial_pose_y" value="0"/>    <!-- y-coordinate -->
     <param name="initial_pose_a" value="1.0"/>   <!-- orientation -->
     
     <param name="gui_publish_rate" value="15.0"/>
