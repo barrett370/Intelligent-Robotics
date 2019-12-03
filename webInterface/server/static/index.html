@@ -234,7 +234,7 @@
 
         // Update status
         socket.on('statusUpdate', function (data) {
-            console.log(data)
+            // console.log(data)
             statusString = ""
             for (i in data) {
                 if (data[i] == 200) {
@@ -245,6 +245,8 @@
             }
             document.getElementById("status-container").innerHTML = statusString
         });
+
+        setInterval(function() { socket.emit("statusCheck") }, 10000);
 
         //control the robot via keyboard
         document.addEventListener('keyPress', logKey);
@@ -328,8 +330,9 @@
                 if (evt.target.tagName == "circle") {
                     if (evt.target.attributes.transform.value != "translate(0)") {
                         xy = evt.target.attributes.transform.value.match(/\(([^)]+)\)/)[1].split(",")
-                        console.log(evt.target.attributes.transform.value)
-                        socket.emit('newLandmark', { name:  evt.target.textContent, x: ((parseFloat(evt.target.attributes.cx.value) + parseFloat((((xy[0]-3.24)*2.54)-11.47)))), y: ((parseFloat(evt.target.attributes.cy.value) + parseFloat( (((-xy[0]+1.36)*2.53)+8.75)))) }) //name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
+                        console.log(xy)
+
+                        socket.emit('newLandmark', { name:  evt.target.textContent, x: (((parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0])-3.24)*2.54)-11.47)  , y:  (((-(parseFloat(evt.target.attributes.cy.value)+parseFloat(xy[1]))+1.36)*2.53)+8.75)})// ((parseFloat(evt.target.attributes.cy.value) + parseFloat( (((-xy[1]+1.36)*2.53)+8.75)))) }) //name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
                     } else {
                         if (confirm("Delete " + evt.target.textContent + "?")) {
                             socket.emit('removeLandmark', { name: evt.target.textContent })

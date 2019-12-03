@@ -11,7 +11,8 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Path
 import threading
-
+import schedule
+import time
 import sys
 import logging
 import math
@@ -20,10 +21,6 @@ import rospy
 
 # logging.getLogger('werkzeug').setLevel(logging.ERROR)
 # loop = asyncio.get_event_loop()
-
-
-
-
 
 #to run the code if the robot is not running
 # try:
@@ -90,10 +87,9 @@ def callback(msg):
     x = pose.x
     y = pose.y
     euler=quaternion_to_euler(qur.x,qur.y,qur.z,qur.w)
-
     socketio.emit("robot-update", {'x':x, 'y':y,"yaw":euler[0],"pitch":euler[1]})
-    print(euler)
-    print(x,y,qur)
+    # print(euler)
+    # print(x,y,qur)
 
 rospy.init_node('poser', anonymous=True)
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
@@ -124,7 +120,6 @@ def updateLocations():
 #{"water cooler":{"x":2,"y":3},"water cooler2":{"x":7,"y":5},"water cooler3":{"x":3,"y":5}}}
 @socketio.on('connected')
 def handle_my_custom_event(json):
-    # socketio.emit("setup", {'locations': landmarks})
     updateLocations()
     # socketio.emit("robot-update",  pose.get_pose())
     statusCheck()
@@ -133,6 +128,7 @@ def handle_my_custom_event(json):
 @socketio.on('newLandmark')
 def newLandmark(json):
     try:
+        # print(json)
         req = requests.get("http://localhost:5000/setLandmark/"+json["name"]+"/"+str(json["x"])+"/"+str(json["y"]))
         if(req.status_code==200):
             updateLocations()
@@ -178,7 +174,13 @@ def statusCheck():
         status["LANDMARK"] = landmarks.status_code
     except:
         status["LANDMARK"] = 500
-    status["VOICE"] = 500
+
+    try:
+        voice = requests.get("http://localhost:5001/healthCheck")
+        status["VOICE"] = voice.status_code
+    except:
+        # print("fail")
+        status["VOICE"] = 500
     status["MOTION"] = 500
     socketio.emit("statusUpdate",status)
 
@@ -203,18 +205,6 @@ def keyPress(json):
     print(twist)
     pub.publish(twist)
     socketio.emit("robot-update", pose.get_pose())
-
-
-# import sched, time
-# s = sched.scheduler(time.time, time.sleep)
-# def do_something(sc): 
-#     print ("Doing stuff...")
-#     # do your stuff
-#     s.enter( 60, 1, do_something, (sc,))
-
-# s.enter(60, 1, do_something, (s,))
-# s.run()
-
 
 def getCurrentPosition():
     try:
