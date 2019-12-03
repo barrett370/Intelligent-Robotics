@@ -204,8 +204,8 @@
             sideBarstring = ""
             for (i in data.locations) {
                 console.log(i)
-                sideBarstring += '<a class="side-bar-button">'+i+'<i class="material-icons directions">directions</i></a>'
-                locationsString += '<circle cx="' + (((data.locations[i].x-0.2)*0.4)+2.1)  + '" cy="' + (((Math.abs(data.locations[i].y-17.2)-1.6)*0.491)+1.6) + '" r="0.05" class="draggable"  stroke="#007bff" stroke-width="0.02" fill="white" ><title>' + i + '</title></circle>'
+                sideBarstring += '<a class="side-bar-button" onclick="goTo(`'+i+'`)">'+i+'<i class="material-icons directions">directions</i></a>'
+                locationsString += '<circle cx="' + (((data.locations[i].x+11.47)/2.54)+3.24)  + '" cy="' + -(((data.locations[i].y-8.75)/2.53)-1.36) + '" r="0.05" class="draggable"  stroke="#007bff" stroke-width="0.02" fill="white" ><title>' + i + '</title></circle>'
             }
             document.getElementById("locations-g").innerHTML = locationsString
             document.getElementById("expandable").innerHTML = sideBarstring
@@ -215,8 +215,9 @@
 
         // Update with the robots position
         socket.on('robot-update', function (data) {
+            console.log(data)
             robotString = ""
-            robotString += '<rect x="' + (((data.x-0.2)*0.4)+2.1) + '" y="' + (((Math.abs(data.y-17.2)-1.6)*0.491)+1.6) + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
+            robotString += '<rect x="' +  (((data.x+11.47)/2.54)+3.24) + '" y="' + -(((data.y-8.75)/2.53)-1.36) + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
             document.getElementById("robot-g").innerHTML = robotString
         });
 
@@ -235,11 +236,20 @@
         });
 
         //control the robot via keyboard
-        document.addEventListener('keypress', logKey);
+        document.addEventListener('keyPress', logKey);
         function logKey(e) {
             if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
+                console.log(e.key)
                 socket.emit('keyPress', { data: e.key });
             }
+        }
+
+        function goTo(loc){
+            socket.emit('goTo', { data: loc });
+        }
+
+        function say(){
+            socket.emit('say', { data: document.getElementById("howardSpeach").value });
         }
 
     </script>
@@ -308,7 +318,7 @@
                     if (evt.target.attributes.transform.value != "translate(0)") {
                         xy = evt.target.attributes.transform.value.match(/\(([^)]+)\)/)[1].split(",")
                         console.log(evt.target.attributes.transform.value)
-                        socket.emit('newLandmark', { name: landmarkName, x: ((parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0])-2.1)/0.4)+0.2, y: ((parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1])-1.6)/0.491)+1.6+17.2 }) //name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
+                        socket.emit('newLandmark', { name:  evt.target.textContent, x: ((parseFloat(evt.target.attributes.cx.value) + parseFloat((((xy[0]-3.24)*2.54)-11.47)))), y: ((parseFloat(evt.target.attributes.cy.value) + parseFloat( (((-xy[0]+1.36)*2.53)+8.75)))) }) //name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
                     } else {
                         if (confirm("Delete " + evt.target.textContent + "?")) {
                             socket.emit('removeLandmark', { name: evt.target.textContent })
@@ -328,7 +338,7 @@
 <body>
     <div>
         <svg id="svg-main" onload="makeDraggable(evt)" viewBox="0 0 15 10">
-            <image onclick="clicked(evt)" href="/img/map.png" x="0" y="0" height="95%" transform="translate(2,0)" />
+            <image onclick="clicked(evt)" href="/img/map.png" x="0" y="0" width="90%" height="95%" transform="translate(1,0)" />
             <g id="locations-g"></g>
             <g id="robot-g"></g>
         </svg>
@@ -346,7 +356,7 @@
         <div></div>
         <div id="voice-input">
             <input type="text" id="howardSpeach" placeholder="Howard say..">
-            <i class="material-icons select-none" style="padding-top:18px;padding-left:10px;cursor:pointer;" >
+            <i class="material-icons select-none" onclick="say()" style="padding-top:18px;padding-left:10px;cursor:pointer;" >
                 insert_comment
                 </i>
         </div>
@@ -367,7 +377,7 @@
         var landmarkName = prompt("Create a new Landmark:", "Landmark Name");
         if (landmarkName != null) {
 
-            socket.emit('newLandmark', { name: landmarkName, x: ((m.x-2.1)/0.4)+0.2, y: ((m.y-1.6)/0.491)+1.6+17.2 });
+            socket.emit('newLandmark', { name: landmarkName, x: (((m.x-3.24)*2.54)-11.47), y: (((-m.y+1.36)*2.53)+8.75) });
         }
     }
 

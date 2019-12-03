@@ -1,0 +1,19 @@
+<launch>
+
+   <master auto="start"/>
+   
+ <!--- Run AMCL --> 
+  <include file="$(find guide_robot)/launch/amcl.launch" />
+
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find guide_robot)/navigation/costmap_common_params.yaml" command="load" ns="global_costmap" /> 
+    <rosparam file="$(find guide_robot)/navigation/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find guide_robot)/navigation/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find guide_robot)/navigation/global_costmap_params.yaml" command="load" /> 
+    <rosparam file="$(find guide_robot)/navigation/base_local_planner_params.yaml" command="load" />
+  </node>
+
+  <node pkg="guide_robot" type="delay_launch.sh"
+        args="3 guide_robot rviz.launch"
+        name="delayed_rviz_launch" output="screen" />
+</launch> 

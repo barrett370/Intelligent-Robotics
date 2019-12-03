@@ -1,28 +1,49 @@
 from flask import Flask,abort
 import difflib
-
+from .currentPose import CurrentPose
+import rospy
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import PoseStamped
 #to run the code if the robot is not running
-try:
-    import currentPose
-    pose = currentPose.CurrentPose()
+# try:
+#     # import currentPose
+#     pose = CurrentPose()
+# except:
+#     pose = {"x":0,"y":0} 
 
-except:
-    pose = {"x":0,"y":0} 
+pose = CurrentPose()
+
+pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
+
+# except:
+#     pose = {"x":0,"y":0} 
 
 
+# def callback(msg):
+#     # print(msg)
+#     pose = msg.pose.pose.position
+#     qur = msg.pose.pose.orientation
+#     x = pose.x
+#     y = pose.y
+#     x_or = qur.x
+#     y_or = qur.y
 
+
+# sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped, callback)
 locationsDict = {
-    "top left": {"x": 0.6,"y" :18.8} ,
-    "top right" : {"x" : 26.3, "y" :18.8},
-    "bottom left": {"x":2.1,"y":2.1},
-    "bottom right":{"x":25.8,"y":2.11}
+    "top left": {"x": -11.47,"y" :8.75} ,
+    "top right" : {"x" : 11.89, "y" :8.61},
+    "bottom left": {"x":-12.4,"y":-7.6},
+    "bottom right":{"x":13.24,"y":-7.83}
 }
 
 
 
 app = Flask(__name__)
 
-@app.route("/healthcheck")
+@app.route("/healthCheck")
 def hello():
     return "Landmarks Server is Running"
 
@@ -58,11 +79,10 @@ def setLandmark(locString):
     locationsDict[locString]= getCurrentPosition()
     return  "success"
 
-
 #create a new Landmark based on position
 @app.route("/setLandmark/<locString>/<x>/<y>")
 def setLandmarkXY(locString,x,y):
-    locationsDict[locString]= {"x":x,"y":y}
+    locationsDict[locString]= {"x":float(x),"y":float(y)}
     return  "success"
 
 #Remove a landmark
@@ -85,6 +105,29 @@ def getRelLoc():
     else: 
         return "You are not near anything"
 
+@app.route("/go/<landmark>")
+def go_to(landmark):
+    print(f'go: {landmark}')
+    loc = getLandmark(landmark)
+    print(1)
+    # loc = locationsDict[landmark]
+    goal = PoseStamped()
+    print(2)
+    goal.pose.position.x = loc['x']
+    print(3)
+    goal.pose.position.y = loc['y']
+    goal.pose.position.z = 0
+    print(4)
+    goal.pose.orientation = Quaternion(0,0,1,0)
+    print(5)
+    goal.header.frame_id = "map"
+    print(6)
+    pub.publish(goal)
+    print("set goal position")
+    print(goal.pose.position)
+    return "success"
+
+
 @app.route("/current")
 def getCurrentPosition():
     try:
@@ -93,4 +136,4 @@ def getCurrentPosition():
         return pose
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')

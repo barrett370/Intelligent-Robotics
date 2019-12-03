@@ -39,6 +39,7 @@ class InstructionParser:
             location = strip_leading_space(instruction.split("take me to")[1])
             print(f"You want to be taken to {location}")
             # Check if a valid location
+            requests.get(f"http://localhost:5000/go/{strip_dets(location)}")
             req = requests.get(f"http://localhost:5000/getLandmark/{strip_dets(location)}")
             resp: dict = req.json()
             print(resp)
