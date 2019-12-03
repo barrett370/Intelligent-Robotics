@@ -10,6 +10,8 @@ from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Path
+import threading
+
 import sys
 import logging
 import math
@@ -95,6 +97,7 @@ def callback(msg):
 
 rospy.init_node('poser', anonymous=True)
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
+threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 @app.route('/')
