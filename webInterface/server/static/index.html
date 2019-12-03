@@ -270,17 +270,13 @@
         //control the robot via keyboard
       
         function logKeyDown(e) {
-            console.log("keypress")
             if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
-                console.log(e.key)
                 socket.emit('keyPress', { key: e.key,event:"down" });
             }
         }
 
         function logKeyUp(e) {
-            console.log("keypress")
             if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
-                console.log(e.key)
                 socket.emit('keyPress', { key: e.key,event:"up" });
             }
         }

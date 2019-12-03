@@ -36,12 +36,12 @@
     <node pkg="guide_robot" type="run_web.sh"
     args="$(arg pkg_dir)"
     name="web" output="screen"/>
-	<node pkg="guide_robot" type="run_tts.sh"
+	<!-- <node pkg="guide_robot" type="run_tts.sh"
     args="$(arg pkg_dir)"
     name="tts" output="screen"/>
 	
 	<node pkg="guide_robot" type="run_stt.sh"
     args="$(arg pkg_dir)"
-    name="stt" output="screen"/>
+    name="stt" output="screen"/> -->
 
 </launch> 

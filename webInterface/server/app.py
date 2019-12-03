@@ -183,10 +183,7 @@ def keyPress(json):
             twist.linear.x =0
         elif(key=="d"):
             twist.angular.z=0
-
-    print(twist)
     pub.publish(twist)
-    socketio.emit("robot-update", pose.get_pose())
 
 def getCurrentPosition():
     try:
