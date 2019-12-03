@@ -9,7 +9,7 @@ class CurrentPose:
         self.y = 0
         self.x_or = 0
         self.y_or = 0
-        self.sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped,self.callback)
+        self.sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.callback)
         threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 
     def callback(self,msg):

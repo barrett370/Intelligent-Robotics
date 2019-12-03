@@ -11,7 +11,7 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Path
 import threading
-import schedule
+# import schedule
 import time
 import sys
 import logging
@@ -94,7 +94,7 @@ def callback(msg):
     # print(euler)
     # print(x,y,qur)
 
-rospy.init_node('poser', anonymous=True)
+# rospy.init_node('poser', anonymous=True)
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
 threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)

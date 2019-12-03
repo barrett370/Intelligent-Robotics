@@ -32,12 +32,8 @@ pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
 
 
 # sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped, callback)
-locationsDict = {
-    "top left": {"x": -11.47,"y" :8.75} ,
-    "top right" : {"x" : 11.89, "y" :8.61},
-    "bottom left": {"x":-12.4,"y":-7.6},
-    "bottom right":{"x":13.24,"y":-7.83}
-}
+locationsDict = {"a":{"x":-9.6,"y":1.38},"b":{"x":0.12,"y":1.38},"bottom left":{"x":-12.4,"y":-7.6},"bottom right":{"x":13.24,"y":-7.83},"c":{"x":10.38,"y":0.93},"top left":{"x":-11.47,"y":8.75},"top right":{"x":11.89,"y":8.61}}
+
 
 
 

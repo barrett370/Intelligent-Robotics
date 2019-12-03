@@ -1,5 +1,6 @@
 import rospy
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 from imutils.video import VideoStream
 import face_recognition
 import argparse
@@ -8,101 +9,109 @@ import pickle
 import time
 import cv2
 
-# Movement code
-CONFIDENT_GUESSES_THRESHOLD = 3
-ACTIVATION_THRESHOLD = 20
-HZ = 10
-confidentGuesses = 0
+class Seeker:
 
-pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
-print('seeker set publisher to cmd_vel')
-rospy.init_node('Mover', anonymous=True)
-print('initialised node to mover')
-rate = rospy.Rate(HZ)  # 10hz
-base_data = Twist()
-found = False
+    def __init__(self):
+        self.CONFIDENT_GUESSES_THRESHOLD = 3
+        self.ACTIVATION_THRESHOLD = 5
+        self.HZ = 10
+        self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+        self.sub = rospy.Subscriber('/odom', Odometry)
+        self.odom = None
+        print('seeker set publisher to cmd_vel')
+        rospy.init_node('Mover', anonymous=True)
+        print('initialised node to mover')
+        self.rate = rospy.Rate(self.HZ)  # 10hz
+        print("[INFO] loading encodings...")
+        self.data = pickle.loads(open("encodings.pickle", "rb").read())
+        self.found = False
+    
+    
+    def callback(self, msg):
+        self.odom = msg
 
-# construct the argument parser and parse the arguments
-argParser = argparse.ArgumentParser()
-argParser.add_argument("-e", "--encodings", default="encodings.pickle",
-                       help="SEEKER :path to serialized db of facial encodings")
-argParser.add_argument("-o", "--output", type=str,  # default="output/webcam_face_recognition_output.avi",
-                       help="SEEKER: path to output video")
-argParser.add_argument("-y", "--display", type=int, default=1,
-                       help="SEEKER: whether or not to display output frame to screen")
-argParser.add_argument("-d", "--detection-method", type=str, default="hog",
-                       help="SEEKER face detection model to use: either `hog` or `cnn`")
-args = vars(argParser.parse_args())
+    def seek(self):
+        print('seeking...')
+        confidentGuesses = 0
+        base_data = Twist()
+        init_odom = self.odom
+         # initialize the video stream and pointer to output video file, then
+        # allow the camera sensor to warm up
+        print("[INFO] starting video stream...")
+        vs = VideoStream(src=0).start()
+        writer = None
+        # time.sleep(2.0)
+        base_data.angular.z = 1.0
+        found = False
+        # loop over frames from the video file stream
+        counter = 0
+        while not found and counter < 20:
+            print("Looping...")
+            # grab the frame from the threaded video stream
+            # self.pub.publish(base_data)
+            # self.rate.sleep()
+            frame = vs.read()
 
-# load the known faces and embeddings
-print("[INFO] loading encodings...")
-data = pickle.loads(open(args["encodings"], "rb").read())
+            # convert the input frame from BGR to RGB then resize it to have
+            # a width of 750px (to speedup processing)
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            rgb = imutils.resize(frame, height=240, width=426)
 
-# initialize the video stream and pointer to output video file, then
-# allow the camera sensor to warm up
-print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
-writer = None
-time.sleep(2.0)
+            # detect the (x, y)-coordinates of the bounding boxes
+            # corresponding to each face in the input frame, then compute
+            # the facial embeddings for each face
+            boxes = face_recognition.face_locations(rgb,
+                                                    model="hog")
+            encodings = face_recognition.face_encodings(rgb, boxes)
+            names = []
 
-# loop over frames from the video file stream
-while not found:
-    # grab the frame from the threaded video stream
-    base_data.angular.z = 0.2
-    pub.publish(base_data)
-    rate.sleep()
-    frame = vs.read()
+            # loop over the facial embeddings
+            for encoding in encodings:
+                # attempt to match each face in the input image to our known
+                # encodings
+                matches = face_recognition.compare_faces(self.data["encodings"],
+                                                        encoding)
+                name = "Unknown"
 
-    # convert the input frame from BGR to RGB then resize it to have
-    # a width of 750px (to speedup processing)
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    rgb = imutils.resize(frame, height=240, width=426)
+                # check to see if we have found a match
+                if True in matches:
+                    # find the indexes of all matched faces then initialize a
+                    # dictionary to count the total number of times each face
+                    # was matched
+                    faceMatches = [i for (i, b) in enumerate(matches) if b]
+                    counts = {}
+                    # loop over the matched indexes and maintain a count for
+                    # each recognized face face
+                    for i in faceMatches:
+                        name = self.data["names"][i]
+                        counts[name] = counts.get(name, 0) + 1
+                    name = max(counts, key=counts.get)
+                    matchCount = counts[name]
+                    # sumCounts = sumCounts + matchCount
 
-    # detect the (x, y)-coordinates of the bounding boxes
-    # corresponding to each face in the input frame, then compute
-    # the facial embeddings for each face
-    boxes = face_recognition.face_locations(rgb,
-                                            model=args["detection_method"])
-    encodings = face_recognition.face_encodings(rgb, boxes)
-    names = []
+                    if matchCount > self.ACTIVATION_THRESHOLD:
+                        if confidentGuesses > self.CONFIDENT_GUESSES_THRESHOLD:
+                            base_data.angular.z = 0
+                            found = True
+                        else:
+                            confidentGuesses = confidentGuesses + 1
+                    print(name + " found, certainty: " + "{:%}".format((matchCount / 35)))
+                    names.append(name)
+            counter += 1
+            self.pub.publish(base_data)
+            self.rate.sleep()
+            # time.sleep(5.0)
 
-    # loop over the facial embeddings
-    for encoding in encodings:
-        # attempt to match each face in the input image to our known
-        # encodings
-        matches = face_recognition.compare_faces(data["encodings"],
-                                                 encoding)
-        name = "Unknown"
+                # update the list of names
+            
 
-        # check to see if we have found a match
-        if True in matches:
-            # find the indexes of all matched faces then initialize a
-            # dictionary to count the total number of times each face
-            # was matched
-            faceMatches = [i for (i, b) in enumerate(matches) if b]
-            counts = {}
-            # loop over the matched indexes and maintain a count for
-            # each recognized face face
-            for i in faceMatches:
-                name = data["names"][i]
-                counts[name] = counts.get(name, 0) + 1
-            name = max(counts, key=counts.get)
-            matchCount = counts[name]
-            # sumCounts = sumCounts + matchCount
-
-            if matchCount > ACTIVATION_THRESHOLD:
-                if confidentGuesses > CONFIDENT_GUESSES_THRESHOLD:
-                    found = True
-                confidentGuesses = confidentGuesses + 1
-            print(name + " found, certainty: " + "{:%}".format((matchCount / 35)))
-
-        # update the list of names
-        names.append(name)
-
-# do a bit of cleanup
-cv2.destroyAllWindows()
-vs.stop()
+        # do a bit of cleanup
+        cv2.destroyAllWindows()
+        vs.stop()
 
 
 
 
+if __name__ == "__main__":
+    s = Seeker()
+    s.seek()
