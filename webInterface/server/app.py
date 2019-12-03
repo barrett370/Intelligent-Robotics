@@ -15,41 +15,18 @@ import time
 import sys
 import logging
 import math
-# from .currentPose import CurrentPose
 import rospy
 
-# logging.getLogger('werkzeug').setLevel(logging.ERROR)
-# loop = asyncio.get_event_loop()
-
-
-
-
-#to run the code if the robot is not running
-# try:
-
-    # logging.error("Loaded pose node.")
-# except:
-#     pose = {"x":0,"y":0} 
-
-
-#get the landmarks from landmark server
-# try:
-#     req = requests.get("http://localhost:5000/getAllLandmarks")
-#     landmarks = req.json()
-# except:
-#     landmarks = {"water cooler":{"x":5, "y":5}}
 
 people = ["Jonathan","Geroge","Charlie","Sam","Anant"]
 
-robotX = 5 #Dummy x position of robot
-robotY = 5 # Dummy Y position of robot
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 lastPath=[]
 print("app configured")
 socketio = SocketIO(app,cors_allowed_origins="*")
 print("setup socket")
-# pose = CurrentPose(socketio, 'robot-update')
+
 
 def callbackPath(msg):
     global lastPath
@@ -59,8 +36,6 @@ def callbackPath(msg):
             if(i%20==0):
                 temp.append( (((msg.poses[i].pose.position.x+11.47)/2.54)+3.24) )
                 temp.append( -(((msg.poses[i].pose.position.y-8.75)/2.53)-1.36))
-                # temp.append([msg.poses[i].pose.position.x,msg.poses[i].pose.position.y])
-        # print(temp)
         lastPath = temp
         socketio.emit("path-update",temp)
     else:
@@ -92,10 +67,7 @@ def callback(msg):
     y = pose.y
     euler=quaternion_to_euler(qur.x,qur.y,qur.z,qur.w)
     socketio.emit("robot-update", {'x':x, 'y':y,"yaw":euler[0],"pitch":euler[1]})
-    # print(euler)
-    # print(x,y,qur)
 
-# rospy.init_node('poser', anonymous=True)
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
 threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
@@ -124,18 +96,15 @@ def updateLocations():
     except:
         print("down")
 
-#{"water cooler":{"x":2,"y":3},"water cooler2":{"x":7,"y":5},"water cooler3":{"x":3,"y":5}}}
 @socketio.on('connected')
 def handle_my_custom_event(json):
     updateLocations()
-    # socketio.emit("robot-update",  pose.get_pose())
     statusCheck()
     print('received json: ' + str(json))
 
 @socketio.on('newLandmark')
 def newLandmark(json):
     try:
-        # print(json)
         req = requests.get("http://localhost:5000/setLandmark/"+json["name"]+"/"+str(json["x"])+"/"+str(json["y"]))
         if(req.status_code==200):
             updateLocations()
@@ -148,7 +117,6 @@ def goTo(json):
         req = requests.get("http://localhost:5000/go/"+json["data"])
         if(req.status_code==200):
             console.log("on way")
-            # updateLocations()
     except:
         print("down")
 
@@ -158,7 +126,6 @@ def say(json):
         req = requests.get("http://localhost:5001/say/"+json["data"])
         if(req.status_code==200):
             console.log("said "+json["data"])
-            # updateLocations()
     except:
         print("say down")
 
@@ -195,9 +162,6 @@ def statusCheck():
 
 @socketio.on('keyPress')
 def keyPress(json):
-    #TODO: Replace with code that talks to motors
-    global robotX
-    global robotY
     key = json["key"]
     if(json["event"]=="down"):
         if(key=="w"):

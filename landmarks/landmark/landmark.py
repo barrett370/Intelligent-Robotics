@@ -6,32 +6,12 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
-#to run the code if the robot is not running
-# try:
-#     # import currentPose
-#     pose = CurrentPose()
-# except:
-#     pose = {"x":0,"y":0} 
+
 
 pose = CurrentPose()
 
 pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
 
-# except:
-#     pose = {"x":0,"y":0} 
-
-
-# def callback(msg):
-#     # print(msg)
-#     pose = msg.pose.pose.position
-#     qur = msg.pose.pose.orientation
-#     x = pose.x
-#     y = pose.y
-#     x_or = qur.x
-#     y_or = qur.y
-
-
-# sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped, callback)
 locationsDict = {"a":{"x":-9.6,"y":1.38},"b":{"x":0.12,"y":1.38},"bottom left":{"x":-12.4,"y":-7.6},"bottom right":{"x":13.24,"y":-7.83},"c":{"x":10.38,"y":0.93},"top left":{"x":-11.47,"y":8.75},"top right":{"x":11.89,"y":8.61}}
 
 
@@ -106,7 +86,6 @@ def go_to(landmark):
     print(f'go: {landmark}')
     loc = getLandmark(landmark)
     print(1)
-    # loc = locationsDict[landmark]
     goal = PoseStamped()
     print(2)
     goal.pose.position.x = loc['x']
