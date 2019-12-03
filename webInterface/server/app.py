@@ -9,9 +9,13 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
-
+from nav_msgs.msg import Path
+import threading
+import schedule
+import time
 import sys
 import logging
+import math
 # from .currentPose import CurrentPose
 import rospy
 
@@ -30,33 +34,69 @@ import rospy
 
 
 #get the landmarks from landmark server
-try:
-    req = requests.get("http://localhost:5000/getAllLandmarks")
-    landmarks = req.json()
-except:
-    landmarks = {"water cooler":{"x":5, "y":5}}
+# try:
+#     req = requests.get("http://localhost:5000/getAllLandmarks")
+#     landmarks = req.json()
+# except:
+#     landmarks = {"water cooler":{"x":5, "y":5}}
 
 robotX = 5 #Dummy x position of robot
 robotY = 5 # Dummy Y position of robot
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
+lastPath=[]
 print("app configured")
 socketio = SocketIO(app,cors_allowed_origins="*")
 print("setup socket")
 # pose = CurrentPose(socketio, 'robot-update')
 
+def callbackPath(msg):
+    global lastPath
+    temp=[]
+    if(msg.poses != []):
+        for i in range(0,len(msg.poses)):
+            if(i%20==0):
+                temp.append( (((msg.poses[i].pose.position.x+11.47)/2.54)+3.24) )
+                temp.append( -(((msg.poses[i].pose.position.y-8.75)/2.53)-1.36))
+                # temp.append([msg.poses[i].pose.position.x,msg.poses[i].pose.position.y])
+        # print(temp)
+        lastPath = temp
+        socketio.emit("path-update",temp)
+    else:
+        if(lastPath != []):
+            socketio.emit("path-update",[])
+            lastPath = []
+
+def quaternion_to_euler(x, y, z, w):
+
+    t0 = +2.0 * (w * x + y * z)
+    t1 = +1.0 - 2.0 * (x * x + y * y)
+    roll = math.atan2(t0, t1)
+    t2 = +2.0 * (w * y - z * x)
+    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch = math.asin(t2)
+    t3 = +2.0 * (w * z + x * y)
+    t4 = +1.0 - 2.0 * (y * y + z * z)
+    yaw = math.atan2(t3, t4)
+    return [yaw, pitch, roll]
+
 
 
 def callback(msg):
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print("Esitimated Position")
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
     x = pose.x
     y = pose.y
-    socketio.emit("robot-update", {'x':x, 'y':y})
-    print(x,y)
+    euler=quaternion_to_euler(qur.x,qur.y,qur.z,qur.w)
+    socketio.emit("robot-update", {'x':x, 'y':y,"yaw":euler[0],"pitch":euler[1]})
+    # print(euler)
+    # print(x,y,qur)
 
 rospy.init_node('poser', anonymous=True)
+subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
+threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 @app.route('/')
@@ -83,7 +123,7 @@ def updateLocations():
 #{"water cooler":{"x":2,"y":3},"water cooler2":{"x":7,"y":5},"water cooler3":{"x":3,"y":5}}}
 @socketio.on('connected')
 def handle_my_custom_event(json):
-    socketio.emit("setup", {'locations': landmarks})
+    updateLocations()
     # socketio.emit("robot-update",  pose.get_pose())
     statusCheck()
     print('received json: ' + str(json))
@@ -91,6 +131,7 @@ def handle_my_custom_event(json):
 @socketio.on('newLandmark')
 def newLandmark(json):
     try:
+        # print(json)
         req = requests.get("http://localhost:5000/setLandmark/"+json["name"]+"/"+str(json["x"])+"/"+str(json["y"]))
         if(req.status_code==200):
             updateLocations()
@@ -136,7 +177,13 @@ def statusCheck():
         status["LANDMARK"] = landmarks.status_code
     except:
         status["LANDMARK"] = 500
-    status["VOICE"] = 500
+
+    try:
+        voice = requests.get("http://localhost:5001/healthCheck")
+        status["VOICE"] = voice.status_code
+    except:
+        # print("fail")
+        status["VOICE"] = 500
     status["MOTION"] = 500
     socketio.emit("statusUpdate",status)
 
@@ -161,18 +208,6 @@ def keyPress(json):
     print(twist)
     pub.publish(twist)
     socketio.emit("robot-update", pose.get_pose())
-
-
-# import sched, time
-# s = sched.scheduler(time.time, time.sleep)
-# def do_something(sc): 
-#     print ("Doing stuff...")
-#     # do your stuff
-#     s.enter( 60, 1, do_something, (sc,))
-
-# s.enter(60, 1, do_something, (s,))
-# s.run()
-
 
 def getCurrentPosition():
     try:

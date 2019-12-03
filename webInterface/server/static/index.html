@@ -217,13 +217,24 @@
         socket.on('robot-update', function (data) {
             console.log(data)
             robotString = ""
-            robotString += '<rect x="' +  (((data.x+11.47)/2.54)+3.24) + '" y="' + -(((data.y-8.75)/2.53)-1.36) + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
+            // robotString += '<rect x="' +  (((data.x+11.47)/2.54)+3.24) + '" y="' + -(((data.y-8.75)/2.53)-1.36) + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
+            robotString +=   ' <polygon points="0 0.5,-0.8 1,0 -1,0.8 1" transform="translate('+(((data.x+11.47)/2.54)+3.24)+','+-(((data.y-8.75)/2.53)-1.36)+') scale(0.07) rotate('+((-data.yaw*(180/Math.PI))+90)+')" fill="red" style="color:red;"></polygon>'
             document.getElementById("robot-g").innerHTML = robotString
+        });
+
+
+        // Update with the robots position
+        socket.on('path-update', function (data) {
+            console.log(data)
+            pathString =  '<polyline points="'+data+'" fill="none" stroke-width="0.01" stroke="#3dfc03"/>'
+            
+            // robotString += '<rect x="' +  (((data.x+11.47)/2.54)+3.24) + '" y="' + -(((data.y-8.75)/2.53)-1.36) + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
+            document.getElementById("path-g").innerHTML = pathString
         });
 
         // Update status
         socket.on('statusUpdate', function (data) {
-            console.log(data)
+            // console.log(data)
             statusString = ""
             for (i in data) {
                 if (data[i] == 200) {
@@ -234,6 +245,8 @@
             }
             document.getElementById("status-container").innerHTML = statusString
         });
+
+        setInterval(function() { socket.emit("statusCheck") }, 10000);
 
         //control the robot via keyboard
         document.addEventListener('keyPress', logKey);
@@ -317,8 +330,9 @@
                 if (evt.target.tagName == "circle") {
                     if (evt.target.attributes.transform.value != "translate(0)") {
                         xy = evt.target.attributes.transform.value.match(/\(([^)]+)\)/)[1].split(",")
-                        console.log(evt.target.attributes.transform.value)
-                        socket.emit('newLandmark', { name:  evt.target.textContent, x: ((parseFloat(evt.target.attributes.cx.value) + parseFloat((((xy[0]-3.24)*2.54)-11.47)))), y: ((parseFloat(evt.target.attributes.cy.value) + parseFloat( (((-xy[0]+1.36)*2.53)+8.75)))) }) //name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
+                        console.log(xy)
+
+                        socket.emit('newLandmark', { name:  evt.target.textContent, x: (((parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0])-3.24)*2.54)-11.47)  , y:  (((-(parseFloat(evt.target.attributes.cy.value)+parseFloat(xy[1]))+1.36)*2.53)+8.75)})// ((parseFloat(evt.target.attributes.cy.value) + parseFloat( (((-xy[1]+1.36)*2.53)+8.75)))) }) //name: evt.target.textContent, x: parseFloat(evt.target.attributes.cx.value) + parseFloat(xy[0]), y: parseFloat(evt.target.attributes.cy.value) + parseFloat(xy[1]) });
                     } else {
                         if (confirm("Delete " + evt.target.textContent + "?")) {
                             socket.emit('removeLandmark', { name: evt.target.textContent })
@@ -341,6 +355,7 @@
             <image onclick="clicked(evt)" href="/img/map.png" x="0" y="0" width="90%" height="95%" transform="translate(1,0)" />
             <g id="locations-g"></g>
             <g id="robot-g"></g>
+            <g id="path-g"></g>
         </svg>
     </div>
     <div id="settings-bar">

@@ -2,6 +2,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 import rospy
+import threading
 class CurrentPose:
     def __init__(self):
         self.x = 0
@@ -9,7 +10,7 @@ class CurrentPose:
         self.x_or = 0
         self.y_or = 0
         self.sub = rospy.Subscriber('/amcl_pose',PoseWithCovarianceStamped,self.callback)
-        rospy.init_node('poser', anonymous=False)
+        threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 
     def callback(self,msg):
         print(msg)
