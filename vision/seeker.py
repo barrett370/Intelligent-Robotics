@@ -9,11 +9,14 @@ import time
 import cv2
 
 # Movement code
+CONFIDENT_GUESSES_THRESHOLD = 3
+ACTIVATION_THRESHOLD = 25
 RIGHT = -90
 LEFT = 90
 BACKWARDS = 180
 FORWARD = 0
 HZ = 10
+confidentGuesses = 0
 
 pub = rospy.Publisher('/cmd_vel', Twist, queue_size=100)
 print('seeker set publisher to cmd_vel')
@@ -51,9 +54,9 @@ time.sleep(2.0)
 # loop over frames from the video file stream
 while not found:
     # grab the frame from the threaded video stream
-    # base_data.angular.z = 0.2
-    # pub.publish(base_data)
-    # rate.sleep()
+    base_data.angular.z = 0.2
+    pub.publish(base_data)
+    rate.sleep()
     frame = vs.read()
 
     # convert the input frame from BGR to RGB then resize it to have
@@ -97,9 +100,12 @@ while not found:
             # will select first entry in the dictionary)
             name = max(counts, key=counts.get)
             matchCount = counts[name]
-            if counts[name] > 25:
-                found = True
+            # sumCounts = sumCounts + matchCount
 
+            if matchCount > ACTIVATION_THRESHOLD:
+                if confidentGuesses > CONFIDENT_GUESSES_THRESHOLD:
+                    found = True
+                confidentGuesses = confidentGuesses + 1
             print(name + " found, certainty: " + "{:%}".format((matchCount / 35)))
 
         # update the list of names
@@ -140,18 +146,17 @@ while not found:
     #     key = cv2.waitKey(1) & 0xFF
 
         # if the `q` key was pressed, break from the loop
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord("q"):
-            break
+        # key = cv2.waitKey(1) & 0xFF
+        # if key == ord("q"):
+        #     break
 
 # do a bit of cleanup
-# cv2.destroyAllWindows()
-# vs.stop()
-#
+cv2.destroyAllWindows()
+vs.stop()
+
 # # check to see if the video writer point needs to be released
 # if writer is not None:
 #     writer.release()
-
 
 
 
