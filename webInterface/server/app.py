@@ -11,7 +11,7 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Path
 import threading
-import schedule
+# import schedule
 import time
 import sys
 import logging

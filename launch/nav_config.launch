@@ -29,11 +29,11 @@
         args="5 guide_robot move_base.launch"
         name="delayed_nav_launch" output="screen" />
 
-	<!-- <node pkg="guide_robot" type="run_landmarks.sh"
+	<node pkg="guide_robot" type="run_landmarks.sh"
     args="$(arg pkg_dir)"
     name="landmarks" output="screen"/>
 
     <node pkg="guide_robot" type="run_web.sh"
     args="$(arg pkg_dir)"
-    name="web" output="screen"/> -->
+    name="web" output="screen"/>
 </launch> 
