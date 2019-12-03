@@ -9,6 +9,7 @@ import pickle
 import time
 import cv2
 
+
 class Seeker:
 
     def __init__(self):
@@ -25,21 +26,18 @@ class Seeker:
         print("[INFO] loading encodings...")
         self.data = pickle.loads(open("encodings.pickle", "rb").read())
         self.found = False
-    
-    
+
     def callback(self, msg):
         self.odom = msg
 
     def seek(self):
         print('seeking...')
-        confidentGuesses = 0
+        confident_guesses = 0
         base_data = Twist()
-        init_odom = self.odom
-         # initialize the video stream and pointer to output video file, then
+        # initialize the video stream and pointer to output video file, then
         # allow the camera sensor to warm up
         print("[INFO] starting video stream...")
         vs = VideoStream(src=0).start()
-        writer = None
         # time.sleep(2.0)
         base_data.angular.z = 1.0
         found = False
@@ -54,7 +52,6 @@ class Seeker:
 
             # convert the input frame from BGR to RGB then resize it to have
             # a width of 750px (to speedup processing)
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             rgb = imutils.resize(frame, height=240, width=426)
 
             # detect the (x, y)-coordinates of the bounding boxes
@@ -70,46 +67,40 @@ class Seeker:
                 # attempt to match each face in the input image to our known
                 # encodings
                 matches = face_recognition.compare_faces(self.data["encodings"],
-                                                        encoding)
-                name = "Unknown"
+                                                         encoding)
 
                 # check to see if we have found a match
                 if True in matches:
                     # find the indexes of all matched faces then initialize a
                     # dictionary to count the total number of times each face
                     # was matched
-                    faceMatches = [i for (i, b) in enumerate(matches) if b]
+                    face_matches = [i for (i, b) in enumerate(matches) if b]
                     counts = {}
                     # loop over the matched indexes and maintain a count for
                     # each recognized face face
-                    for i in faceMatches:
+                    for i in face_matches:
                         name = self.data["names"][i]
                         counts[name] = counts.get(name, 0) + 1
                     name = max(counts, key=counts.get)
-                    matchCount = counts[name]
+                    match_count = counts[name]
                     # sumCounts = sumCounts + matchCount
 
-                    if matchCount > self.ACTIVATION_THRESHOLD:
-                        if confidentGuesses > self.CONFIDENT_GUESSES_THRESHOLD:
+                    if match_count > self.ACTIVATION_THRESHOLD:
+                        if confident_guesses > self.CONFIDENT_GUESSES_THRESHOLD:
                             base_data.angular.z = 0
+                            print("found!")
                             found = True
                         else:
-                            confidentGuesses = confidentGuesses + 1
-                    print(name + " found, certainty: " + "{:%}".format((matchCount / 35)))
+                            confident_guesses = confident_guesses + 1
+                    print(name + " found, certainty: " + "{:%}".format((match_count / 35)))
                     names.append(name)
             counter += 1
             self.pub.publish(base_data)
             self.rate.sleep()
-            # time.sleep(5.0)
 
-                # update the list of names
-            
-
-        # do a bit of cleanup
+        # exit
         cv2.destroyAllWindows()
         vs.stop()
-
-
 
 
 if __name__ == "__main__":
