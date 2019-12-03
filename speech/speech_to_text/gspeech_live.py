@@ -1,6 +1,6 @@
 import time
 import sys
-
+import os
 # uses result_end_time currently only avaialble in v1p1beta, will be in v1 soon
 from google.cloud import speech_v1p1beta1 as speech
 import pyaudio
@@ -140,93 +140,34 @@ parser = InstructionParser()
 def parse_input_stream(responses):
     global listening_end
 
-    for response in responses:
-        if not response.results:
-            break
+    if responses: 
+        for response in responses:
+            
+            if not response.results:
+                break
 
-        result = response.results[0]
-        if not result.alternatives:
-            continue
-        if result.is_final:
+            result = response.results[0]
+            if not result.alternatives:
+                continue
+            if result.is_final:
 
-            transcript: str = result.alternatives[0].transcript
-            if transcript.__contains__("Howard"):
-                # trigger motion and vision to scan for speaker (first face detected)
-                sys.stdout.write(RED)
-                sys.stdout.write("Wake Word Detected\n")
-                listening_end = get_current_time() + 1000000
-            elif listening_end > get_current_time():
-                transcript = strip_leading_space(transcript)
-                print(f"checking for commands {transcript}")
-                # instructions[transcript.lower()]()
-                if parser.parse(transcript.lower()):
-                    print("completed instruction waiting for wake word")
-                    listening_end = get_current_time()
+                transcript: str = result.alternatives[0].transcript
+                if transcript.__contains__("Howard"):
+                    # trigger motion and vision to scan for speaker (first face detected)
+                    sys.stdout.write(RED)
+                    sys.stdout.write("Wake Word Detected\n")
+                    os.system("mpg321 ../resources/activation.mp3")
+                    listening_end = get_current_time() + 1000000
+                elif listening_end > get_current_time():
+                    transcript = strip_leading_space(transcript)
+                    print(f"checking for commands {transcript}")
+                    # instructions[transcript.lower()]()
+                    if parser.parse(transcript.lower()):
+                        print("completed instruction waiting for wake word")
+                        listening_end = get_current_time()
+    return
 
         # Parse following reponses for commands
-
-
-def listen_print_loop(responses, stream):
-    """Iterates through server responses and prints them.
-    The responses passed is a generator that will block until a response
-    is provided by the server.
-    Each response may contain multiple results, and each result may contain
-    multiple alternatives; for details, see https://goo.gl/tjCPAU.  Here we
-    print only the transcription for the top alternative of the top result.
-    In this case, responses are provided for interim results as well. If the
-    response is an interim one, print a line feed at the end of it, to allow
-    the next result to overwrite it, until the response is a final one. For the
-    final one, print a newline to preserve the finalized transcription.
-    """
-
-    for response in responses:
-
-        if get_current_time() - stream.start_time > STREAMING_LIMIT:
-            stream.start_time = get_current_time()
-            break
-
-        if not response.results:
-            continue
-
-        result = response.results[0]
-
-        if not result.alternatives:
-            continue
-
-        transcript = result.alternatives[0].transcript
-
-        result_seconds = 0
-        result_nanos = 0
-
-        if result.result_end_time.seconds:
-            result_seconds = result.result_end_time.seconds
-
-        if result.result_end_time.nanos:
-            result_nanos = result.result_end_time.nanos
-
-        stream.result_end_time = int((result_seconds * 1000)
-                                     + (result_nanos / 1000000))
-
-        corrected_time = (stream.result_end_time - stream.bridging_offset
-                          + (STREAMING_LIMIT * stream.restart_counter))
-        # Display interim results, but with a carriage return at the end of the
-        # line, so subsequent lines will overwrite them.
-
-        if result.is_final:
-
-            sys.stdout.write(GREEN)
-            sys.stdout.write('\033[K')
-            sys.stdout.write(str(corrected_time) + ': ' + transcript + '\n')
-
-            stream.is_final_end_time = stream.result_end_time
-            stream.last_transcript_was_final = True
-
-        else:
-            sys.stdout.write(RED)
-            sys.stdout.write('\033[K')
-            sys.stdout.write(str(corrected_time) + ': ' + transcript + '\r')
-
-            stream.last_transcript_was_final = False
 
 
 def main():
@@ -240,7 +181,7 @@ def main():
         max_alternatives=1)
     streaming_config = speech.types.StreamingRecognitionConfig(
         config=config,
-        interim_results=True)
+        interim_results=False)
 
     mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
     print(mic_manager.chunk_size)
@@ -261,10 +202,12 @@ def main():
             requests = (speech.types.StreamingRecognizeRequest(
                 audio_content=content) for content in audio_generator)
 
-            responses = client.streaming_recognize(streaming_config,
-                                                   requests)
+            responses = client.streaming_recognize(streaming_config,requests)
             # Now, put the transcription responses to use.
-            parse_input_stream(responses)
+            try:
+                parse_input_stream(responses)
+            except:
+                continue
             # listen_print_loop(responses, stream)
 
             if stream.result_end_time > 0:
