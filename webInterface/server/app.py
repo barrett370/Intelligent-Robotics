@@ -9,7 +9,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
-
+from nav_msgs.msg import Path
 import sys
 import logging
 # from .currentPose import CurrentPose
@@ -41,15 +41,33 @@ robotX = 5 #Dummy x position of robot
 robotY = 5 # Dummy Y position of robot
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
+lastPath=[]
 print("app configured")
 socketio = SocketIO(app,cors_allowed_origins="*")
 print("setup socket")
 # pose = CurrentPose(socketio, 'robot-update')
 
+def callbackPath(msg):
+    temp=[]
+    if(msg.poses != []):
+        for i in range(0,len(msg.poses)):
+            if(i%20==0):
+                temp.append( (((msg.poses[i].pose.position.x+11.47)/2.54)+3.24) )
+                temp.append( -(((msg.poses[i].pose.position.y-8.75)/2.53)-1.36))
+                # temp.append([msg.poses[i].pose.position.x,msg.poses[i].pose.position.y])
+        # print(temp)
+        last = temp
+        socketio.emit("path-update",temp)
+    else:
+        if(last != []):
+            socketio.emit("path-update",temp)
+            last = []
+
+
 
 
 def callback(msg):
-    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+    print("Esitimated Position")
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
     x = pose.x
@@ -58,6 +76,7 @@ def callback(msg):
     print(x,y)
 
 rospy.init_node('poser', anonymous=True)
+subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 @app.route('/')

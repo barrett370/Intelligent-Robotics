@@ -221,6 +221,16 @@
             document.getElementById("robot-g").innerHTML = robotString
         });
 
+
+        // Update with the robots position
+        socket.on('path-update', function (data) {
+            console.log(data)
+            pathString =  '<polyline points="'+data+'" fill="none" stroke-width="0.01" stroke="#3dfc03"/>'
+            
+            // robotString += '<rect x="' +  (((data.x+11.47)/2.54)+3.24) + '" y="' + -(((data.y-8.75)/2.53)-1.36) + '" height="0.1" width="0.1" stroke="red" stroke-width="0.02" fill="red" ><title>Howard</title></rect>'
+            document.getElementById("path-g").innerHTML = pathString
+        });
+
         // Update status
         socket.on('statusUpdate', function (data) {
             console.log(data)
@@ -341,6 +351,7 @@
             <image onclick="clicked(evt)" href="/img/map.png" x="0" y="0" width="90%" height="95%" transform="translate(1,0)" />
             <g id="locations-g"></g>
             <g id="robot-g"></g>
+            <g id="path-g"></g>
         </svg>
     </div>
     <div id="settings-bar">
