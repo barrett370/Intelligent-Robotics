@@ -268,13 +268,25 @@
         setInterval(function() { socket.emit("statusCheck") }, 10000);
 
         //control the robot via keyboard
-        document.addEventListener('keyPress', logKey);
-        function logKey(e) {
+      
+        function logKeyDown(e) {
+            console.log("keypress")
             if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
                 console.log(e.key)
-                socket.emit('keyPress', { data: e.key });
+                socket.emit('keyPress', { key: e.key,event:"down" });
             }
         }
+
+        function logKeyUp(e) {
+            console.log("keypress")
+            if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
+                console.log(e.key)
+                socket.emit('keyPress', { key: e.key,event:"up" });
+            }
+        }
+
+        document.addEventListener('keydown', logKeyDown);
+        document.addEventListener('keyup', logKeyUp);
 
         function goTo(loc){
             socket.emit('goTo', { data: loc });

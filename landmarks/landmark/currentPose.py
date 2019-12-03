@@ -13,7 +13,7 @@ class CurrentPose:
         threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 
     def callback(self,msg):
-        print(msg)
+        # print(msg)
         pose = msg.pose.pose.position
         qur = msg.pose.pose.orientation
         self.x = pose.x

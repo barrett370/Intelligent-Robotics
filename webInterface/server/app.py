@@ -11,7 +11,6 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Path
 import threading
-# import schedule
 import time
 import sys
 import logging
@@ -93,11 +92,13 @@ def callback(msg):
     # print(euler)
     # print(x,y,qur)
 
-rospy.init_node('poser', anonymous=True)
+# rospy.init_node('poser', anonymous=True)
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
 threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
+twist = Twist()
+
 @app.route('/')
 def root(): 
     print("/")
@@ -194,17 +195,26 @@ def keyPress(json):
     #TODO: Replace with code that talks to motors
     global robotX
     global robotY
-    key = json["data"]
-    twist = Twist()
-    if(key=="w"):
-        twist.linear.x=1
-        robotY-=0.02
-    elif(key=="a"):
-        robotX -= 0.02
-    elif(key=="s"):
-        robotY+=0.02
-    elif(key=="d"):
-        robotX +=0.02
+    key = json["key"]
+    if(json["event"]=="down"):
+        if(key=="w"):
+            twist.linear.x+=0.5
+        elif(key=="a"):
+            twist.angular.z+=0.2
+        elif(key=="s"):
+            twist.linear.x+=-0.5
+        elif(key=="d"):
+            twist.angular.z+=-0.2
+    else:
+        if(key=="w"):
+            twist.linear.x=0
+        elif(key=="a"):
+            twist.angular.z=0
+        elif(key=="s"):
+            twist.linear.x =0
+        elif(key=="d"):
+            twist.angular.z=0
+
     print(twist)
     pub.publish(twist)
     socketio.emit("robot-update", pose.get_pose())
