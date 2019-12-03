@@ -4,4 +4,4 @@ export FLASK_APP=landmarks/landmark/landmark.py
 
 cd $1
 # cd landmarks/landmark
-flask run
+flask run --host=0.0.0.0
