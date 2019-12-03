@@ -84,7 +84,7 @@ def root():
 @app.route('/img/map.png')
 def map():
     print("image")
-    return app.send_static_file('img/CS_LG.png')
+    return app.send_static_file('img/map.png')
 
 @app.route('/updateLocations')
 def updateLocations():
