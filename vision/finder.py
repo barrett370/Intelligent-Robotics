@@ -1,109 +1,101 @@
-import rospy
-from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
+# import the necessary packages
 from imutils.video import VideoStream
-import face_recognition
+from imutils.video import FPS
+import numpy as np
+import argparse
 import imutils
-import pickle
+import time
 import cv2
 
-LAPTOP_CAMERA = 0
+# construct the argument parse and parse the arguments
 HOWARD_CAMERA = 2
+LAPTOP_CAMERA = 0
+ap = argparse.ArgumentParser()
+ap.add_argument("-p", "--prototxt", default='MobileNetSSD_deploy.prototxt.txt',
+                help="path to Caffe 'deploy' prototxt file")
+ap.add_argument("-m", "--model", default='MobileNetSSD_deploy.caffemodel',
+                help="path to Caffe pre-trained model")
+ap.add_argument("-c", "--confidence", type=float, default=0.2,
+                help="minimum probability to filter weak detections")
+args = vars(ap.parse_args())
 
+# initialize the list of class labels MobileNet SSD was trained to
+# detect, then generate a set of bounding box colors for each class
+CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
+           "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
+           "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
+           "sofa", "train", "monitor"]
 
-class Finder:
+COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
-    def __init__(self):
-        self.CONFIDENT_GUESSES_THRESHOLD = 3
-        self.ACTIVATION_THRESHOLD = 5
-        self.HZ = 10
-        self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-        self.sub = rospy.Subscriber('/odom', Odometry)
-        self.odom = None
-        print('seeker set publisher to cmd_vel')
-        rospy.init_node('Mover', anonymous=True)
-        print('initialised node to mover')
-        self.rate = rospy.Rate(self.HZ)  # 10hz
-        print("[INFO] loading encodings...")
-        self.data = pickle.loads(open("encodings.pickle", "rb").read())
-        self.found = False
+# load our serialized model from disk
+print("[INFO] loading model for object detection")
+net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 
-    def callback(self, msg):
-        self.odom = msg
+# initialize the video stream, allow the camera sensor to warmup,
+# and initialize the FPS counter
+print("[INFO] starting video stream for object detection")
+vs = VideoStream(src=LAPTOP_CAMERA).start()
+time.sleep(2.0)
+fps = FPS().start()
 
-    def seek(self):
-        print('seeking...')
-        confident_guesses = 0
-        base_data = Twist()
-        # initialize the video stream and pointer to output video file, then
-        # allow the camera sensor to warm up
-        print("[INFO] starting video stream...")
-        vs = VideoStream(src=LAPTOP_CAMERA).start()
-        # time.sleep(2.0)
-        base_data.angular.z = 1.0
-        found = False
-        # loop over frames from the video file stream
-        counter = 0
-        while not found and counter < 20:
-            print("Looping...")
-            # grab the frame from the threaded video stream
-            # self.pub.publish(base_data)
-            # self.rate.sleep()
-            frame = vs.read()
+# loop over the frames from the video stream
+while True:
+    # grab the frame from the threaded video stream and resize it
+    # to have a maximum width of 400 pixels
+    frame = vs.read()
+    frame = imutils.resize(frame, width=400)
 
-            # convert the input frame from BGR to RGB then resize it to have
-            # a width of 750px (to speedup processing)
-            rgb = imutils.resize(frame, height=240, width=426)
+    # grab the frame dimensions and convert it to a blob
+    (h, w) = frame.shape[:2]
+    blob = cv2.dnn.blobFromImage(cv2.resize(frame, (300, 300)),
+                                 0.007843, (300, 300), 127.5)
 
-            # detect the (x, y)-coordinates of the bounding boxes
-            # corresponding to each face in the input frame, then compute
-            # the facial embeddings for each face
-            boxes = face_recognition.face_locations(rgb,
-                                                    model="hog")
-            encodings = face_recognition.face_encodings(rgb, boxes)
-            names = []
+    # pass the blob through the network and obtain the detections and
+    # predictions
+    net.setInput(blob)
+    detections = net.forward()
 
-            # loop over the facial embeddings
-            for encoding in encodings:
-                # attempt to match each face in the input image to our known
-                # encodings
-                matches = face_recognition.compare_faces(self.data["encodings"],
-                                                         encoding)
+    # loop over the detections
+    for i in np.arange(0, detections.shape[2]):
+        # extract the confidence (i.e., probability) associated with
+        # the prediction
+        confidence = detections[0, 0, i, 2]
 
-                # check to see if we have found a match
-                if True in matches:
-                    # find the indexes of all matched faces then initialize a
-                    # dictionary to count the total number of times each face
-                    # was matched
-                    face_matches = [i for (i, b) in enumerate(matches) if b]
-                    counts = {}
-                    # loop over the matched indexes and maintain a count for
-                    # each recognized face face
-                    for i in face_matches:
-                        name = self.data["names"][i]
-                        counts[name] = counts.get(name, 0) + 1
-                    name = max(counts, key=counts.get)
-                    match_count = counts[name]
-                    # sumCounts = sumCounts + matchCount
+        # filter out weak detections by ensuring the `confidence` is
+        # greater than the minimum confidence
+        if confidence > args["confidence"]:
+            # extract the index of the class label from the
+            # `detections`, then compute the (x, y)-coordinates of
+            # the bounding box for the object
+            idx = int(detections[0, 0, i, 1])
+            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
+            (startX, startY, endX, endY) = box.astype("int")
 
-                    if match_count > self.ACTIVATION_THRESHOLD:
-                        if confident_guesses > self.CONFIDENT_GUESSES_THRESHOLD:
-                            base_data.angular.z = 0
-                            print("found!")
-                            found = True
-                        else:
-                            confident_guesses = confident_guesses + 1
-                    print(name + " found, certainty: " + "{:%}".format((match_count / 35)))
-                    names.append(name)
-            counter += 1
-            self.pub.publish(base_data)
-            self.rate.sleep()
+            # draw the prediction on the frame
+            label = "{}: {:.2f}%".format(CLASSES[idx],
+                                         confidence * 100)
+            cv2.rectangle(frame, (startX, startY), (endX, endY), COLORS[idx], 2)
+            y = startY - 15 if startY - 15 > 15 else startY + 15
+            cv2.putText(frame, label, (startX, y),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, COLORS[idx], 2)
 
-        # exit
-        cv2.destroyAllWindows()
-        vs.stop()
+    # show the output frame
+    cv2.imshow("Frame", frame)
+    key = cv2.waitKey(1) & 0xFF
 
+    # if the `q` key was pressed, break from the loop
+    if key == ord("q"):
+        break
 
-if __name__ == "__main__":
-    s = Seeker()
-    s.seek()
+    # update the FPS counter
+    fps.update()
+
+# stop the timer and display FPS information
+fps.stop()
+print("[INFO] obj_det elapsed time: {:.2f}".format(fps.elapsed()))
+print("[INFO] obj_det approx. FPS: {:.2f}".format(fps.fps()))
+
+# do a bit of cleanup
+cv2.destroyAllWindows()
+vs.stop()
