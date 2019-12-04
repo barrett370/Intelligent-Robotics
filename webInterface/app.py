@@ -10,6 +10,7 @@ from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from actionlib_msgs.msg import GoalID
+from actionlib_msgs.msg import GoalStatusArray
 from nav_msgs.msg import Path
 import threading
 import time
@@ -45,6 +46,9 @@ def callbackPath(msg):
             socketio.emit("path-update",[])
             lastPath = []
 
+def callbackStatus(msg):
+    for status in msg.status_list:
+        print(status.text)
 def quaternion_to_euler(x, y, z, w):
 
     t0 = +2.0 * (w * x + y * z)
@@ -70,6 +74,7 @@ def callback(msg):
     socketio.emit("robot-update", {'x':x, 'y':y,"yaw":euler[0],"pitch":euler[1]})
 
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
+subGoal = rospy.Subscriber('move_base/status',GoalStatusArray, callbackStatus)
 threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
