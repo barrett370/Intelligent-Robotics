@@ -2,7 +2,7 @@ import os
 
 import requests
 import difflib
-
+import datetime
 
 from misc_functions import strip_leading_space
 
@@ -31,12 +31,26 @@ def get_loc():
     print(req.json())
     requests.get(f"http://localhost:5001/say/{req.json()['text']}")
 
+def get_weather():
+    resp = requests.get("http://www.wttr.in?format=j1").json()['current_condition'][0]
+    response = f"It is currently {resp['weatherDesc'][0]['value']} and feels like {resp['FeelsLikeC']} degrees"
+    print(response)
+    requests.get(f"http://localhost:5001/say/{response}")
+
+def get_time():
+    response = f"It is {datetime.datetime.now().hour} {datetime.datetime.now().minute}"
+    print(response)
+    requests.get(f"http://localhost:5001/say/{response}")
+
 
 class InstructionParser:
     instructions = {
         "print something": lambda: print("Printed Something"),
         "what is your name": lambda: print("My name is Howard!"),
-        "where am i": get_loc
+        "where am i": lambda: get_loc(),
+        "what is the weather" : lambda: get_weather(),
+        "what is the time": lambda: get_time(),
+        "what time is it": lambda: get_time()
     }
 
     def parse(self, instruction: str) -> bool:
@@ -78,10 +92,12 @@ class InstructionParser:
                 max_sim = 0
                 max_instruction = ""
                 for poss_instruction in list(self.instructions.keys()):
+                    print(poss_instruction)
                     sim = difflib.SequenceMatcher(a= instruction.lower(), b=poss_instruction.lower()).ratio()
-                if sim > max_sim:
-                    max_sim = sim
-                    max_instruction = poss_instruction     
+                    if sim > max_sim:
+                        print("updating")
+                        max_sim = sim
+                        max_instruction = poss_instruction     
                 print(f"Max sim: {max_sim}, most similar instruction: {max_instruction}")
                 if max_sim > 0.7:
                     self.instructions[max_instruction]()
