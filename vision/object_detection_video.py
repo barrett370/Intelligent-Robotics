@@ -8,6 +8,8 @@ import time
 import cv2
 
 # construct the argument parse and parse the arguments
+HOWARD_CAMERA = 2
+LAPTOP_CAMERA = 0
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--prototxt", default='MobileNetSSD_deploy.prototxt.txt',
                 help="path to Caffe 'deploy' prototxt file")
@@ -32,7 +34,7 @@ net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 # initialize the video stream, allow the camera sensor to warmup,
 # and initialize the FPS counter
 print("[INFO] starting video stream...")
-vs = VideoStream(src=2).start()
+vs = VideoStream(src=LAPTOP_CAMERA).start()
 time.sleep(2.0)
 fps = FPS().start()
 
