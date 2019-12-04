@@ -25,15 +25,16 @@ CLASSES = ["background", "aeroplane", "bicycle", "bird", "boat",
            "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
            "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
            "sofa", "train", "monitor"]
+
 COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
-## load our serialized model from disk
-print("[INFO] loading model...")
+# load our serialized model from disk
+print("[INFO] loading model for object detection")
 net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
 
 # initialize the video stream, allow the camera sensor to warmup,
 # and initialize the FPS counter
-print("[INFO] starting video stream...")
+print("[INFO] starting video stream for object detection")
 vs = VideoStream(src=LAPTOP_CAMERA).start()
 time.sleep(2.0)
 fps = FPS().start()
@@ -92,8 +93,8 @@ while True:
 
 # stop the timer and display FPS information
 fps.stop()
-print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+print("[INFO] obj_det elapsed time: {:.2f}".format(fps.elapsed()))
+print("[INFO] obj_det approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
