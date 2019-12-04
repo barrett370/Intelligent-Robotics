@@ -1,7 +1,6 @@
 #!/bin/bash
-sleep 4
-export FLASK_APP=landmarks/landmark/landmark.py
+sleep $1
+export FLASK_APP=landmarks/landmark.py
 
-cd $1
-# cd landmarks/landmark
-flask run --host=0.0.0.0
+cd $2
+flask run

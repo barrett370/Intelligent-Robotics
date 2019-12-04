@@ -17,11 +17,10 @@ import sys
 import logging
 import math
 import rospy
-
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 loop = asyncio.get_event_loop()
 
-people = ["Jonathan","Geroge","Charlie","Sam","Anant"]
+people = ["Anant","Charlie","George","Jon","Sam"]
 
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
@@ -45,6 +44,7 @@ def callbackPath(msg):
             socketio.emit("path-update",[])
             lastPath = []
 
+
 def quaternion_to_euler(x, y, z, w):
 
     t0 = +2.0 * (w * x + y * z)
@@ -61,6 +61,8 @@ def quaternion_to_euler(x, y, z, w):
 
 
 
+    
+
 def callback(msg):
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
@@ -74,7 +76,7 @@ threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 twist = Twist()
-cancelPub = rospy.Publisher('move_base/cancel',GoalID, queue_size=1)
+
 
 @app.route('/')
 def root(): 
@@ -95,6 +97,11 @@ def updateLocations():
         return "updated"
     except:
         print("Get All landmarks Down")
+
+@app.route('/found/<id>')
+def found(id):
+    cancel(id)
+    socketio.emit('found',{'id': id})
 
 @socketio.on('connected')
 def handle_my_custom_event(json):
@@ -121,6 +128,16 @@ def goTo(json):
     except:
         print("Failed Set Goal")
 
+@socketio.on('find')
+def find(json):
+    try:
+        req = requests.get("http://localhost:5000/seek/"+json["data"])
+        if(req.status_code==200):
+            print("Find sart Success")
+            # console.log("on way")
+    except:
+        print("Failed to start Goal")
+
 @socketio.on('say')
 def say(json):
     try:
@@ -143,8 +160,12 @@ def removeLandmark(json):
 @socketio.on('cancel')
 def cancel():
     print("Canceled Goal")
-    cancelPub.publish()
-    socketio.emit("path-update",[])
+    try:
+        req = requests.get("http://localhost:5000/cancel")
+        if(req.status_code==200):
+           socketio.emit("path-update",[])
+    except:
+        print("Failed To remove landmark")
 
 @socketio.on('statusCheck')
 def statusCheck():
