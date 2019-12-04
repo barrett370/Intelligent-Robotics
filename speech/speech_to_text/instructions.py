@@ -1,6 +1,8 @@
 import os
 
 import requests
+import difflib
+
 
 from misc_functions import strip_leading_space
 
@@ -68,12 +70,23 @@ class InstructionParser:
         elif instruction.__contains__("find"):
             name = strip_leading_space(instruction.split("find")[1])
             print(f"Finding {get_id(name)}")
-            requests.get(f"http://localhost:5000/say/Finding {names.get_id(name)}")
+            requests.get(f"http://localhost:5001/say/Finding {names.get_id(name)}")
             requests.get(f"http://localhost:5000/seek/{get_id(name)}")
 
         else:
             try:
-                self.instructions[instruction]()
-                return True
+                max_sim = 0
+                max_instruction = ""
+                for poss_instruction in list(self.instructions.keys()):
+                    sim = difflib.SequenceMatcher(a= instruction.lower(), b=poss_instruction.lower()).ratio()
+                if sim > max_sim:
+                    max_sim = sim
+                    max_instruction = poss_instruction     
+                print(f"Max sim: {max_sim}, most similar instruction: {max_instruction}")
+                if max_sim > 0.7:
+                    self.instructions[max_instruction]()
+                    return True
+                else:
+                    return False
             except KeyError:
                 return False

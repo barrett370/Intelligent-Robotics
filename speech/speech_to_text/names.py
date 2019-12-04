@@ -15,7 +15,7 @@ def get_id(name_input:str)->int:
     max_sim = 0
     sim_name = ""
     for name in list(names.keys()):
-        sim = difflib.SequenceMatcher(a= name, b=name_input  .lower()).ratio()
+        sim = difflib.SequenceMatcher(a= name, b=name_input.lower()).ratio()
         if sim > max_sim:
             max_sim = sim
             sim_name = name     
