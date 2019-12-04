@@ -100,8 +100,9 @@ def updateLocations():
 
 @app.route('/found/<id>')
 def found(id):
-    cancel(id)
+    cancel()
     socketio.emit('found',{'id': id})
+    return "success"
 
 @socketio.on('connected')
 def handle_my_custom_event(json):

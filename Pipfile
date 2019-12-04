@@ -19,11 +19,11 @@ rospkg = "*"
 # psutil = "*"
 # pywatchman = "*"
 # localisation
-# numpy = "*"
+numpy = "*"
 # matplotlib = "*"
 # Vision
-#opencv-python = "*"
-#face_recognition = "*"
+opencv-python = "*"
+face_recognition = "*"
 # dlib = "*"
 imutils = "*"
 # webInterface, landmarks, speech

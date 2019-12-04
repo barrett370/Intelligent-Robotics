@@ -8,6 +8,7 @@ import imutils
 import pickle
 import time
 import cv2
+import requests
 import os
 
 
@@ -104,6 +105,10 @@ class Seeker:
                 if match_count >= self.ACTIVATION_THRESHOLD and int(name) == int(target):
                     if self.confident_guesses > self.CONFIDENT_GUESSES_THRESHOLD:
                         print("found!")
+                        try:
+                            requests.get("http://localhost:4200/found/"+str(target))
+                        except:
+                            print("Couldnt send found")
                         found = True
                         self.confident_guesses = 0
                     else:
