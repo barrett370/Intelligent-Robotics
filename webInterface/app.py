@@ -98,6 +98,11 @@ def updateLocations():
     except:
         print("Get All landmarks Down")
 
+@app.route('/found/<id>')
+def found(id):
+    cancel(id)
+    socketio.emit('found',{'id': id})
+
 @socketio.on('connected')
 def handle_my_custom_event(json):
     updateLocations()
