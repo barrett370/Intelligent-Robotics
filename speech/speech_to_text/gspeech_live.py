@@ -8,7 +8,7 @@ from six.moves import queue
 import difflib
 # Audio recording parameters
 from instructions import InstructionParser
-from utils import strip_leading_space
+from misc_functions import strip_leading_space
 
 STREAMING_LIMIT = 10000
 SAMPLE_RATE = 16000

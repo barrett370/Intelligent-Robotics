@@ -2,10 +2,9 @@ import os
 
 import requests
 
-from speech_to_text.misc_functions import strip_leading_space
+from misc_functions import strip_leading_space
 
-import utils.names as names
-
+from names import get_id 
 language = 'en'
 
 
@@ -68,9 +67,9 @@ class InstructionParser:
             # send to landmarks API
         elif instruction.__contains__("find"):
             name = strip_leading_space(instruction.split("find")[1])
-            print(f"Finding {names.get_id(name)}")
+            print(f"Finding {get_id(name)}")
             requests.get(f"http://localhost:5000/say/Finding {names.get_id(name)}")
-            requests.get(f"http://localhost:5000/seek/{names.get_id(name)}")
+            requests.get(f"http://localhost:5000/seek/{get_id(name)}")
 
         else:
             try:
