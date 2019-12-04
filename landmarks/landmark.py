@@ -26,6 +26,7 @@ spinning = False
 goalReached = ""
 spin_lock = threading.Lock()
 target = ''
+seek_steps_done = 0
 
 
 pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
@@ -149,6 +150,7 @@ def loop_scan(target):
             seek_lock.acquire()
             seeking = False
             seek_lock.release()
+            cancel()
             print("found while moving!")
             
 
@@ -158,6 +160,8 @@ def seek(name: str):
     global seeking
     global seek_lock
     global current_seek
+    global seek_steps_done
+    seek_steps_done = 0
     target = name
     print(f"seek={seeking}")
     seek_lock.acquire()
@@ -183,6 +187,7 @@ def callbackStatus(msg):
     global goalReached
     global target
     global seeker
+    global seek_steps_done
     if len(msg.status_list) > 0 and "Goal reached." == msg.status_list[-1].text and goalReached != msg.status_list[-1].goal_id.id:
         print("Goal reached.")
         goalReached = msg.status_list[-1].goal_id.id
@@ -209,6 +214,7 @@ def callbackStatus(msg):
                 next_goal = next(current_seek)
                 print(f"Going to next goal: {next_goal}")
                 go_to(next_goal)
+                seek_steps_done += 1
                 # goalReached=""
 
             spin_lock.acquire()
