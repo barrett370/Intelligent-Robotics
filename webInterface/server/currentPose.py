@@ -18,7 +18,6 @@ class CurrentPose:
 
 
     def callback(self,msg):
-        # print(msg)
         pose = msg.pose.pose.position
         qur = msg.pose.pose.orientation
         self.x = pose.x

@@ -5,10 +5,10 @@ import os
 from google.cloud import speech_v1p1beta1 as speech
 import pyaudio
 from six.moves import queue
-
+import difflib
 # Audio recording parameters
 from instructions import InstructionParser
-from utils import strip_leading_space
+from misc_functions import strip_leading_space
 
 STREAMING_LIMIT = 10000
 SAMPLE_RATE = 16000
@@ -139,10 +139,10 @@ parser = InstructionParser()
 
 def parse_input_stream(responses):
     global listening_end
-
+    print("attempting to parse input")
     if responses: 
         for response in responses:
-            
+            print(1)
             if not response.results:
                 break
 
@@ -150,9 +150,15 @@ def parse_input_stream(responses):
             if not result.alternatives:
                 continue
             if result.is_final:
-
+                seq = 0 
                 transcript: str = result.alternatives[0].transcript
-                if transcript.__contains__("Howard"):
+                seq = difflib.SequenceMatcher(a= "howard", b=  transcript.lower()).ratio()
+                # if seq > sim:
+                #     sim = seq 
+                # print(2)
+                print(f"Sim is : {seq}")
+                # if transcript.__contains__("Howard"):
+                if seq > 0.7:
                     # trigger motion and vision to scan for speaker (first face detected)
                     sys.stdout.write(RED)
                     sys.stdout.write("Wake Word Detected\n")
@@ -165,6 +171,7 @@ def parse_input_stream(responses):
                     if parser.parse(transcript.lower()):
                         print("completed instruction waiting for wake word")
                         listening_end = get_current_time()
+    print("returning")
     return
 
         # Parse following reponses for commands
@@ -205,8 +212,10 @@ def main():
             responses = client.streaming_recognize(streaming_config,requests)
             # Now, put the transcription responses to use.
             try:
+                print("Parsing input")
                 parse_input_stream(responses)
             except:
+                print("cannot parse")
                 continue
             # listen_print_loop(responses, stream)
 
