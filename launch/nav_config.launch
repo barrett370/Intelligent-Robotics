@@ -30,11 +30,11 @@
         name="delayed_nav_launch" output="screen" />
 
 	<node pkg="guide_robot" type="run_landmarks.sh"
-    args="$(arg pkg_dir)"
+    args="1 $(arg pkg_dir)"
     name="landmarks" output="screen"/>
 
     <node pkg="guide_robot" type="run_web.sh"
-    args="$(arg pkg_dir)"
+    args="1 $(arg pkg_dir)"
     name="web" output="screen"/>
 	<!-- <node pkg="guide_robot" type="run_tts.sh"
     args="$(arg pkg_dir)"

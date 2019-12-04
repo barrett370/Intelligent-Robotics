@@ -1,6 +1,6 @@
 #!/bin/bash
-sleep 4
+sleep $1
 export FLASK_APP=landmarks/landmark.py
 
-cd $1
+cd $2
 flask run

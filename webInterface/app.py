@@ -10,7 +10,6 @@ from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
 from actionlib_msgs.msg import GoalID
-from actionlib_msgs.msg import GoalStatusArray
 from nav_msgs.msg import Path
 import threading
 import time
@@ -18,7 +17,6 @@ import sys
 import logging
 import math
 import rospy
-
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 loop = asyncio.get_event_loop()
 
@@ -46,9 +44,7 @@ def callbackPath(msg):
             socketio.emit("path-update",[])
             lastPath = []
 
-def callbackStatus(msg):
-    for status in msg.status_list:
-        print(status.text)
+
 def quaternion_to_euler(x, y, z, w):
 
     t0 = +2.0 * (w * x + y * z)
@@ -65,6 +61,8 @@ def quaternion_to_euler(x, y, z, w):
 
 
 
+    
+
 def callback(msg):
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
@@ -74,12 +72,11 @@ def callback(msg):
     socketio.emit("robot-update", {'x':x, 'y':y,"yaw":euler[0],"pitch":euler[1]})
 
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
-subGoal = rospy.Subscriber('move_base/status',GoalStatusArray, callbackStatus)
 threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 twist = Twist()
-cancelPub = rospy.Publisher('move_base/cancel',GoalID, queue_size=1)
+
 
 @app.route('/')
 def root(): 
@@ -158,8 +155,12 @@ def removeLandmark(json):
 @socketio.on('cancel')
 def cancel():
     print("Canceled Goal")
-    cancelPub.publish()
-    socketio.emit("path-update",[])
+    try:
+        req = requests.get("http://localhost:5000/cancel")
+        if(req.status_code==200):
+           socketio.emit("path-update",[])
+    except:
+        print("Failed To remove landmark")
 
 @socketio.on('statusCheck')
 def statusCheck():
