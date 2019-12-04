@@ -8,16 +8,13 @@ import time
 import cv2
 
 # construct the argument parse and parse the arguments
+X_RIGHT_EDGE = 350
+X_LEFT_EDGE = 50
+CONFIDENCE_THRESHOLD = 0.8
 HOWARD_CAMERA = 2
 LAPTOP_CAMERA = 0
-ap = argparse.ArgumentParser()
-ap.add_argument("-p", "--prototxt", default='MobileNetSSD_deploy.prototxt.txt',
-                help="path to Caffe 'deploy' prototxt file")
-ap.add_argument("-m", "--model", default='MobileNetSSD_deploy.caffemodel',
-                help="path to Caffe pre-trained model")
-ap.add_argument("-c", "--confidence", type=float, default=0.2,
-                help="minimum probability to filter weak detections")
-args = vars(ap.parse_args())
+person_found = False
+personCount = 0
 
 # initialize the list of class labels MobileNet SSD was trained to
 # detect, then generate a set of bounding box colors for each class
@@ -30,7 +27,7 @@ COLORS = np.random.uniform(0, 255, size=(len(CLASSES), 3))
 
 # load our serialized model from disk
 print("[INFO] loading model for object detection")
-net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
+net = cv2.dnn.readNetFromCaffe('MobileNetSSD_deploy.prototxt.txt', 'MobileNetSSD_deploy.caffemodel')
 
 # initialize the video stream, allow the camera sensor to warmup,
 # and initialize the FPS counter
@@ -40,7 +37,7 @@ time.sleep(2.0)
 fps = FPS().start()
 
 # loop over the frames from the video stream
-while True:
+while not person_found:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
     frame = vs.read()
@@ -64,17 +61,27 @@ while True:
 
         # filter out weak detections by ensuring the `confidence` is
         # greater than the minimum confidence
-        if confidence > args["confidence"]:
+        if confidence > CONFIDENCE_THRESHOLD:
             # extract the index of the class label from the
             # `detections`, then compute the (x, y)-coordinates of
             # the bounding box for the object
             idx = int(detections[0, 0, i, 1])
             box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
             (startX, startY, endX, endY) = box.astype("int")
+            category = CLASSES[idx] # sets the category as whatever has been classified
 
             # draw the prediction on the frame
-            label = "{}: {:.2f}%".format(CLASSES[idx],
+            label = "{}: {:.2f}%".format(category,
                                          confidence * 100)
+
+            if category == "person":
+                personCount += 1
+                print("person count " + str(personCount))
+                print("x coord " + str(endX))
+                if startX < X_LEFT_EDGE and endX > X_RIGHT_EDGE:
+                    # checking whether bounding box is in the centre
+                    person_found = True
+
             cv2.rectangle(frame, (startX, startY), (endX, endY), COLORS[idx], 2)
             y = startY - 15 if startY - 15 > 15 else startY + 15
             cv2.putText(frame, label, (startX, y),
