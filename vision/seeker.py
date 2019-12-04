@@ -7,6 +7,9 @@ import imutils
 import pickle
 import cv2
 
+LAPTOP_CAMERA = 0
+HOWARD_CAMERA = 2
+
 
 class Seeker:
 
@@ -35,7 +38,7 @@ class Seeker:
         # initialize the video stream and pointer to output video file, then
         # allow the camera sensor to warm up
         print("[INFO] starting video stream...")
-        vs = VideoStream(src=0).start()
+        vs = VideoStream(src=LAPTOP_CAMERA).start()
         # time.sleep(2.0)
         base_data.angular.z = 1.0
         found = False

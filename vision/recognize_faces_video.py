@@ -12,6 +12,8 @@ import time
 import cv2
 
 # construct the argument parser and parse the arguments
+HOWARD_CAMERA = 2
+LAPTOP_CAMERA = 0
 argParser = argparse.ArgumentParser()
 argParser.add_argument("-e", "--encodings", default="encodings.pickle",
                        help="SEEKER :path to serialized db of facial encodings")
@@ -30,7 +32,7 @@ data = pickle.loads(open(args["encodings"], "rb").read())
 # initialize the video stream and pointer to output video file, then
 # allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs = VideoStream(src=2).start()
+vs = VideoStream(src=HOWARD_CAMERA).start()
 writer = None
 time.sleep(2.0)
 
