@@ -22,7 +22,7 @@ import rospy
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 loop = asyncio.get_event_loop()
 
-people = ["Jonathan","Geroge","Charlie","Sam","Anant"]
+people = ["Anant","Charlie","George","Jon","Sam"]
 
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
@@ -125,6 +125,16 @@ def goTo(json):
             # console.log("on way")
     except:
         print("Failed Set Goal")
+
+@socketio.on('find')
+def find(json):
+    try:
+        req = requests.get("http://localhost:5000/seek/"+json["data"])
+        if(req.status_code==200):
+            print("Find sart Success")
+            # console.log("on way")
+    except:
+        print("Failed to start Goal")
 
 @socketio.on('say')
 def say(json):
