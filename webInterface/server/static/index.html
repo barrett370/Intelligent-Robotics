@@ -99,12 +99,13 @@
             position: absolute;
             bottom: 0px;
             left: -1px;
-            width: 300px;
+            width: 400px;
             height: 30px;
             background: #888888AA;
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
         }
+
 
         .status {
             /* background: red; */
@@ -166,6 +167,15 @@
             color:#5C5C5C;
             display:grid;
             grid-template-columns: 1fr 50px;
+        }
+
+        #cancel{
+            background-color:red;
+            cursor: pointer;
+        }
+
+        #cancel:hover{
+            background-color:#e30000;
         }
 
         .select-none{
@@ -262,10 +272,16 @@
                     statusString += `<div class="status" style="">` + i + `</div>`
                 }
             }
+
+            statusString += `<div id ="cancel" onclick="cancel()" class="status">CANCEL</div>`
             document.getElementById("status-container").innerHTML = statusString
         });
 
         setInterval(function() { socket.emit("statusCheck") }, 10000);
+
+        function cancel(){
+            socket.emit("cancel")
+        }
 
         //control the robot via keyboard
       
@@ -413,6 +429,7 @@
         <div class="status "></div>
         <div class="status "></div>
     </div>
+
 </body>
 <script>
 

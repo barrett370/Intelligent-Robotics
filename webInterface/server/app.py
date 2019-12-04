@@ -9,6 +9,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import Twist
+from actionlib_msgs.msg import GoalID
 from nav_msgs.msg import Path
 import threading
 import time
@@ -75,6 +76,7 @@ threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 twist = Twist()
+cancelPub = rospy.Publisher('move_base/cancel',GoalID, queue_size=1)
 
 @app.route('/')
 def root(): 
@@ -141,6 +143,11 @@ def removeLandmark(json):
         print("down")
 
 
+@socketio.on('cancel')
+def cancel():
+    print("cancel")
+    cancelPub.publish()
+    socketio.emit("path-update",[])
 
 @socketio.on('statusCheck')
 def statusCheck():
@@ -169,11 +176,11 @@ def keyPress(json):
         if(key=="w"):
             twist.linear.x+=0.5
         elif(key=="a"):
-            twist.angular.z+=0.2
+            twist.angular.z=0.5
         elif(key=="s"):
             twist.linear.x+=-0.5
         elif(key=="d"):
-            twist.angular.z+=-0.2
+            twist.angular.z=-0.5
     else:
         if(key=="w"):
             twist.linear.x=0
