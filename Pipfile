@@ -37,6 +37,8 @@ google-cloud-speech = "*"
 # termcolor = "*"
 gTTS = "*"
 playsound = "*"
+pyimagesearch = "*"
+scipy = "*"
 
 [requires]
 python_version = "3.7"

@@ -31,19 +31,21 @@ data = pickle.loads(open(args["encodings"], "rb").read())
 # initialize the video stream and pointer to output video file, then
 # allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs = VideoStream(src=2).start()
+vs = VideoStream(src=0).start()
 writer = None
 time.sleep(2.0)
+fps = FPS().start()
 
 # loop over frames from the video file stream
 while True:
     # grab the frame from the threaded video stream
     frame = vs.read()
+    frame = imutils.resize(frame, width=400)
 
     # convert the input frame from BGR to RGB then resize it to have
     # a width of 750px (to speedup processing)
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    rgb = imutils.resize(frame, width=750)
+
     r = frame.shape[1] / float(rgb.shape[1])
 
     # detect the (x, y)-coordinates of the bounding boxes
@@ -119,9 +121,21 @@ while True:
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF
 
+        # show the output frame
+        cv2.imshow("Frame", frame)
+        key = cv2.waitKey(1) & 0xFF
+
         # if the `q` key was pressed, break from the loop
         if key == ord("q"):
             break
+
+        # update the FPS counter
+        fps.update()
+
+# stop the timer and display FPS information
+fps.stop()
+print("[INFO] elapsed time: {:.2f}".format(fps.elapsed()))
+print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
