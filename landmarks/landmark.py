@@ -113,6 +113,7 @@ seeker = Seeker()
 seek_locations = ['a', 'b', 'c']
 current_seek = cycle(seek_locations)
 spinning = False
+goalReached = ""
 spin_lock = threading.Lock()
 
 @app.route("/seek")
@@ -141,12 +142,16 @@ def callbackStatus(msg):
     global current_seek
     global spin_lock
     global spinning
-    if "Goal reached." in [i.text for i in msg.status_list]:
+    global goalReached
+    # ss = [i.text for i in msg.status_list]
+    if len(msg.status_list) > 0 and "Goal reached." == msg.status_list[-1].text and goalReached != msg.status_list[-1].goal_id.id:
         print("Goal reached.")
+        goalReached = msg.status_list[-1].goal_id.id
+        spin_lock.acquire()
         if seeking and not spinning:
             print("Seeking")
 
-            spin_lock.acquire()
+            # spin_lock.acquire()
             spinning = True
             spin_lock.release()
 
@@ -165,10 +170,11 @@ def callbackStatus(msg):
                 next_goal = next(current_seek)
                 print(f"Going to next goal: {next_goal}")
                 go_to(next_goal)
-                
+                goalReached=""
+
             spin_lock.acquire()
             spinning = False
-            spin_lock.release()
+        spin_lock.release()
 
 subGoal = rospy.Subscriber('move_base/status', GoalStatusArray, callbackStatus)
 
