@@ -77,10 +77,17 @@ while not person_found:
             if category == "person":
                 personCount += 1
                 print("person count " + str(personCount))
-                print("x coord " + str(endX))
-                if startX < X_LEFT_EDGE and endX > X_RIGHT_EDGE:
-                    # checking whether bounding box is in the centre
-                    person_found = True
+                x = (endX - startX)
+                print("x coord " + str(x))
+                if x < 150:
+                    print("go right")
+                elif x > 250:
+                    print("go left")
+                else:
+                    print("just right")
+
+
+
 
             cv2.rectangle(frame, (startX, startY), (endX, endY), COLORS[idx], 2)
             y = startY - 15 if startY - 15 > 15 else startY + 15
