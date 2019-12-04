@@ -264,7 +264,10 @@ def main():
             responses = client.streaming_recognize(streaming_config,
                                                    requests)
             # Now, put the transcription responses to use.
-            parse_input_stream(responses)
+            try:
+                parse_input_stream(responses)
+            except:
+                continue
             # listen_print_loop(responses, stream)
 
             if stream.result_end_time > 0:

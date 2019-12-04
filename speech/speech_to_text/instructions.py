@@ -25,7 +25,7 @@ def get_loc():
     print("get_loc")
     req = requests.get("http://localhost:5000/getRelLoc")
     print(req.json())
-    requests.get(f"http://localhost:5001/say/{req}")
+    requests.get(f"http://localhost:5001/say/{req.json()['text']}")
 class InstructionParser:
     instructions = {
         "print something": lambda: print("Printed Something"),
