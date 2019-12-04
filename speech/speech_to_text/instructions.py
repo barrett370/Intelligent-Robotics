@@ -2,8 +2,8 @@ import os
 
 import requests
 
-from utils import strip_leading_space
-
+from misc_functions import strip_leading_space
+import utils.names as namess
 language = 'en'
 
 
@@ -33,6 +33,8 @@ class InstructionParser:
         "where am i" : get_loc
     }
 
+
+
     def parse(self, instruction: str) -> bool:
         """         
 
@@ -61,6 +63,12 @@ class InstructionParser:
                 # interface with motion code
             return True
             # send to landmarks API
+        elif instruction.__contains__("find"):
+            name - strip_leading_space(instruction.split("find")[1])
+            print(f"Finding {names.get_id(name)}")
+            requests.get(f"http://localhost:5000/say/Finding {names.get_id(name)}")
+            requests.get(f"http://localhost:5000/seek/{names.get_id(name)}")
+
         else:
             try:
                 self.instructions[instruction]()
