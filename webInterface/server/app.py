@@ -26,9 +26,8 @@ people = ["Jonathan","Geroge","Charlie","Sam","Anant"]
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 lastPath=[]
-print("app configured")
 socketio = SocketIO(app,cors_allowed_origins="*")
-print("setup socket")
+print("WEB SERVER STARTED")
 
 
 def callbackPath(msg):
@@ -63,7 +62,6 @@ def quaternion_to_euler(x, y, z, w):
 
 
 def callback(msg):
-    print("Esitimated Position")
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
     x = pose.x
@@ -80,12 +78,10 @@ cancelPub = rospy.Publisher('move_base/cancel',GoalID, queue_size=1)
 
 @app.route('/')
 def root(): 
-    print("/")
     return app.send_static_file('index.html')
 
 @app.route('/img/map.png')
 def map():
-    print("image")
     return app.send_static_file('img/map.png')
 
 @app.route('/updateLocations')
@@ -98,7 +94,7 @@ def updateLocations():
         socketio.emit("setup", {'locations': landmarks,"people":people})
         return "updated"
     except:
-        print("down")
+        print("Get All landmarks Down")
 
 @socketio.on('connected')
 def handle_my_custom_event(json):
@@ -113,16 +109,17 @@ def newLandmark(json):
         if(req.status_code==200):
             updateLocations()
     except:
-        print("down")
+        print("Failed Set Landmark")
 
 @socketio.on('goTo')
 def goTo(json):
     try:
         req = requests.get("http://localhost:5000/go/"+json["data"])
         if(req.status_code==200):
-            console.log("on way")
+            print("Go Success")
+            # console.log("on way")
     except:
-        print("down")
+        print("Failed Set Goal")
 
 @socketio.on('say')
 def say(json):
@@ -131,7 +128,7 @@ def say(json):
         if(req.status_code==200):
             console.log("said "+json["data"])
     except:
-        print("say down")
+        print("Failed to Say")
 
 @socketio.on('removeLandmark')
 def removeLandmark(json):
@@ -140,12 +137,12 @@ def removeLandmark(json):
         if(req.status_code==200):
             updateLocations()
     except:
-        print("down")
+        print("Failed To remove landmark")
 
 
 @socketio.on('cancel')
 def cancel():
-    print("cancel")
+    print("Canceled Goal")
     cancelPub.publish()
     socketio.emit("path-update",[])
 
@@ -162,7 +159,6 @@ def statusCheck():
         voice = requests.get("http://localhost:5001/healthCheck")
         status["VOICE"] = voice.status_code
     except:
-        # print("fail")
         status["VOICE"] = 500
     status["MOTION"] = 500
     socketio.emit("statusUpdate",status)
