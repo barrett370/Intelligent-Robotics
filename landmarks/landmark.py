@@ -6,8 +6,15 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
+from actionlib_msgs.msg import GoalID
+from actionlib_msgs.msg import GoalStatusArray
+from seeker import Seeker
+import threading
+from itertools import cycle
 
 
+# threading.Thread(target=lambda: rospy.init_node('landmarks', anonymous=True, disable_signals=True)).start()
+rospy.init_node('landmarks', disable_signals=True)
 pose = CurrentPose()
 
 pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
@@ -100,5 +107,72 @@ def getCurrentPosition():
     except:
         return pose
 
+seek_lock = threading.Lock()
+seeking = False
+seeker = Seeker()
+seek_locations = ['a', 'b', 'c']
+current_seek = cycle(seek_locations)
+spinning = False
+spin_lock = threading.Lock()
+
+@app.route("/seek")
+def seek():
+    global seeking
+    global seek_lock
+    # global seek_locations
+    global current_seek
+    print(f"seek={seeking}")
+    seek_lock.acquire()
+    seeking = True
+    print("set seek to true")
+    goal = next(current_seek)
+    print(f"current seek = {goal}")
+    seek_lock.release()
+    print(f"current seek = {goal}")
+    go_to(goal)
+    return f"going to {goal}"
+
+
+
+def callbackStatus(msg):
+    global seeking
+    global seek_lock
+    global seek_locations
+    global current_seek
+    global spin_lock
+    global spinning
+    if "Goal reached." in [i.text for i in msg.status_list]:
+        print("Goal reached.")
+        if seeking and not spinning:
+            print("Seeking")
+
+            spin_lock.acquire()
+            spinning = True
+            spin_lock.release()
+
+            found = seeker.seek()
+
+            
+
+            if found:
+                print(found)
+                seek_lock.acquire()
+                seeking = False
+                seek_lock.release()
+                # while next(seek_locations) not 'a':
+                #     print("Recyling seek locationse")
+            else:
+                next_goal = next(current_seek)
+                print(f"Going to next goal: {next_goal}")
+                go_to(next_goal)
+                
+            spin_lock.acquire()
+            spinning = False
+            spin_lock.release()
+
+subGoal = rospy.Subscriber('move_base/status', GoalStatusArray, callbackStatus)
+
+
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run()
