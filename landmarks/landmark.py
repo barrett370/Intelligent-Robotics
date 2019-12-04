@@ -135,10 +135,11 @@ def cancel():
     global seeking
     global seek_lock
     seek_lock.acquire()
-    seeking=False
+    seeking = False
     seek_lock.release()
     print("Canceled Goal")
     cancelPub.publish()
+    return 'success'
 
 
 
