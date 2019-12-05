@@ -24,11 +24,20 @@ def sms_ahoy_reply():
     recipient = request.form["From"]
     print(message_contents.upper())
     # Add a message
-    if message_contents.split(":")[0] == "name":
+
+    if message_contents.split(" ")[0].upper() == "FIND":
+        if recipient in contact_dictionary:
+            username = contact_dictionary[recipient]
+            print("helping : " + username)
+        else:
+            print("user wanting help not recognised: " + recipient)
+
+    if message_contents.split(":")[0] == "Name":
         given_name = message_contents.split(":")[1]
         if recipient in contact_dictionary:
             print("recipient found")
-            message = "Hello again, " + str(contact_dictionary[recipient])
+            username = contact_dictionary[recipient]
+            message = "Hello again, " + username
             print(message)
         else:
             print("new user")
