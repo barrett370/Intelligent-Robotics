@@ -32,7 +32,7 @@ flask = "*"
 flask-socketio = "*"
 # Speech
 speechrecognition = "*"
-#pyaudio = "*"
+pyaudio = "*"
 google-cloud-speech = "*"
 # termcolor = "*"
 gTTS = "*"
