@@ -176,20 +176,21 @@ def resetPose(json):
     pose.pose.pose.position.x=json['x']
     pose.pose.pose.position.y=json['y']
     pose.pose.pose.position.z=0
-    q = euler_to_quaternion(0,0,(math.pi/180) *int(json["o"]))
-    print(json["o"])
+    q = euler_to_quaternion([(math.pi/180) *float(json["o"]),1,1])
+    print((math.pi/180) *float(json["o"]))
+    print(q)
+    #(math.pi/180) *float(json["o"])
     pose.pose.pose.orientation= Quaternion(q[0], q[1], q[2], q[3])
     print(f'resetPose {pose}')
     init_pub.publish(pose)
 
-def euler_to_quaternion(roll, pitch, yaw):
-
-        qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-        qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-        qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-        qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-
-        return [qx, qy, qz, qw]
+def euler_to_quaternion(r):
+    (yaw, pitch, roll) = (r[0], r[1], r[2])
+    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    return [qx, qy, qz, qw]
 
 @socketio.on('newLandmark')
 def newLandmark(json):
