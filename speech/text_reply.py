@@ -38,6 +38,7 @@ def sms_ahoy_reply():
             requests.get(f"http://localhost:5000/seek/{username}")
         elif keyword == "LEARN":
             message = "Learning your face, " + username + ", stand still!"
+            resp = requests.get(f"http://localhost:5000/learn/{username}")
         elif keyword == "HOWARD":
             message = "Current commands are: 'Learn' and 'Find' (Case Insensitive)"
         else:
