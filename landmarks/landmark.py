@@ -1,6 +1,6 @@
 from flask import Flask,abort
 import difflib
-from currentPose import CurrentPose
+from landmarks.currentPose import CurrentPose
 import rospy
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
