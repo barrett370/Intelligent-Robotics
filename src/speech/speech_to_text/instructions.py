@@ -4,9 +4,9 @@ import requests
 import difflib
 import datetime
 
-from misc_functions import strip_leading_space
+from speech.speech_to_text.misc_functions import strip_leading_space
 
-from names import get_id
+from speech.speech_to_text.names import get_id
 
 language = 'en'
 

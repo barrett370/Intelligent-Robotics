@@ -18,6 +18,7 @@ import json
 
 import sys
 from vision.seeker import Seeker
+from speech.speech_to_text import gspeech_live
 sys.path.append('../')
 
 
@@ -27,6 +28,8 @@ pose = CurrentPose()
 seek_lock = threading.Lock()
 seeking = False
 seeker = Seeker()
+stt = gspeech_live.Listener()
+stt.main()
 seek_locations = ['a', 'b', 'c']
 current_seek = cycle(seek_locations)
 spinning = False

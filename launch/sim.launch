@@ -29,7 +29,7 @@
     args="1 $(arg pkg_dir)"
     name="tts" output="log"/>
 	
-	<node pkg="guide_robot" type="run_stt.sh"
+	<!-- <node pkg="guide_robot" type="run_stt.sh"
     args="1 $(arg pkg_dir)"
-    name="stt" output="log"/>
+    name="stt" output="log"/> -->
 </launch> 

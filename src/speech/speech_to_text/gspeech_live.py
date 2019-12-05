@@ -8,8 +8,8 @@ import pyaudio
 from six.moves import queue
 import difflib
 # Audio recording parameters
-from instructions import InstructionParser
-from misc_functions import strip_leading_space
+from speech.speech_to_text.instructions import InstructionParser
+from speech.speech_to_text.misc_functions import strip_leading_space
 
 STREAMING_LIMIT = 10000
 SAMPLE_RATE = 16000
