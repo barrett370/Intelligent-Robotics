@@ -187,8 +187,12 @@ def seek(name: str):
 
 @app.route("/learn/<name>")
 def learn_name(name: str):
-    seeker.learn_face(name)
-
+    try:
+        seeker.learn_face(name)
+        print("learned face")
+        return {"text":"success"}
+    except:
+        return {"text":"failed"}
 
 def callbackStatus(msg):
     global seeking

@@ -12,8 +12,6 @@ import requests
 import os
 import threading
 
-lock = 
-data = pickle.loads(open(Seeker.pickle_path(), "rb").read())
 class Seeker:
     vs = VideoStream(src=0).start()
     def __init__(self):
@@ -28,6 +26,7 @@ class Seeker:
         print("[INFO] loading encodings...")
         self.found = False
         self.FRAMES = 15
+        self.data = pickle.loads(open(self.pickle_path(), "rb").read())
 
 
     def callback(self, msg):
@@ -35,8 +34,10 @@ class Seeker:
 
     def get_names(self):
         data["names"]
+
     def pickle_path(self):
         TEST_FILENAME = os.path.join(os.path.dirname(__file__), 'encodings.pickle')
+        os.system(f"touch {TEST_FILENAME}")
         print(TEST_FILENAME)
         return TEST_FILENAME
 
@@ -169,8 +170,8 @@ class Seeker:
         with open(self.pickle_path, "wb") as model:
             pickle.dump(model_data, model)
             data = model_data
-        cv2.destroyAllWindows()
-        vs.stop()
+        # cv2.destroyAllWindows()
+        # vs.stop()
 
 if __name__ == "__main__":
     s = Seeker()

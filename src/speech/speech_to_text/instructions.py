@@ -87,11 +87,20 @@ class InstructionParser:
             print(f"Finding {get_id(name)}")
             requests.get(f"http://localhost:5001/say/Finding {get_id(name)}")
             requests.get(f"http://localhost:5000/seek/{get_id(name)}")
-        elif instruction.__contains__("learn my name"):
-            name = strip_leading_space(instruction.split("my name is")[2])
+        elif instruction.__contains__("my name is"):
+            name = strip_leading_space(instruction.split("my name is")[1])
             response = f"Learning face for {name}"
             print(response)
-            requests.get(f"http://localhost:5001/learn/{response}")
+            resp = requests.get(f"http://localhost:5000/learn/{response}")
+            print(resp.status_code)
+            if resp.json()['text'] == "success":
+                response = "Learnt your face"
+                requests.get(f"http://localhost:5001/say/{response}")
+                print(response)
+            else:
+                response = "Sorry something went wrong"
+                requests.get(f"http://localhost:5001/say/{response}")
+                print(response)
         else:
             try:
                 max_sim = 0

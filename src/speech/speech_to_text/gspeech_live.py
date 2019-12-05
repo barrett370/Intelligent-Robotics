@@ -3,6 +3,7 @@ import sys
 import os
 # uses result_end_time currently only avaialble in v1p1beta, will be in v1 soon
 from google.cloud import speech_v1p1beta1 as speech
+import google
 import pyaudio
 from six.moves import queue
 import difflib
@@ -50,6 +51,7 @@ class ResumableMicrophoneStream:
             channels=self._num_channels,
             rate=self._rate,
             input=True,
+            input_device_index=6,
             frames_per_buffer=self.chunk_size,
             # Run the audio stream asynchronously to fill the buffer object.
             # This is necessary so that the input device's buffer doesn't
@@ -214,8 +216,8 @@ def main():
             try:
                 print("Parsing input")
                 parse_input_stream(responses)
-            except:
-                print("cannot parse")
+            except google.api_core.exceptions.DeadlineExceeded:
+                # print("cannot parse")
                 continue
             # listen_print_loop(responses, stream)
 
