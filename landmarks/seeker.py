@@ -109,6 +109,15 @@ class Seeker:
                             requests.get("http://localhost:4200/found/"+str(target))
                         except:
                             print("Couldnt send found")
+                        try:
+                            word="Hey, I have found you. How can I help?"
+                            req = requests.get("http://localhost:5001/say/"+word)
+                            if(req.status_code==200):
+                                print("said Found")
+                        except:
+                            print("Failed to Say: Found")
+                        
+
                         found = True
                         self.confident_guesses = 0
                     else:

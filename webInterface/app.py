@@ -100,8 +100,9 @@ def updateLocations():
 
 @app.route('/found/<id>')
 def found(id):
+    if(int(id)>=0):
+        socketio.emit('found',{'id': id})
     cancel()
-    socketio.emit('found',{'id': id})
     return "success"
 
 @socketio.on('connected')
