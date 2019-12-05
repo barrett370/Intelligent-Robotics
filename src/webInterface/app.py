@@ -95,6 +95,7 @@ subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
 threading.Thread(target=lambda: rospy.init_node('poser', anonymous=False, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose', PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
+init_pub = rospy.Publisher('initialpose', PoseWithCovarianceStamped, queue_size=1)
 twist = Twist()
 
 
@@ -141,6 +142,8 @@ def found(id):
     cancel()
     return "success"
 
+
+
 @socketio.on('setCam')
 def set_cam(id):
     try:
@@ -164,6 +167,16 @@ def handle_my_custom_event(json):
     updateLocations()
     statusCheck()
     print('received json: ' + str(json))
+
+@socketio.on('resetPose')
+def resetPose(json):
+    pose = PoseWithCovarianceStamped()
+    pose.header.frame_id='map'
+    pose.pose.pose.position.x=json['x']
+    pose.pose.pose.position.y=json['y']
+    pose.pose.pose.position.z=0
+    pose.pose.pose.orientation= Quaternion(0, 0, 1, 0)
+    init_pub.publish(pose)
 
 @socketio.on('newLandmark')
 def newLandmark(json):
