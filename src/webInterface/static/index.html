@@ -510,11 +510,17 @@
     var svg = document.getElementById('svg-main')
     function clicked(event) {
         let m = oMousePosSVG(event);
-        var landmarkName = prompt("Create a new Landmark:", "Landmark Name");
-        if (landmarkName != null) {
+        if (event.shiftKey){
+            socket.emit('resetPose', {  x: (((m.x-3.24)*2.54)-11.47), y: (((-m.y+1.36)*2.53)+8.75) });
+        }else{
+
+            var landmarkName = prompt("Create a new Landmark:", "Landmark Name");
+             if (landmarkName != null) {
 
             socket.emit('newLandmark', { name: landmarkName, x: (((m.x-3.24)*2.54)-11.47), y: (((-m.y+1.36)*2.53)+8.75) });
+            }
         }
+
     }
 
     function oMousePosSVG(e) {
