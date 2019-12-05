@@ -15,6 +15,8 @@ def send(message_body, recipient):
                          from_='+447480485629',
                          to=recipient
                      )
+
+
     print("message sent with sid : " + str(message.sid))
 
 
