@@ -8,7 +8,7 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
 from actionlib_msgs.msg import GoalID
 from actionlib_msgs.msg import GoalStatusArray
-from vision.seeker import Seeker
+from landmarks.vision.seeker import Seeker
 import threading
 import requests
 import random
