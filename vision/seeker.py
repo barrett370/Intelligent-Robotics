@@ -13,6 +13,10 @@ HOWARD_CAMERA = 2
 
 class Seeker:
 
+    def reload_model(self):
+        with open("encodings.pickle", "rb") as model:
+            self.data = pickle.load(model)
+
     def __init__(self):
         self.CONFIDENT_GUESSES_THRESHOLD = 3
         self.ACTIVATION_THRESHOLD = 5
