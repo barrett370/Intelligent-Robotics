@@ -13,7 +13,7 @@ import cv2
 
 # construct the argument parser and parse the arguments
 argParser = argparse.ArgumentParser()
-argParser.add_argument("-e", "--encodings", default="encodings.pickle",
+argParser.add_argument("-e", "--encodings", default="encodings_new.pickle",
                        help="SEEKER :path to serialized db of facial encodings")
 argParser.add_argument("-o", "--output", type=str,  # default="output/webcam_face_recognition_output.avi",
                        help="SEEKER: path to output video")
