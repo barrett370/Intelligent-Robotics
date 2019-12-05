@@ -21,7 +21,7 @@ import pickle
 import rospy
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 loop = asyncio.get_event_loop()
-
+motionOn = False
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 lastPath=[]
@@ -85,11 +85,13 @@ def get_mics():
         return []
 
 def callback(msg):
+    global motionOn
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
     x = pose.x
     y = pose.y
     euler=quaternion_to_euler(qur.x,qur.y,qur.z,qur.w)
+    motionOn = True
     socketio.emit("robot-update", {'x':x, 'y':y,"yaw":euler[0],"pitch":euler[1]})
 
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
@@ -257,6 +259,7 @@ def cancel():
 @socketio.on('statusCheck')
 def statusCheck():
     status = {}
+    global motionOn
     try:
         landmarks = requests.get("http://localhost:5000/healthCheck")
         status["LANDMARK"] = landmarks.status_code
@@ -269,7 +272,10 @@ def statusCheck():
         status["VOICE"] = voice.status_code
     except:
         status["VOICE"] = 500
-    status["MOTION"] = 500
+    if(motionOn):
+        status["MOTION"] = 200
+    else:
+        status["MOTION"] = 500
     socketio.emit("statusUpdate",status)
     updateLocations()
 
