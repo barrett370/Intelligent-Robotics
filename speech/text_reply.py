@@ -34,11 +34,11 @@ def sms_ahoy_reply():
         keyword = message_contents.split(" ")[0].upper()  # sets keyword as case insensitive word before any whitespace
         if keyword == "FIND":
             print("helping : " + username)
-            message = "on my way to help you, " + username
+            message = "On my way to help you, " + username
             requests.get(f"http://localhost:5000/seek/{username}")
         elif keyword == "LEARN":
             message = "Learning your face, " + username + ", stand still!"
-            resp = requests.get(f"http://localhost:5000/learn/{username}")
+            requests.get(f"http://localhost:5000/learn/{username}")
         elif keyword == "HOWARD":
             message = "Current commands are: 'Learn' and 'Find' (Case Insensitive)"
         else:
