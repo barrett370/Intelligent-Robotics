@@ -226,7 +226,7 @@
             peopleSidebarString=""
             people = data.people
             for(i in data.people){
-                peopleSidebarString+='<a class="side-bar-button" onclick="find(`'+data.people[i]+'`)">'+data.people[i]+'<i class="material-icons directions">search</i></a>'
+                peopleSidebarString+='<a class="side-bar-button" onclick="find(`'+i+'`)">'+data.people[i]+'<i class="material-icons directions">search</i></a>'
             }
             document.getElementById("expandable2").innerHTML = peopleSidebarString
             expand2() 
@@ -289,6 +289,11 @@
 
         function goTo(loc){
             socket.emit('goTo', { data: loc });
+        }
+
+
+        function find(name){
+            socket.emit('find', { data: name });
         }
 
         function say(){
