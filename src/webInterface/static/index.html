@@ -226,6 +226,7 @@
         var camera = {}
         var mic = {}
         var people ={}
+        var orientation = 0;
 
         var socket = io();
 
@@ -348,6 +349,12 @@
         function logKeyDown(e) {
             if (e.key == "w" || e.key == "a" || e.key == "s" || e.key == "d") {
                 socket.emit('keyPress', { key: e.key,event:"down" });
+            }
+            if (e.key == "o"){
+                var o = prompt("Set orientation:", "0");
+                if(o != null){
+                    orientation = o
+                }
             }
         }
 
@@ -512,7 +519,7 @@
     function clicked(event) {
         let m = oMousePosSVG(event);
         if (event.shiftKey){
-            socket.emit('resetPose', {  x: (((m.x-3.24)*2.54)-11.47), y: (((-m.y+1.36)*2.53)+8.75) });
+            socket.emit('resetPose', {  x: (((m.x-3.24)*2.54)-11.47), y: (((-m.y+1.36)*2.53)+8.75) , o:orientation});
         }else{
 
             var landmarkName = prompt("Create a new Landmark:", "Landmark Name");
