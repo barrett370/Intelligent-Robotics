@@ -15,8 +15,7 @@ def send(message_body, recipient):
                          to=recipient
                      )
 
-
     print("message sent with sid : " + str(message.sid))
 
 
-
+send("fuck u ", "+447804919284")
