@@ -11,6 +11,8 @@ def sms_ahoy_reply():
     """Respond to incoming messages with a friendly SMS."""
     # Start our response
     resp = MessagingResponse()
+    print(request.form['Body'])
+    print(request.form["From"])
 
     # Add a message
     resp.message("Welcome! What is your name?")
