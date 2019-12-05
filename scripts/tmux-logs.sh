@@ -1,6 +1,5 @@
 #!/bin/bash
 
-base_dir='$HOME/.ros/logs/latest'
 
 tmux new-session -d 'tail -f $HOME/.ros/log/latest/landmarks-5-stdout.log'
 tmux split-window -v 'tail -f $HOME/.ros/log/latest/tts-7-stdout.log'

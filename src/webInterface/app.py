@@ -67,6 +67,22 @@ def get_people():
         print(e)
         return []
 
+def get_cameras():
+    try:
+        req = requests.get("http://localhost:5000/cameras")
+        return req.json()
+    except Exception as e:
+        print(e)
+        return []
+
+def get_mics():
+    try:
+        req = requests.get("http://localhost:5000/mics")
+        return req.json()
+    except Exception as e:
+        print(e)
+        return []
+
 def callback(msg):
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
@@ -77,7 +93,7 @@ def callback(msg):
 
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
 threading.Thread(target=lambda: rospy.init_node('poser', anonymous=False, disable_signals=True)).start()
-sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
+sub = rospy.Subscriber('amcl_pose', PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 twist = Twist()
 
@@ -110,8 +126,10 @@ def updateLocations():
         req = requests.get("http://localhost:5000/getAllLandmarks")
         landmarks = req.json()
         people = get_people()
-        socketio.emit("setup", {'locations': landmarks,"people":people})
-        return {'locations': landmarks,"people":people}
+        cameras = get_cameras()
+        mics = get_mics()
+        socketio.emit("setup", {'locations': landmarks,"people":people, "camera":cameras,"mic":mics})
+        return {'locations': landmarks,"people":people, "camera":cameras,"mic":mics}
     except Exception as e:
         return e
     
@@ -122,6 +140,24 @@ def found(id):
         socketio.emit('found',{'id': id})
     cancel()
     return "success"
+
+@socketio.on('setCam')
+def set_cam(id):
+    try:
+        req = requests.get(f'http://localhost:5000/setCam/{id}')
+        return f'{req.json()}'
+    except Exception as e:
+        print(f'[ERROR] {e}')
+    return f'{e}'
+
+@socketio.on('setMic')
+def set_id(id):
+    try:
+        req = requests.get(f'http://localhost:5000/setMic/{id}')
+        return f'{req.json()}'
+    except Exception as e:
+        print(f'[ERROR] {e}')
+    return f'{e}'
 
 @socketio.on('connected')
 def handle_my_custom_event(json):
