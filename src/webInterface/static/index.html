@@ -270,7 +270,7 @@
             
             mic = data.mic
             micInputString = ""
-            for(i in data.camera){
+            for(i in data.mic){
                 // console.log(data.mic[i])
                 if(data.mic[i].active){
                     micInputString+='<a style="background-color:red;color:white;" id="camera'+data.mic[i].id+'" class="side-bar-button" onclick="setCam(`'+data.mic[i].id+'`)">'+data.mic[i].name+'</a>'

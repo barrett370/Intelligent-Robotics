@@ -11,3 +11,5 @@ def get():
         if (audio.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
             devices.append({"id":i,"name": audio.get_device_info_by_host_api_device_index(0, i).get('name'),"active":False})
     return devices
+
+print(get())

@@ -25,7 +25,7 @@ loop = asyncio.get_event_loop()
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 lastPath=[]
-socketio = SocketIO(app,cors_allowed_origins="*")
+socketio = SocketIO(app,cors_allowed_origins="*", async_handlers=True)
 print("WEB SERVER STARTED")
 
 
