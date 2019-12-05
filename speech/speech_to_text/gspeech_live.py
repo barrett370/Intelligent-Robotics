@@ -214,7 +214,7 @@ def main():
             try:
                 print("Parsing input")
                 parse_input_stream(responses)
-            except:
+            except DeadlineExceeded:
                 print("cannot parse")
                 continue
             # listen_print_loop(responses, stream)
