@@ -6,6 +6,9 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 import json
 
+# to run, run this py file on console along with:
+# twilio phone-numbers:update "+447480485629" --sms-url="http://localhost:5000/sms"
+
 app = Flask(__name__)
 account_sid = 'ACeea156007a0ce498fdf1b5dc4c99bb80'#os.environ['TWILIO_ACCOUNT_SID']
 auth_token = 'df00eacbd499e0c669a81cc91b8d0b5a'#os.environ['TWILIO_AUTH_TOKEN']
@@ -25,28 +28,32 @@ def sms_ahoy_reply():
     print(message_contents.upper())
     # Add a message
 
-    if message_contents.split(" ")[0].upper() == "FIND":
-        if recipient in contact_dictionary:
-            username = contact_dictionary[recipient]
+    if recipient in contact_dictionary:
+        username = contact_dictionary[recipient]
+        print("user found: ", username)
+        keyword = message_contents.split(" ")[0].upper()  # sets keyword as case insensitive word before any whitespace
+        if keyword == "FIND":
             print("helping : " + username)
+            message = "on my way to help you, " + username
+        elif keyword == "LEARN":
+            message = "Learning your face, " + username + ", stand still!"
+        elif keyword == "HOWARD":
+            message = "Current commands are: 'Learn' and 'Find' (Case Insensitive)"
         else:
-            print("user wanting help not recognised: " + recipient)
+            message = "I don't know what you're after there buddy! For a list of commands, respond with 'Howard'"
 
-    if message_contents.split(":")[0] == "Name":
-        given_name = message_contents.split(":")[1]
-        if recipient in contact_dictionary:
-            print("recipient found")
-            username = contact_dictionary[recipient]
-            message = "Hello again, " + username
-            print(message)
-        else:
+    else:
+        print(message_contents.split(":")[0].upper)
+        if message_contents.split(":")[0].upper() == "REGISTER":
+            given_name = message_contents.split(":")[1]
             print("new user")
             add_contact(given_name, recipient)
-            message = "new user"
+            message = "Welcome to Howard, the friendly guide bot, " + given_name
             print("adding: ", given_name, recipient)
-    else:
-        message = "Go away, " + str(recipient)
-        # send(message, recipient)
+
+        else:
+            message = "you are not registered, please register with 'register:your_name_here"
+
     write_json()
     print(message)
     resp.message(message)
