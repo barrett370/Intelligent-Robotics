@@ -19,6 +19,7 @@ vs = VideoStream(src=0).start()
 
 
 def learn_face(name: str):
+    FRAMES = 15
     for i in range(FRAMES):
 
         log("[INFO] processing image {}/{}".format(i, FRAMES))

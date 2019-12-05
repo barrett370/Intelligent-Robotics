@@ -7,10 +7,7 @@ import datetime
 from misc_functions import strip_leading_space
 
 from names import get_id
-from vision.learn_new_face import learn_face
-
 language = 'en'
-
 
 # experimental
 def expand_abbreviations(instruction: str) -> str:
@@ -94,8 +91,7 @@ class InstructionParser:
             name = strip_leading_space(instruction.split("my name is")[2])
             response = f"Learning face for {name}"
             print(response)
-            requests.get(f"http://localhost:5001/say/{response}")
-            learn_face(name)
+            requests.get(f"http://localhost:5001/learn/{response}")
         else:
             try:
                 max_sim = 0

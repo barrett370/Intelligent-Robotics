@@ -10,10 +10,12 @@ import time
 import cv2
 import requests
 import os
+import threading
 
-
+lock = 
+data = pickle.loads(open(Seeker.pickle_path(), "rb").read())
 class Seeker:
-
+    vs = VideoStream(src=0).start()
     def __init__(self):
         self.CONFIDENT_GUESSES_THRESHOLD = 3
         self.ACTIVATION_THRESHOLD = 1
@@ -24,15 +26,16 @@ class Seeker:
         self.odom = None
         self.rate = rospy.Rate(self.HZ)  # 10hz
         print("[INFO] loading encodings...")
-        self.data = pickle.loads(open(self.__pickle_path(), "rb").read())
         self.found = False
-        self.vs = VideoStream(src=0).start()
+        self.FRAMES = 15
+
 
     def callback(self, msg):
         self.odom = msg
 
-    
-    def __pickle_path(self):
+    def get_names(self):
+        data["names"]
+    def pickle_path(self):
         TEST_FILENAME = os.path.join(os.path.dirname(__file__), 'encodings.pickle')
         print(TEST_FILENAME)
         return TEST_FILENAME
@@ -63,7 +66,7 @@ class Seeker:
         return found
 
     def scan(self, target):
-        frame = self.vs.read()
+        frame = vs.read()
         found = False
         # convert the input frame from BGR to RGB then resize it to have
         # a width of 750px (to speedup processing)
@@ -81,7 +84,7 @@ class Seeker:
         for encoding in encodings:
             # attempt to match each face in the input image to our known
             # encodings
-            matches = face_recognition.compare_faces(self.data["encodings"],
+            matches = face_recognition.compare_faces(data["encodings"],
                                                         encoding)
 
             # check to see if we have found a match
@@ -94,7 +97,7 @@ class Seeker:
                 # loop over the matched indexes and maintain a count for
                 # each recognized face face
                 for i in face_matches:
-                    name = self.data["names"][i]
+                    name = data["names"][i]
                     counts[name] = counts.get(name, 0) + 1
                 name = max(counts, key=counts.get)
                 match_count = counts[name]
@@ -124,6 +127,50 @@ class Seeker:
                 names.append(name)
         return found
 
+    def learn_face(self, name: str):
+        knownEncodings = []
+        knownNames = []
+        for i in range(self.FRAMES):
+
+            print("[INFO] processing image {}/{}".format(i, FRAMES))
+
+            # load the input image and convert it from RGB (OpenCV ordering)
+            # to dlib ordering (RGB)
+            image = vs.read()
+            rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+            # detect the (x, y)-coordinates of the bounding boxes
+            # corresponding to each face in the input image
+            boxes = face_recognition.face_locations(rgb,
+                                                    model='hog')
+
+            # compute the facial embedding for the face
+            encodings = face_recognition.face_encodings(rgb, boxes)
+
+            # loop over the encodings
+            for encoding in encodings:
+                # add each encoding + name to our set of known names and
+                # encodings
+                knownEncodings.append(encoding)
+                new_index = len(list(filter(model_data['names'])))
+                knownNames.append((name,new_index))
+
+        # dump the facial encodings + names to disk
+        print("[INFO] serializing encodings...")
+        model_data = {'encodings': [], 'names': []}
+        os.system(f"touch {self.pickle_path()}")
+        with open(self.pickle_path(), "rb") as model:
+            try:
+                model_data = pickle.load(model)
+            except EOFError:
+                pass
+            model_data['encodings'] += knownEncodings
+            model_data['names'] += knownNames
+        with open(self.pickle_path, "wb") as model:
+            pickle.dump(model_data, model)
+            data = model_data
+        cv2.destroyAllWindows()
+        vs.stop()
 
 if __name__ == "__main__":
     s = Seeker()

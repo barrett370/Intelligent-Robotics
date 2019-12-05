@@ -8,7 +8,7 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
 from actionlib_msgs.msg import GoalID
 from actionlib_msgs.msg import GoalStatusArray
-from landmarks.vision.seeker import Seeker
+from ..vision.seeker import Seeker
 import threading
 import requests
 import random
@@ -180,6 +180,9 @@ def seek(name: str):
     threading.Thread(target=loop_scan(target)).start()
     return f"going to {goal}"
 
+@app.route("/learn/<name>")
+def learn_name(name: str):
+    seeker.learn_face(name)
 
 
 def callbackStatus(msg):
