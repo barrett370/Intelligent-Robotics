@@ -2,17 +2,22 @@ from flask import Flask,abort
 import difflib
 from landmarks.currentPose import CurrentPose
 import rospy
+
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import PoseStamped
 from actionlib_msgs.msg import GoalID
 from actionlib_msgs.msg import GoalStatusArray
-from ..vision.seeker import Seeker
+
 import threading
 import requests
 import random
 from itertools import cycle
+
+import sys
+from vision.seeker import Seeker
+sys.path.append('../')
 
 
 # threading.Thread(target=lambda: rospy.init_node('landmarks', anonymous=True, disable_signals=True)).start()
