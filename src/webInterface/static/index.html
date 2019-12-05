@@ -227,7 +227,7 @@
         var mic = {}
         var people ={}
         var orientation = 0;
-
+        var foundId=-1;
         var socket = io();
 
         socket.on('connect', function () {
@@ -250,7 +250,14 @@
             peopleSidebarString=""
             people = data.people
             for(i in data.people){
-                peopleSidebarString+='<a id="people'+data.people[i][1]+'" class="side-bar-button people" onclick="find(`'+data.people[i][1]+'`)">'+data.people[i][0]+'<i class="material-icons directions">search</i></a>'
+                if(data.people[i][1]==foundId){
+                    peopleSidebarString+='<a id="people'+data.people[i][1]+'" class="side-bar-button people" style="color:#83F52C;" onclick="find(`'+data.people[i][0]+'`)">'+data.people[i][0]+'<i class="material-icons directions">search</i></a>'
+                  
+                  
+                }else{
+                    peopleSidebarString+='<a id="people'+data.people[i][1]+'" class="side-bar-button people" onclick="find(`'+data.people[i][0]+'`)">'+data.people[i][0]+'<i class="material-icons directions">search</i></a>'
+
+                }
             }
             document.getElementById("expandable2").innerHTML = peopleSidebarString
 
@@ -326,8 +333,11 @@
         // Update status
         socket.on('found', function (data) {
             id =data.id
+            foundId = id*1
+            console.log("people"+id)
             document.getElementById("people"+id).style="color:#83F52C;"
-            setTimeout(function(){document.getElementById("people"+id).style="color:#5e5e5e;"},5000)
+            setTimeout(function(){document.getElementById("people"+id).style="color:#5e5e5e;"
+            foundId=-1},5000)
         });
 
 

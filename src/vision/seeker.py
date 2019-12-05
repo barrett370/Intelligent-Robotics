@@ -28,7 +28,7 @@ class Seeker:
         self.found = False
         self.FRAMES = 15
         self.data = pickle.loads(open(self.pickle_path(), "rb").read())
-        self.dev_id = 1
+        self.dev_id = 0
         self.vs = VideoStream(src=self.dev_id).start()
 
     def change_device(self, id: int):
@@ -116,8 +116,10 @@ class Seeker:
                 name = max(counts, key=counts.get)
                 match_count = counts[name]
                 # sumCounts = sumCounts + matchCount
+                print("t",target)
+                print("n",name)
 
-                if match_count >= self.ACTIVATION_THRESHOLD and int(name) == int(target):
+                if match_count >= self.ACTIVATION_THRESHOLD and int(name[1]) == int(target):
                     if self.confident_guesses > self.CONFIDENT_GUESSES_THRESHOLD:
                         print("found!")
                         try:
