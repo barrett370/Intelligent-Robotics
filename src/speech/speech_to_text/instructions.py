@@ -7,7 +7,9 @@ import datetime
 from misc_functions import strip_leading_space
 
 from names import get_id
+
 language = 'en'
+
 
 # experimental
 def expand_abbreviations(instruction: str) -> str:
@@ -46,7 +48,7 @@ def get_time():
 
 class InstructionParser:
 
-    def __init__():
+    def __init__(self):
         self.prev_instruction = ""
 
     instructions = {
@@ -95,7 +97,7 @@ class InstructionParser:
             elif instruction.__contains__("learn my face"):
                 response = "What is your name?"
                 requests.get(f"http://localhost:5001/say/{response}")
-                prev_instruction = 'learn my face'
+                self.prev_instruction = 'learn my face'
             else:
                 try:
                     max_sim = 0
@@ -116,8 +118,12 @@ class InstructionParser:
                 except KeyError:
                     return True
         else:
-            if prev_instruction == "learn my face":
-                name = strip_leading_space(instruction.split("my name is")[1])
+            print(f"continuing conversation from {self.prev_instruction}")
+            if self.prev_instruction == "learn my face":
+                if instruction.__contains__("my name is"):
+                    name = strip_leading_space(instruction.split("my name is")[1])
+                else:
+                    name = instruction
                 response = f"Learning face for {name}"
                 print(response)
                 resp = requests.get(f"http://localhost:5000/learn/{name}")
