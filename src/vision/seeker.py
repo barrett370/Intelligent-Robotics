@@ -28,7 +28,7 @@ class Seeker:
         self.found = False
         self.FRAMES = 15
         self.data = pickle.loads(open(self.pickle_path(), "rb").read())
-        self.dev_id = 0
+        self.dev_id = 1
         self.vs = VideoStream(src=self.dev_id).start()
 
     def change_device(self, id: int):
