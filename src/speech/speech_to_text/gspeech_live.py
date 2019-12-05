@@ -1,6 +1,7 @@
 import time
 import sys
 import os
+import threading
 # uses result_end_time currently only avaialble in v1p1beta, will be in v1 soon
 from google.cloud import speech_v1p1beta1 as speech
 import google
@@ -78,7 +79,7 @@ class ResumableMicrophoneStream:
         self.closed = False
         return self
 
-    def __exit__(self):
+    def __exit__(self, type, value, traceback):
 
         self._audio_stream.stop_stream()
         self._audio_stream.close()
@@ -155,12 +156,15 @@ class Listener:
         self.listening_end = 0
         self.parser = InstructionParser()
         self.continued = False
+        print('creating mic manager')
         self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
+        self.__thread = threading.Thread(target=self.main,daemon=True)
+        print('created mic manager')
 
     def change_mic_id(self, mic_id: int):
-        self.mic_manager.__exit__()
+        self.mic_manager.__exit__(1,2,3)
         self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE, mic_id=mic_id)
-        self.main()
+        self.__thread.start()
 
     def parse_input_stream(self, responses):
 
@@ -206,25 +210,28 @@ class Listener:
 
     def main(self):
         """start bidirectional streaming from microphone input to speech API"""
-
+        print(1)
         client = speech.SpeechClient()
+        print(2)
         config = speech.types.RecognitionConfig(
             encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
             sample_rate_hertz=SAMPLE_RATE,
             language_code='en-US',
             max_alternatives=1)
+        print(3)
         streaming_config = speech.types.StreamingRecognitionConfig(
             config=config,
             interim_results=False)
-
+        print(4)
         print(self.mic_manager.chunk_size)
         sys.stdout.write(YELLOW)
         sys.stdout.write('End (ms)       Transcript Results/Status\n')
         sys.stdout.write('=====================================================\n')
-
+        print(5)
         with self.mic_manager as stream:
-
+            
             while not stream.closed:
+                print('stream')
                 sys.stdout.write(YELLOW)
                 sys.stdout.write('\n' + str(
                     STREAMING_LIMIT * stream.restart_counter) + ': NEW REQUEST\n')
@@ -255,9 +262,5 @@ class Listener:
 
                 if not stream.last_transcript_was_final:
                     sys.stdout.write('\n')
-                stream.new_stream = True
+                # stream.new_stream = True
 
-
-if __name__ == '__main__':
-    listener = Listener()
-    listener.main()

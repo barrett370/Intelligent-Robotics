@@ -253,7 +253,7 @@
             }
             document.getElementById("expandable2").innerHTML = peopleSidebarString
 
-            data.camera=[{name:"Input1",id:3,active:true},{name:"Input1",id:1,active:false},{name:"Input1",id:2,active:false}]
+            // data.camera=[{name:"Input1",id:3,active:true},{name:"Input1",id:1,active:false},{name:"Input1",id:2,active:false}]
             camera = data.camera
             cameraInputString = ""
             for(i in data.camera){
@@ -265,11 +265,12 @@
             }
             document.getElementById("expandable3").innerHTML = cameraInputString
 
-            data.mic=[{name:"Input1",id:3,active:true},{name:"Input1",id:1,active:false},{name:"Input1",id:2,active:false}]
+            // data.mic=[{name:"Input1",id:3,active:true},{name:"Input1",id:1,active:false},{name:"Input1",id:2,active:false}]
             
             mic = data.mic
             micInputString = ""
             for(i in data.camera){
+                // console.log(data.mic[i])
                 if(data.mic[i].active){
                     micInputString+='<a style="background-color:red;color:white;" id="camera'+data.mic[i].id+'" class="side-bar-button" onclick="setCam(`'+data.mic[i].id+'`)">'+data.mic[i].name+'</a>'
                 }else{

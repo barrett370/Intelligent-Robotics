@@ -15,6 +15,8 @@ import requests
 import random
 from itertools import cycle
 import json
+from speech import get_inputs
+from vision import get_cameras
 
 import sys
 from vision.seeker import Seeker
@@ -29,7 +31,9 @@ seek_lock = threading.Lock()
 seeking = False
 seeker = Seeker()
 stt = gspeech_live.Listener()
-stt.main()
+thread = threading.Thread(target=stt.main, daemon=True)
+
+thread.start()
 seek_locations = ['a', 'b', 'c']
 current_seek = cycle(seek_locations)
 spinning = False
@@ -38,7 +42,7 @@ spin_lock = threading.Lock()
 target = ''
 seek_steps_done = 0
 sayCounter = 0
-followStrings=["Follow me", "This way", "Follow me to your destination", "Im over here","Almost there","Head towards me","Head towards the sound of me voice","Your destination is this way"]
+followStrings=["Follow me", "This way", "Follow me to your destination", "I'm over here","Almost there","Head towards me","Head towards the sound of me voice","Your destination is this way"]
 
 
 pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
@@ -47,6 +51,7 @@ locationsDict = {"a":{"x":-9.6,"y":1.38},"b":{"x":0.12,"y":1.38},"c":{"x":10.38,
 print("LANDMARKS SERVER RUNNING")
 
 app = Flask(__name__)
+
 
 @app.route("/healthCheck")
 def hello():
@@ -202,6 +207,27 @@ def learn_name(name: str):
 def get_faces():
     names = seeker.get_names()
     return json.dumps(names)
+
+@app.route("/mics")
+def mics():
+    return json.dumps(get_inputs.get())
+
+@app.route("/cameras")
+def cameras():
+    return json.dumps(get_cameras.get())
+
+@app.route('/setCam/<id>')
+def set_cam(id):
+    global seeker
+    print(f'[INFO] setting cam to: {id}')
+    seeker.change_device(int(id))
+
+@app.route('/setMic/<id>')
+def set_id(id):
+     global stt
+     print(f'[INFO] setting audio to: {id}')
+     stt.change_mic_id(int(id))
+
 
 def callbackStatus(msg):
     global seeking
