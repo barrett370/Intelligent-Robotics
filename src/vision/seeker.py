@@ -13,8 +13,9 @@ import os
 import threading
 
 class Seeker:
-    vs = VideoStream(src=0).start()
+    
     def __init__(self):
+        self.lock = threading.Lock()
         self.CONFIDENT_GUESSES_THRESHOLD = 3
         self.ACTIVATION_THRESHOLD = 1
         self.HZ = 10
@@ -27,6 +28,16 @@ class Seeker:
         self.found = False
         self.FRAMES = 15
         self.data = pickle.loads(open(self.pickle_path(), "rb").read())
+        self.dev_id = 0
+        self.vs = VideoStream(src=self.dev_id).start()
+
+    def change_device(self, id: int):
+        self.lock.acquire()
+        cv2.destroyAllWindows()
+        self.vs.stop()
+        self.dev_id = id
+        self.vs = VideoStream(src=self.dev_id).start()
+        self.lock.release()
 
 
     def callback(self, msg):
@@ -67,7 +78,9 @@ class Seeker:
         return found
 
     def scan(self, target):
+        self.lock.acquire()
         frame = self.vs.read()
+        self.lock.release()
         found = False
         # convert the input frame from BGR to RGB then resize it to have
         # a width of 750px (to speedup processing)
@@ -179,8 +192,7 @@ class Seeker:
             pickle.dump(model_data, model)
             self.data = model_data
             print("updated self.data")
-        # cv2.destroyAllWindows()
-        # vs.stop()
+        
 
 if __name__ == "__main__":
     s = Seeker()
