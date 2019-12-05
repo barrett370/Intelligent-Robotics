@@ -90,6 +90,19 @@ def root():
 def map():
     return app.send_static_file('img/map.png')
 
+@app.route('/css/google.css')
+def google():
+    return app.send_static_file('css/google.css')
+
+@app.route('/css/icon.css')
+def icon():
+    return app.send_static_file('css/icon.css')
+
+@app.route('/js/socket.io.js')
+def socket():
+    return app.send_static_file('js/socket.io.js')
+
+
 @app.route('/updateLocations')
 def updateLocations():
     global landmarks
