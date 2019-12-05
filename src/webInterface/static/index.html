@@ -250,7 +250,7 @@
             peopleSidebarString=""
             people = data.people
             for(i in data.people){
-                peopleSidebarString+='<a id="people'+data.people[i][1]+'" class="side-bar-button people" onclick="find(`'+data.people[i][1]+'`)">'+data.people[i][0]+'<i class="material-icons directions">search</i></a>'
+                peopleSidebarString+='<a id="people'+data.people[i][1]+'" class="side-bar-button people" onclick="find(`'+data.people[i][0]+'`)">'+data.people[i][0]+'<i class="material-icons directions">search</i></a>'
             }
             document.getElementById("expandable2").innerHTML = peopleSidebarString
 

@@ -180,7 +180,15 @@ def seek(name: str):
     global current_seek
     global seek_steps_done
     seek_steps_done = 0
-    target = name
+    target = None
+    names = seeker.get_names()
+    for n in names:
+        if(n[0]==name):
+            target=n[1]
+    if(target==None):
+        return "Person not found"
+    print("target",target)
+    # target = name
     print(f"seek={seeking}")
     seek_lock.acquire()
     seeking = True

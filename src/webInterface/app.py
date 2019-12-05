@@ -218,7 +218,7 @@ def find(json):
         req = requests.get("http://localhost:5000/seek/"+json["data"])
         if(req.status_code==200):
             updateLocations()
-            print("Find sart Success")
+            print("Find start Success")
             # console.log("on way")
     except:
         print("Failed to start Goal")
