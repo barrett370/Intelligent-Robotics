@@ -191,8 +191,9 @@ def learn_name(name: str):
         seeker.learn_face(name)
         print("learned face")
         return {"text":"success"}
-    except:
-        return {"text":"failed"}
+    except Exception as e:
+        print(e)
+        return {"text":e}
 
 @app.route("/faces")
 def get_faces():
