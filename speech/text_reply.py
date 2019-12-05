@@ -4,7 +4,7 @@
 from flask import Flask, request
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
-import json
+import json, requests
 
 # to run, run this py file on console along with:
 # twilio phone-numbers:update "+447480485629" --sms-url="http://localhost:5000/sms"
@@ -35,6 +35,7 @@ def sms_ahoy_reply():
         if keyword == "FIND":
             print("helping : " + username)
             message = "on my way to help you, " + username
+            requests.get(f"http://localhost:5000/seek/{username}")
         elif keyword == "LEARN":
             message = "Learning your face, " + username + ", stand still!"
         elif keyword == "HOWARD":
