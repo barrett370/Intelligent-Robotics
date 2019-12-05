@@ -177,6 +177,10 @@
             background-color:#e30000;
         }
 
+        .people{
+            transition: color 0.5s;
+        }
+
         .select-none{
             
             -webkit-touch-callout: none;
@@ -226,7 +230,7 @@
             peopleSidebarString=""
             people = data.people
             for(i in data.people){
-                peopleSidebarString+='<a class="side-bar-button" onclick="find(`'+i+'`)">'+data.people[i]+'<i class="material-icons directions">search</i></a>'
+                peopleSidebarString+='<a id="people'+i+'" class="side-bar-button people" onclick="find(`'+i+'`)">'+data.people[i]+'<i class="material-icons directions">search</i></a>'
             }
             document.getElementById("expandable2").innerHTML = peopleSidebarString
             expand2() 
@@ -265,6 +269,15 @@
         });
 
         setInterval(function() { socket.emit("statusCheck") }, 10000);
+
+        // Update status
+        socket.on('found', function (data) {
+            id =data.id
+            document.getElementById("people"+id).style="color:#83F52C;"
+            setTimeout(function(){document.getElementById("people"+id).style="color:#5e5e5e;"},5000)
+        });
+
+
 
         function cancel(){
             socket.emit("cancel")

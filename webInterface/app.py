@@ -16,12 +16,22 @@ import time
 import sys
 import logging
 import math
+import pickle
 import rospy
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 loop = asyncio.get_event_loop()
 
-people = ["Anant","Charlie","George","Jon","Sam"]
+# def __pickle_path(self):
+#     TEST_FILENAME = os.path.join(os.path.dirname(__file__), '../vision/encodings.pickle')
+#     print(TEST_FILENAME)
+#     return TEST_FILENAME
 
+# people = ["Anant","Charlie","George","Jon","Sam"]
+# def updateFaces():
+#     data = pickle.loads(open(self.__pickle_path(), "rb").read())
+#     print(data["names"])
+
+# updateFaces()
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 lastPath=[]
@@ -100,8 +110,10 @@ def updateLocations():
 
 @app.route('/found/<id>')
 def found(id):
-    cancel(id)
-    socketio.emit('found',{'id': id})
+    if(int(id)>=0):
+        socketio.emit('found',{'id': id})
+    cancel()
+    return "success"
 
 @socketio.on('connected')
 def handle_my_custom_event(json):

@@ -10,6 +10,8 @@ from actionlib_msgs.msg import GoalID
 from actionlib_msgs.msg import GoalStatusArray
 from seeker import Seeker
 import threading
+import requests
+import random
 from itertools import cycle
 
 
@@ -27,6 +29,8 @@ goalReached = ""
 spin_lock = threading.Lock()
 target = ''
 seek_steps_done = 0
+sayCounter = 0
+followStrings=["Follow me", "This way", "Follow me to your destination", "Im over here","Almost there","Head towards me","Head towards the sound of me voice","Your destination is this way"]
 
 
 pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
@@ -187,8 +191,20 @@ def callbackStatus(msg):
     global spinning
     global goalReached
     global target
-    global seeker
+    global seeker   
     global seek_steps_done
+    global sayCounter
+    if(len(msg.status_list) > 0 and "This goal has been accepted by the simple action server" == msg.status_list[-1].text and not seeking):
+        sayCounter +=1
+        if(sayCounter % 25==0):
+            word = random.choice(followStrings)
+            try:
+                req = requests.get("http://localhost:5001/say/"+word)
+                if(req.status_code==200):
+                    console.log("said Follow me")
+            except:
+                print("Failed to Say:"+word)
+            # print("Follow me")
     if len(msg.status_list) > 0 and "Goal reached." == msg.status_list[-1].text and goalReached != msg.status_list[-1].goal_id.id:
         print("Goal reached.")
         goalReached = msg.status_list[-1].goal_id.id
@@ -220,7 +236,25 @@ def callbackStatus(msg):
 
             spin_lock.acquire()
             spinning = False
+        
         spin_lock.release()
+        if(not seeking):
+            word="You have reached your destination"
+            try:
+                req = requests.get("http://localhost:5001/say/"+word)
+                if(req.status_code==200):
+                    print("said Arrival")
+            except:
+                print("Failed to Say:"+word)
+            try:
+                req = requests.get("http://localhost:4200/found/-1")
+                if(req.status_code==200):
+                    print("Web communicated arrival")
+            except:
+                print("Failed to communicate arrival with web")
+            
+
+
 
 subGoal = rospy.Subscriber('move_base/status', GoalStatusArray, callbackStatus)
 
