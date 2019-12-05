@@ -176,6 +176,7 @@ def resetPose(json):
     pose.pose.pose.position.y=json['y']
     pose.pose.pose.position.z=0
     pose.pose.pose.orientation= Quaternion(0, 0, 1, 0)
+    print(f'resetPose {pose}')
     init_pub.publish(pose)
 
 @socketio.on('newLandmark')

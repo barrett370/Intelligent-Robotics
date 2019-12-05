@@ -210,31 +210,19 @@ class Listener:
 
     def main(self):
         """start bidirectional streaming from microphone input to speech API"""
-        print(1)
         client = speech.SpeechClient()
-        print(2)
         config = speech.types.RecognitionConfig(
             encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
             sample_rate_hertz=SAMPLE_RATE,
             language_code='en-US',
             max_alternatives=1)
-        print(3)
         streaming_config = speech.types.StreamingRecognitionConfig(
             config=config,
             interim_results=False)
-        print(4)
         print(self.mic_manager.chunk_size)
-        sys.stdout.write(YELLOW)
-        sys.stdout.write('End (ms)       Transcript Results/Status\n')
-        sys.stdout.write('=====================================================\n')
-        print(5)
         with self.mic_manager as stream:
             
             while not stream.closed:
-                print('stream')
-                sys.stdout.write(YELLOW)
-                sys.stdout.write('\n' + str(
-                    STREAMING_LIMIT * stream.restart_counter) + ': NEW REQUEST\n')
 
                 stream.audio_input = []
                 audio_generator = stream.generator()
