@@ -51,7 +51,7 @@ class ResumableMicrophoneStream:
             channels=self._num_channels,
             rate=self._rate,
             input=True,
-            input_device_index=6,
+            # input_device_index=0,
             frames_per_buffer=self.chunk_size,
             # Run the audio stream asynchronously to fill the buffer object.
             # This is necessary so that the input device's buffer doesn't
@@ -137,10 +137,11 @@ class ResumableMicrophoneStream:
 
 listening_end = 0
 parser = InstructionParser()
-
+continued = False
 
 def parse_input_stream(responses):
     global listening_end
+    global continued
     print("attempting to parse input")
     if responses: 
         for response in responses:
@@ -170,9 +171,13 @@ def parse_input_stream(responses):
                     transcript = strip_leading_space(transcript)
                     print(f"checking for commands {transcript}")
                     # instructions[transcript.lower()]()
-                    if parser.parse(transcript.lower()):
+                    if parser.parse(transcript.lower(),continued):
                         print("completed instruction waiting for wake word")
                         listening_end = get_current_time()
+                        continued = False
+                    else:
+                        print("Next instruction will be a response")
+                        continued = True
     print("returning")
     return
 
