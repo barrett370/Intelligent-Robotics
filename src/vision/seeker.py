@@ -33,7 +33,7 @@ class Seeker:
         self.odom = msg
 
     def get_names(self):
-        data["names"]
+       return list(set(self.data["names"]))
 
     def pickle_path(self):
         TEST_FILENAME = os.path.join(os.path.dirname(__file__), 'encodings.pickle')

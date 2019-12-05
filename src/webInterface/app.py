@@ -21,17 +21,6 @@ import rospy
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 loop = asyncio.get_event_loop()
 
-# def __pickle_path(self):
-#     TEST_FILENAME = os.path.join(os.path.dirname(__file__), '../vision/encodings.pickle')
-#     print(TEST_FILENAME)
-#     return TEST_FILENAME
-
-# people = ["Anant","Charlie","George","Jon","Sam"]
-# def updateFaces():
-#     data = pickle.loads(open(self.__pickle_path(), "rb").read())
-#     print(data["names"])
-
-# updateFaces()
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 lastPath=[]
@@ -70,8 +59,13 @@ def quaternion_to_euler(x, y, z, w):
     return [yaw, pitch, roll]
 
 
-
-    
+def get_people():
+    try:
+        req = requests.get("http://localhost:5000/faces")
+        return req.json()
+    except Exception as e:
+        print(e)
+        return []
 
 def callback(msg):
     pose = msg.pose.pose.position
@@ -82,7 +76,7 @@ def callback(msg):
     socketio.emit("robot-update", {'x':x, 'y':y,"yaw":euler[0],"pitch":euler[1]})
 
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
-threading.Thread(target=lambda: rospy.init_node('poser', anonymous=True, disable_signals=True)).start()
+threading.Thread(target=lambda: rospy.init_node('poser', anonymous=False, disable_signals=True)).start()
 sub = rospy.Subscriber('amcl_pose',PoseWithCovarianceStamped, callback)
 pub = rospy.Publisher('cmd_vel',Twist, queue_size=1)
 twist = Twist()
@@ -99,14 +93,15 @@ def map():
 @app.route('/updateLocations')
 def updateLocations():
     global landmarks
-    global people
     try:
         req = requests.get("http://localhost:5000/getAllLandmarks")
         landmarks = req.json()
+        people = get_people()
         socketio.emit("setup", {'locations': landmarks,"people":people})
-        return "updated"
-    except:
-        print("Get All landmarks Down")
+        return {'locations': landmarks,"people":people}
+    except Exception as e:
+        return e
+    
 
 @app.route('/found/<id>')
 def found(id):
@@ -135,6 +130,7 @@ def goTo(json):
     try:
         req = requests.get("http://localhost:5000/go/"+json["data"])
         if(req.status_code==200):
+            updateLocations()
             print("Go Success")
             # console.log("on way")
     except:
@@ -145,6 +141,7 @@ def find(json):
     try:
         req = requests.get("http://localhost:5000/seek/"+json["data"])
         if(req.status_code==200):
+            updateLocations()
             print("Find sart Success")
             # console.log("on way")
     except:
@@ -156,6 +153,7 @@ def say(json):
         req = requests.get("http://localhost:5001/say/"+json["data"])
         if(req.status_code==200):
             console.log("said "+json["data"])
+            updateLocations()
     except:
         print("Failed to Say")
 
@@ -175,7 +173,8 @@ def cancel():
     try:
         req = requests.get("http://localhost:5000/cancel")
         if(req.status_code==200):
-           socketio.emit("path-update",[])
+            updateLocations()
+            socketio.emit("path-update",[])
     except:
         print("Failed To remove landmark")
 
@@ -187,6 +186,7 @@ def statusCheck():
         status["LANDMARK"] = landmarks.status_code
     except:
         status["LANDMARK"] = 500
+    updateLocations()
 
     try:
         voice = requests.get("http://localhost:5001/healthCheck")
@@ -195,6 +195,7 @@ def statusCheck():
         status["VOICE"] = 500
     status["MOTION"] = 500
     socketio.emit("statusUpdate",status)
+    updateLocations()
 
 
 
@@ -220,12 +221,6 @@ def keyPress(json):
         elif(key=="d"):
             twist.angular.z=0
     pub.publish(twist)
-
-def getCurrentPosition():
-    try:
-        return pose.get_pose()
-    except: #This is done so it can run even if not connected to robot
-        return pose
 
 
 if __name__ == "__main__":

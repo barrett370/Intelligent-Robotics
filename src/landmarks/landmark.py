@@ -14,14 +14,14 @@ import threading
 import requests
 import random
 from itertools import cycle
+import json
 
 import sys
 from vision.seeker import Seeker
 sys.path.append('../')
 
 
-# threading.Thread(target=lambda: rospy.init_node('landmarks', anonymous=True, disable_signals=True)).start()
-rospy.init_node('landmarks', disable_signals=True)
+rospy.init_node('landmarks', anonymous=False, disable_signals=True)
 pose = CurrentPose()
 
 seek_lock = threading.Lock()
@@ -77,7 +77,7 @@ def getAllLandmarks():
 #create a new Landmark based on current posiition
 @app.route("/setLandmark/<locString>")
 def setLandmark(locString):
-    locationsDict[locString]= getCurrentPosition()
+    locationsDict[locString] = getCurrentPosition()
     return  "success"
 
 #create a new Landmark based on position
@@ -193,6 +193,11 @@ def learn_name(name: str):
         return {"text":"success"}
     except:
         return {"text":"failed"}
+
+@app.route("/faces")
+def get_faces():
+    names = seeker.get_names()
+    return json.dumps(names)
 
 def callbackStatus(msg):
     global seeking
