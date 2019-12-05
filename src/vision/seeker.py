@@ -67,7 +67,7 @@ class Seeker:
         return found
 
     def scan(self, target):
-        frame = vs.read()
+        frame = self.vs.read()
         found = False
         # convert the input frame from BGR to RGB then resize it to have
         # a width of 750px (to speedup processing)
@@ -85,7 +85,7 @@ class Seeker:
         for encoding in encodings:
             # attempt to match each face in the input image to our known
             # encodings
-            matches = face_recognition.compare_faces(data["encodings"],
+            matches = face_recognition.compare_faces(self.data["encodings"],
                                                         encoding)
 
             # check to see if we have found a match
@@ -98,7 +98,7 @@ class Seeker:
                 # loop over the matched indexes and maintain a count for
                 # each recognized face face
                 for i in face_matches:
-                    name = data["names"][i]
+                    name = self.data["names"][i]
                     counts[name] = counts.get(name, 0) + 1
                 name = max(counts, key=counts.get)
                 match_count = counts[name]
@@ -133,11 +133,11 @@ class Seeker:
         knownNames = []
         for i in range(self.FRAMES):
 
-            print("[INFO] processing image {}/{}".format(i, FRAMES))
+            print("[INFO] processing image {}/{}".format(i, self.FRAMES))
 
             # load the input image and convert it from RGB (OpenCV ordering)
             # to dlib ordering (RGB)
-            image = vs.read()
+            image = self.vs.read()
             rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
             # detect the (x, y)-coordinates of the bounding boxes
@@ -153,23 +153,32 @@ class Seeker:
                 # add each encoding + name to our set of known names and
                 # encodings
                 knownEncodings.append(encoding)
-                new_index = len(list(filter(model_data['names'])))
+                print(len(set(self.data["names"])))
+                # print(set(self.data["names"]))
+                print(self.data["names"])
+                
+                new_index = len(set(self.data["names"])) #len(list(filter(self.data,lambda x: x['names'])))
                 knownNames.append((name,new_index))
 
         # dump the facial encodings + names to disk
         print("[INFO] serializing encodings...")
         model_data = {'encodings': [], 'names': []}
         os.system(f"touch {self.pickle_path()}")
+        
         with open(self.pickle_path(), "rb") as model:
+            print("here3")
             try:
                 model_data = pickle.load(model)
-            except EOFError:
+            except Exception as e:
+                print(e)
                 pass
             model_data['encodings'] += knownEncodings
             model_data['names'] += knownNames
-        with open(self.pickle_path, "wb") as model:
+            print("updated model data")
+        with open(self.pickle_path(), "wb") as model:
             pickle.dump(model_data, model)
-            data = model_data
+            self.data = model_data
+            print("updated self.data")
         # cv2.destroyAllWindows()
         # vs.stop()
 

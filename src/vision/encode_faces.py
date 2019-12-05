@@ -27,14 +27,16 @@ imagePaths = list(paths.list_images(args["dataset"]))
 knownEncodings = []
 
 knownNames = []
-
+name_count = -1
+prev_name = ""
 # loop over the image paths
 for (i, imagePath) in enumerate(imagePaths):
     # extract the person name from the image path
     print("[INFO] processing image {}/{}".format(i + 1,
                                                  len(imagePaths)))
     name = imagePath.split(os.path.sep)[-2]
-
+    if prev_name!=name:
+        name_count+=1
     # load the input image and convert it from RGB (OpenCV ordering)
     # to dlib ordering (RGB)
     image = cv2.imread(imagePath)
@@ -53,7 +55,9 @@ for (i, imagePath) in enumerate(imagePaths):
         # add each encoding + name to our set of known names and
         # encodings
         knownEncodings.append(encoding)
-        knownNames.append(name)
+        knownNames.append((name,name_count))
+    
+    prev_name = name
 
 # dump the facial encodings + names to disk
 print("[INFO] serializing encodings...")

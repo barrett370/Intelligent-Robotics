@@ -91,7 +91,7 @@ class InstructionParser:
             name = strip_leading_space(instruction.split("my name is")[1])
             response = f"Learning face for {name}"
             print(response)
-            resp = requests.get(f"http://localhost:5000/learn/{response}")
+            resp = requests.get(f"http://localhost:5000/learn/{name}")
             print(resp.status_code)
             if resp.json()['text'] == "success":
                 response = "Learnt your face"
