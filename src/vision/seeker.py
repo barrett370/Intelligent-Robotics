@@ -28,7 +28,7 @@ class Seeker:
         self.found = False
         self.FRAMES = 15
         self.data = pickle.loads(open(self.pickle_path(), "rb").read())
-        self.dev_id = 2
+        self.dev_id = 0
         self.vs = VideoStream(src=self.dev_id).start()
 
     def change_device(self, id: int):
@@ -66,7 +66,7 @@ class Seeker:
         # loop over frames from the video file stream
         counter = 0
         while not found and counter < 20:
-            
+            print('seeking...',counter) 
             found = self.scan(target)
             counter += 1
             self.pub.publish(base_data)
@@ -142,59 +142,6 @@ class Seeker:
                 print(f"{name} found:{found},confident: {self.confident_guesses}, certainty: {(match_count / 35)}")
                 names.append(name)
         return found
-
-
-    def scan(self):
-        self.lock.acquire()
-        frame = self.vs.read()
-        self.lock.release()
-        found = False
-        # convert the input frame from BGR to RGB then resize it to have
-        # a width of 750px (to speedup processing)
-        rgb = imutils.resize(frame, height=240, width=426)
-
-        # detect the (x, y)-coordinates of the bounding boxes
-        # corresponding to each face in the input frame, then compute
-        # the facial embeddings for each face
-        boxes = face_recognition.face_locations(rgb,
-                                                model="hog")
-        encodings = face_recognition.face_encodings(rgb, boxes)
-        names = []
-
-        # loop over the facial embeddings
-        for encoding in encodings:
-            # attempt to match each face in the input image to our known
-            # encodings
-            matches = face_recognition.compare_faces(self.data["encodings"],
-                                                        encoding)
-
-            # check to see if we have found a match
-            if True in matches:
-                # find the indexes of all matched faces then initialize a
-                # dictionary to count the total number of times each face
-                # was matched
-                face_matches = [i for (i, b) in enumerate(matches) if b]
-                counts = {}
-                # loop over the matched indexes and maintain a count for
-                # each recognized face face
-                for i in face_matches:
-                    name = self.data["names"][i]
-                    counts[name] = counts.get(name, 0) + 1
-                name = max(counts, key=counts.get)
-                match_count = counts[name]
-                # sumCounts = sumCounts + matchCount
-                print("n",name)
-
-                # if match_count >= self.ACTIVATION_THRESHOLD and int(name[1:
-                #     if self.confident_guesses > self.CONFIDENT_GUESSES_THRESHOLD:
-                #         print("found!")
-                #         found = True
-                #         self.confident_guesses = 0
-                #     else:
-                #         self.confident_guesses += 1
-                # print(f"{name} found:{found},confident: {self.confident_guesses}, certainty: {(match_count / 35)}")
-                # names.append(name)
-        return name
 
 
     def learn_face(self, name: str):

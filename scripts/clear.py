@@ -1,18 +1,23 @@
 import rospy
 import os
 
-def _off():
+def off():
+    print('off')
     os.system('rosservice call /move_base/clear_costmaps "{}"')
 
 def piss():
-    rospy.init_node('map_boi',annonymous=False)
+    rospy.init_node('map_boi')
     rate = rospy.Rate(0.3)
+    print('hi')
     while not rospy.is_shutdown():
         rate.sleep()
-        _off()
+        off()
+    print('bye')
 
 if __name__ == "__main__":
     try:
         piss()
-    except:
+    except Exception as e:
+        print(e)
+        print('except')
         pass

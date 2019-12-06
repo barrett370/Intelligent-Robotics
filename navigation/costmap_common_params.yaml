@@ -8,7 +8,6 @@ resolution: 0.05
 
 obstacle_range: 2.0
 raytrace_range: 3.0
-unknown_threshold: 0.0
 plugins:
     - {name: static_map,       type: "costmap_2d::StaticLayer"}
     - {name: obstacle_layer,  type: "costmap_2d::ObstacleLayer"}
