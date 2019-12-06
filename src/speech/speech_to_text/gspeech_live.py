@@ -19,6 +19,11 @@ CHUNK_SIZE = int(SAMPLE_RATE / 10)  # 100ms
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
 YELLOW = '\033[0;33m'
+ENDC = '\033[0m'
+info = lambda x: print(x)
+warn = lambda x: print(YELLOW + x + ENDC)
+success = lambda x: print(GREEN + x + ENDC)
+error = lambda x: print(RED + x + ENDC)
 
 
 def get_current_time():
@@ -156,22 +161,22 @@ class Listener:
         self.listening_end = 0
         self.parser = InstructionParser()
         self.continued = False
-        print('creating mic manager')
+        info('[INFO] creating mic manager')
         self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
-        self.__thread = threading.Thread(target=self.main,daemon=True)
-        print('created mic manager')
+        self.__thread = threading.Thread(target=self.main, daemon=True)
+        success('[INFO] created mic manager')
 
     def change_mic_id(self, mic_id: int):
-        self.mic_manager.__exit__(1,2,3)
+        self.mic_manager.__exit__(1, 2, 3)
         self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE, mic_id=mic_id)
         self.__thread.start()
 
     def parse_input_stream(self, responses):
 
-        print("attempting to parse input")
+        # print("attempting to parse input")
         if responses:
             for response in responses:
-                print(1)
+                # print(1)
                 if not response.results:
                     break
 
@@ -184,26 +189,26 @@ class Listener:
                     # if seq > sim:
                     #     sim = seq
                     # print(2)
-                    print(f"Sim is : {seq}")
+                    warn(f"[INFO] Similarity to wake-word is : {seq}")
                     # if transcript.__contains__("Howard"):
                     if seq > 0.7:
                         # trigger motion and vision to scan for speaker (first face detected)
-                        sys.stdout.write(RED)
-                        sys.stdout.write("Wake Word Detected\n")
+                        # sys.stdout.write(YELLOW)
+                        warn("[INFO] Wake Word Detected\n")
                         os.system("mpg321 ../resources/activation.mp3")
                         self.listening_end = get_current_time() + 1000000
                     elif self.listening_end > get_current_time():
                         transcript = strip_leading_space(transcript)
-                        print(f"checking for commands {transcript}")
+                        info(f"checking for commands {transcript}")
                         # instructions[transcript.lower()]()
                         if self.parser.parse(transcript.lower(), self.continued):
-                            print("completed instruction waiting for wake word")
+                            success("completed instruction waiting for wake word")
                             self.listening_end = get_current_time()
                             self.continued = False
                         else:
-                            print("Next instruction will be a response")
+                            warn("Next instruction will be a response")
                             self.continued = True
-        print("returning")
+        # print("returning")
         return
 
         # Parse following reponses for commands
@@ -219,9 +224,9 @@ class Listener:
         streaming_config = speech.types.StreamingRecognitionConfig(
             config=config,
             interim_results=False)
-        print(self.mic_manager.chunk_size)
+        # print(self.mic_manager.chunk_size)
         with self.mic_manager as stream:
-            
+
             while not stream.closed:
 
                 stream.audio_input = []
@@ -233,7 +238,7 @@ class Listener:
                 responses = client.streaming_recognize(streaming_config, requests)
                 # Now, put the transcription responses to use.
                 try:
-                    print("Parsing input")
+                    info("Parsing input")
                     self.parse_input_stream(responses)
                 except google.api_core.exceptions.DeadlineExceeded:
                     # print("cannot parse")
@@ -251,4 +256,3 @@ class Listener:
                 if not stream.last_transcript_was_final:
                     sys.stdout.write('\n')
                 # stream.new_stream = True
-

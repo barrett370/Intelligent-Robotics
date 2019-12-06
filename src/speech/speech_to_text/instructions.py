@@ -9,7 +9,14 @@ from speech.speech_to_text.misc_functions import strip_leading_space
 from speech.speech_to_text.names import get_id
 
 language = 'en'
-
+RED = '\033[0;31m'
+GREEN = '\033[0;32m'
+YELLOW = '\033[0;33m'
+ENDC = '\033[0m'
+info = lambda x: print(x)
+warn = lambda x: print(YELLOW + x + ENDC)
+success = lambda x: print(GREEN + x + ENDC)
+error = lambda x: print(RED + x + ENDC)
 
 # experimental
 def expand_abbreviations(instruction: str) -> str:
@@ -27,22 +34,22 @@ def strip_dets(instruction: str) -> str:
 
 
 def get_loc():
-    print("get_loc")
+    # print("get_loc")
     req = requests.get("http://localhost:5000/getRelLoc")
-    print(req.json())
+    # print(req.json())
     requests.get(f"http://localhost:5001/say/{req.json()['text']}")
 
 
 def get_weather():
     resp = requests.get("http://www.wttr.in?format=j1").json()['current_condition'][0]
     response = f"It is currently {resp['weatherDesc'][0]['value']} and feels like {resp['FeelsLikeC']} degrees"
-    print(response)
+    success(response)
     requests.get(f"http://localhost:5001/say/{response}")
 
 
 def get_time():
     response = f"It is {datetime.datetime.now().hour} {datetime.datetime.now().minute}"
-    print(response)
+    success(response)
     requests.get(f"http://localhost:5001/say/{response}")
 
 
@@ -67,15 +74,15 @@ class InstructionParser:
         """
         instruction = expand_abbreviations(instruction)
         if not continued:
-            print(f"expanded instruction: {instruction} ")
+            info(f"expanded instruction: {instruction} ")
             if instruction.__contains__("take me to"):
                 location = strip_leading_space(instruction.split("take me to")[1])
-                print(f"You want to be taken to {location}")
+                warn(f"You want to be taken to {location}")
                 # Check if a valid location
                 requests.get(f"http://localhost:5000/go/{strip_dets(location)}")
                 req = requests.get(f"http://localhost:5000/getLandmark/{strip_dets(location)}")
                 resp: dict = req.json()
-                print(resp)
+                # print(resp)
                 keys = resp.keys()
                 if 'error' in keys:
                     os.system("mpg321 ../resources/snippets/error.mp3")
@@ -91,7 +98,7 @@ class InstructionParser:
                 # send to landmarks API
             elif instruction.__contains__("find"):
                 name = strip_leading_space(instruction.split("find")[1])
-                print(f"Finding {get_id(name)}")
+                warn(f"Finding {get_id(name)}")
                 requests.get(f"http://localhost:5001/say/Finding {get_id(name)}")
                 requests.get(f"http://localhost:5000/seek/{name}")
             elif instruction.__contains__("learn my face"):
@@ -106,10 +113,10 @@ class InstructionParser:
                         print(poss_instruction)
                         sim = difflib.SequenceMatcher(a=instruction.lower(), b=poss_instruction.lower()).ratio()
                         if sim > max_sim:
-                            print("updating")
+                            # print("updating")
                             max_sim = sim
                             max_instruction = poss_instruction
-                    print(f"Max sim: {max_sim}, most similar instruction: {max_instruction}")
+                    info(f"Max sim: {max_sim}, most similar instruction: {max_instruction}")
                     if max_sim > 0.7:
                         self.instructions[max_instruction]()
                         return True
@@ -118,21 +125,21 @@ class InstructionParser:
                 except KeyError:
                     return True
         else:
-            print(f"continuing conversation from {self.prev_instruction}")
+            warn(f"continuing conversation from {self.prev_instruction}")
             if self.prev_instruction == "learn my face":
                 if instruction.__contains__("my name is"):
                     name = strip_leading_space(instruction.split("my name is")[1])
                 else:
                     name = instruction
                 response = f"Learning face for {name}"
-                print(response)
+                info(response)
                 resp = requests.get(f"http://localhost:5000/learn/{name}")
-                print(resp.status_code)
+                # print(resp.status_code)
                 if resp.json()['text'] == "success":
                     response = "Learnt your face"
                     requests.get(f"http://localhost:5001/say/{response}")
-                    print(response)
+                    success(response)
                 else:
                     response = "Sorry something went wrong"
                     requests.get(f"http://localhost:5001/say/{response}")
-                    print(response)
+                    error(response)
