@@ -91,13 +91,15 @@ class InstructionParser:
                 # send to landmarks API
             elif instruction.__contains__("find"):
                 name = strip_leading_space(instruction.split("find")[1])
-                print(f"Finding {get_id(name)}")
-                requests.get(f"http://localhost:5001/say/Finding {get_id(name)}")
+                print(f"Finding {(name)}")
+                requests.get(f"http://localhost:5001/say/Finding {name}")
                 requests.get(f"http://localhost:5000/seek/{name}")
+                return True
             elif instruction.__contains__("learn my face"):
                 response = "What is your name?"
                 requests.get(f"http://localhost:5001/say/{response}")
                 self.prev_instruction = 'learn my face'
+                return False
             else:
                 try:
                     max_sim = 0
@@ -136,3 +138,4 @@ class InstructionParser:
                     response = "Sorry something went wrong"
                     requests.get(f"http://localhost:5001/say/{response}")
                     print(response)
+                return True

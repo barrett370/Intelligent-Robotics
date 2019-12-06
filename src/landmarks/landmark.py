@@ -198,6 +198,7 @@ def seek(name: str):
     seek_steps_done = 0
     target = None
     names = seeker.get_names()
+    print(f'[seek] target = {target}')
     for n in names:
         if(n[0]==name):
             target=n[1]
