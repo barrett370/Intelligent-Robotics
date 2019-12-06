@@ -79,6 +79,7 @@ class Seeker:
 
     def scan(self, target):
         self.lock.acquire()
+        print("STARTED SCAN")
         frame = self.vs.read()
         self.lock.release()
         found = False
@@ -103,6 +104,7 @@ class Seeker:
 
             # check to see if we have found a match
             if True in matches:
+                print("MATCH")
                 # find the indexes of all matched faces then initialize a
                 # dictionary to count the total number of times each face
                 # was matched

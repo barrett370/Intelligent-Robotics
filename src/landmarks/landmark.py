@@ -165,7 +165,7 @@ def loop_scan(target):
     global seeker
     global seeking
     while seeking:
-        if seeker.scan(int(target),name):      
+        if seeker.scan(int(target)):      
             print(f'loop_scan found {name}')      
             seek_lock.acquire()
             seeking = False
@@ -216,7 +216,7 @@ def seek(name: str):
     seek_lock.release()
     print(f"current seek = {goal}")
     go_to(goal)
-    threading.Thread(target=loop_scan(target)).start()
+    threading.Thread(target=loop_scan, args=(target,)).start()
     return f"going to {goal}"
 
 @app.route("/learn/<name>")
