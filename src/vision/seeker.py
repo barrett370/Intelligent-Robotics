@@ -12,8 +12,18 @@ import requests
 import os
 import threading
 
+RED = '\033[0;31m'
+GREEN = '\033[0;32m'
+YELLOW = '\033[0;33m'
+ENDC = '\033[0m'
+info = lambda x: print(x)
+warn = lambda x: print(YELLOW + x + ENDC)
+success = lambda x: print(GREEN + x + ENDC)
+error = lambda x: print(RED + x + ENDC)
+
+
 class Seeker:
-    
+
     def __init__(self):
         self.lock = threading.Lock()
         self.CONFIDENT_GUESSES_THRESHOLD = 3
@@ -24,10 +34,11 @@ class Seeker:
         self.sub = rospy.Subscriber('/odom', Odometry)
         self.odom = None
         self.rate = rospy.Rate(self.HZ)  # 10hz
-        print("[INFO] loading encodings...")
         self.found = False
         self.FRAMES = 15
+        warn("[INFO] loading encodings...")
         self.data = pickle.loads(open(self.pickle_path(), "rb").read())
+        success("[SUCCESS] loaded encodings")
         self.dev_id = 2
         self.vs = VideoStream(src=self.dev_id).start()
 
@@ -39,34 +50,32 @@ class Seeker:
         self.vs = VideoStream(src=self.dev_id).start()
         self.lock.release()
 
-
     def callback(self, msg):
         self.odom = msg
 
     def get_names(self):
-       return list(set(self.data["names"]))
+        return list(set(self.data["names"]))
 
     def pickle_path(self):
         TEST_FILENAME = os.path.join(os.path.dirname(__file__), 'encodings.pickle')
         os.system(f"touch {TEST_FILENAME}")
-        print(TEST_FILENAME)
+        info(f"pickle file found at : {TEST_FILENAME}")
         return TEST_FILENAME
 
     def seek(self, target):
-        print('seeking...')
+        info('seeking...')
         base_data = Twist()
         found = False
         # initialize the video stream and pointer to output video file, then
         # allow the camera sensor to warm up
-        print("[INFO] starting video stream...")
-        
+        info("[INFO] starting video stream...")
+
         # time.sleep(2.0)
         base_data.angular.z = 1.0
-        
+
         # loop over frames from the video file stream
         counter = 0
         while not found and counter < 20:
-            
             found = self.scan(target)
             counter += 1
             self.pub.publish(base_data)
@@ -99,7 +108,7 @@ class Seeker:
             # attempt to match each face in the input image to our known
             # encodings
             matches = face_recognition.compare_faces(self.data["encodings"],
-                                                        encoding)
+                                                     encoding)
 
             # check to see if we have found a match
             if True in matches:
@@ -116,30 +125,29 @@ class Seeker:
                 name = max(counts, key=counts.get)
                 match_count = counts[name]
                 # sumCounts = sumCounts + matchCount
-                print("t",target)
-                print("n",name)
+                # print("t", target)
+                # print("n", name)
 
                 if match_count >= self.ACTIVATION_THRESHOLD and int(name[1]) == int(target):
                     if self.confident_guesses > self.CONFIDENT_GUESSES_THRESHOLD:
-                        print("found!")
+                        success("found!")
                         try:
-                            requests.get("http://localhost:4200/found/"+str(target))
+                            requests.get("http://localhost:4200/found/" + str(target))
                         except:
-                            print("Couldnt send found")
+                            error("Couldnt send found")
                         try:
-                            word="Hey, I have found you. How can I help?"
-                            req = requests.get("http://localhost:5001/say/"+word)
-                            if(req.status_code==200):
-                                print("said Found")
+                            word = "Hey, I have found you. How can I help?"
+                            req = requests.get("http://localhost:5001/say/" + word)
+                            # if (req.status_code == 200):
+                            #     print("said Found")
                         except:
-                            print("Failed to Say: Found")
-                        
-
+                            # print("Failed to Say: Found")
+                            pass
                         found = True
                         self.confident_guesses = 0
                     else:
                         self.confident_guesses += 1
-                print(f"{name} found:{found},confident: {self.confident_guesses}, certainty: {(match_count / 35)}")
+                warn(f"{name} found:{found},confident: {self.confident_guesses}, certainty: {(match_count / 35)}")
                 names.append(name)
         return found
 
@@ -148,7 +156,7 @@ class Seeker:
         knownNames = []
         for i in range(self.FRAMES):
 
-            print("[INFO] processing image {}/{}".format(i, self.FRAMES))
+            info("[INFO] processing image {}/{}".format(i, self.FRAMES))
 
             # load the input image and convert it from RGB (OpenCV ordering)
             # to dlib ordering (RGB)
@@ -171,30 +179,30 @@ class Seeker:
                 print(len(set(self.data["names"])))
                 # print(set(self.data["names"]))
                 print(self.data["names"])
-                
-                new_index = len(set(self.data["names"])) #len(list(filter(self.data,lambda x: x['names'])))
-                knownNames.append((name,new_index))
+
+                new_index = len(set(self.data["names"]))  # len(list(filter(self.data,lambda x: x['names'])))
+                knownNames.append((name, new_index))
 
         # dump the facial encodings + names to disk
-        print("[INFO] serializing encodings...")
+        info("[INFO] serializing encodings...")
         model_data = {'encodings': [], 'names': []}
         os.system(f"touch {self.pickle_path()}")
-        
+
         with open(self.pickle_path(), "rb") as model:
-            print("here3")
+            # print("here3")
             try:
                 model_data = pickle.load(model)
             except Exception as e:
-                print(e)
+                error(f"[ERROR] {e}")
                 pass
             model_data['encodings'] += knownEncodings
             model_data['names'] += knownNames
-            print("updated model data")
+            info("updated model data")
         with open(self.pickle_path(), "wb") as model:
             pickle.dump(model_data, model)
             self.data = model_data
-            print("updated self.data")
-        
+            # print("updated self.data")
+
 
 if __name__ == "__main__":
     s = Seeker()
