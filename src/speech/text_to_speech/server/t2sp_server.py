@@ -1,13 +1,13 @@
 import os
 import playsound
-
+import logging
 from flask import Flask
 from gtts import gTTS
 
 app = Flask(__name__)
+logging.getLogger('wekzeug').setLevel(logging.ERROR)
 
-
-@app.route("/healthcheck")
+@app.route("/healthCheck")
 def healthcheck() -> str:
     return "Text to Speech server is running"
 

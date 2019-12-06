@@ -11,11 +11,11 @@ import os
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--dataset", required=True,
+ap.add_argument("-i", "--dataset", default="dataset",
                 help="path to input directory of faces + images")
-ap.add_argument("-e", "--encodings", required=True,
+ap.add_argument("-e", "--encodings", default="encodings.pickle",
                 help="path to serialized db of facial encodings")
-ap.add_argument("-d", "--detection-method", type=str, default="cnn",
+ap.add_argument("-d", "--detection-method", type=str, default="hog",
                 help="face detection model to use: either `hog` or `cnn`")
 args = vars(ap.parse_args())
 
@@ -27,14 +27,16 @@ imagePaths = list(paths.list_images(args["dataset"]))
 knownEncodings = []
 
 knownNames = []
-
+name_count = -1
+prev_name = ""
 # loop over the image paths
 for (i, imagePath) in enumerate(imagePaths):
     # extract the person name from the image path
     print("[INFO] processing image {}/{}".format(i + 1,
                                                  len(imagePaths)))
     name = imagePath.split(os.path.sep)[-2]
-
+    if prev_name!=name:
+        name_count+=1
     # load the input image and convert it from RGB (OpenCV ordering)
     # to dlib ordering (RGB)
     image = cv2.imread(imagePath)
@@ -53,7 +55,9 @@ for (i, imagePath) in enumerate(imagePaths):
         # add each encoding + name to our set of known names and
         # encodings
         knownEncodings.append(encoding)
-        knownNames.append(name)
+        knownNames.append((name,name_count))
+    
+    prev_name = name
 
 # dump the facial encodings + names to disk
 print("[INFO] serializing encodings...")

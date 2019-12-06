@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "intelligent-robotics-howard",
+  "private_key_id": "aa2ecbf6d1afa19a06732b1e8d5928fb09a59f9a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDf4/mZM/RssAkd\n3r10yWloDZxKXVZ2We2Yj6x1DjrXKRFHUZE9tiYwsHKxlddaV3dVAjUtzuceFEy8\nggiEcoxf0jfmGTdsMi9iNmebYXHk8eYWZihYJ9fMGEYoEaCugOJda0O05IfFoYAM\nlqtr2dC6Ahe/l9L5mMU7N5pyb9Z1VcT2FnfP2ntWfufzD+MTjFuF+5BbMIGymrP8\nAGFQAvVzCnMAO4l2ods8eAzkeKSQoXhMPDmnPrqweDyOV13XcNNoOQESbsLMxAO3\nZ3sheYswGBL4M6v0w4IDHxNidn7F06ozUOOMu5Xef4AB2XtRkWoh+CxljqSntJ+o\nrgtzQV+PAgMBAAECggEAUPaclsHahIleKp6XTYneY8H0QFIjh7X6fT6Lg2MLdS5F\nMNC24KWjhtzwBPcmQuW5YhTjzTZyjoaRv2OYl+jiiW44R63bxHUbfH0nF2H0MXIm\nnfgAY+y4lXY7vJavUBuMgHLfL6Wq0ZWW/DZqNBy25eUG2IKbSSZtQH5ZjEOUPqaB\nlR3RKRu9vOGQtua/KSVkz25pYLkaar9leInGfeH+u0gx/IJ0P0lqKZDthj4YtGT/\nPqCGYBR5pIQNwHtCOh8/otnAY5RalUus9oeG6a+hvQ0ABwEWgW253vjwZe5sTA+K\n1/GRYKFUCAARMxf06oTDojZNPaFhGMnW1DMMzBdoVQKBgQD+UW1nqRjt6he8ZXZL\nLEUtBDyUKjQIbeD62EE+zMridCbwYUMSdUuwb+fJhGfDPpOf6JL9DNnmhaJP5DfI\n6t3sXLJoqASXO5GTc+whISPAK0vbhiPzDZNI8syUlRe4cc8GtY0JDHH3OdETJFT+\nbVHxcZ268a6aY7WxcKVv7CrW+wKBgQDhXwhHa5IbT4l52eZUWtS5nEHG2v4MnRTu\npcsq9p8XQQeV8uQrsnLNuX3kv6aZxi2Kv8sJMLRCHV5ybf/yMc23Vliwps+euYt3\nEm4yCY3YUb98VbBeRlssaZ5LM++zmQyrv95LC0z0q+2ptJI47n3Z0ej/Hti5iSJZ\nSBpP2RKFfQKBgQC9MfCVJHxSSkt8MXMue3G/Cp7Sjw8EklHD62umf44Tp9tsCr9u\nFOrJCIdEKIdU/dGvLcNkE9JrJ1FX4+0IQIn2lAN5zj0UERG8w4mQH+pLxSn61zEZ\nWSkQJOjDRKNP6QLd9+RDLgn+pPmAJxA/8y35089GyxNc8f6yUZ4RxH0eTwKBgQC4\no17pBFxDO7pptfdaDMBTAI1zGV8hfl/z1KjKnhpgtso8My50DlK38MwPaGRZf184\nWUFCWkCUGfOS1EPobJ0ZIwiuUTuv0ltMRjE5lVI8c1zpxFomIoX3sOAaxIYRIcab\nvymjWbLGkUS40FMriVhZ5/t3aBIujwcxFj1YRYNDEQKBgQDSlId1XYOVdy3kIMAr\nhzJaAXX9FWQXXEKaNTiyyM6BH+wmq3q0fF8p4PrY7k8gOqLsDX9Rh9fCElWhoHov\nKHbfQf6diy3+bcVo6tZhLgB8cxvp0HNBolooCdPCxk8ThMcEVhzs6A8/9pT3vWs+\nBE1qKinhWolG1CBeuWaM6uP6Qw==\n-----END PRIVATE KEY-----\n",
+  "client_email": "voice-parser@intelligent-robotics-howard.iam.gserviceaccount.com",
+  "client_id": "112667416721601588356",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/voice-parser%40intelligent-robotics-howard.iam.gserviceaccount.com"
+}
