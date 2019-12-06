@@ -189,6 +189,7 @@ def single_scan():
 
 @app.route("/seek/<name>")
 def seek(name: str):
+    name = name.lower()
     global target
     global seeking
     global seek_lock
@@ -200,7 +201,7 @@ def seek(name: str):
     names = seeker.get_names()
     print(f'[seek] target = {target}')
     for n in names:
-        if(n[0]==name):
+        if(n[0].lower()==name):
             target=n[1]
     print(f'[seek] target = {target}')
     if(target == None):
