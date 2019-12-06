@@ -21,7 +21,7 @@ import pickle
 import rospy
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 loop = asyncio.get_event_loop()
-
+motionOn = False
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
 lastPath=[]
@@ -85,11 +85,13 @@ def get_mics():
         return []
 
 def callback(msg):
+    global motionOn
     pose = msg.pose.pose.position
     qur = msg.pose.pose.orientation
     x = pose.x
     y = pose.y
     euler=quaternion_to_euler(qur.x,qur.y,qur.z,qur.w)
+    motionOn = True
     socketio.emit("robot-update", {'x':x, 'y':y,"yaw":euler[0],"pitch":euler[1]})
 
 subPath = rospy.Subscriber('move_base/NavfnROS/plan',Path, callbackPath)
@@ -176,20 +178,21 @@ def resetPose(json):
     pose.pose.pose.position.x=json['x']
     pose.pose.pose.position.y=json['y']
     pose.pose.pose.position.z=0
-    q = euler_to_quaternion(0,0,(math.pi/180) *int(json["o"]))
-    print(json["o"])
+    q = euler_to_quaternion([(math.pi/180) *float(json["o"]),1,1])
+    print((math.pi/180) *float(json["o"]))
+    print(q)
+    #(math.pi/180) *float(json["o"])
     pose.pose.pose.orientation= Quaternion(q[0], q[1], q[2], q[3])
     print(f'resetPose {pose}')
     init_pub.publish(pose)
 
-def euler_to_quaternion(roll, pitch, yaw):
-
-        qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-        qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
-        qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
-        qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
-
-        return [qx, qy, qz, qw]
+def euler_to_quaternion(r):
+    (yaw, pitch, roll) = (r[0], r[1], r[2])
+    qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+    qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+    qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+    return [qx, qy, qz, qw]
 
 @socketio.on('newLandmark')
 def newLandmark(json):
@@ -217,7 +220,7 @@ def find(json):
         req = requests.get("http://localhost:5000/seek/"+json["data"])
         if(req.status_code==200):
             updateLocations()
-            print("Find sart Success")
+            print("Find start Success")
             # console.log("on way")
     except:
         print("Failed to start Goal")
@@ -256,6 +259,7 @@ def cancel():
 @socketio.on('statusCheck')
 def statusCheck():
     status = {}
+    global motionOn
     try:
         landmarks = requests.get("http://localhost:5000/healthCheck")
         status["LANDMARK"] = landmarks.status_code
@@ -268,7 +272,10 @@ def statusCheck():
         status["VOICE"] = voice.status_code
     except:
         status["VOICE"] = 500
-    status["MOTION"] = 500
+    if(motionOn):
+        status["MOTION"] = 200
+    else:
+        status["MOTION"] = 500
     socketio.emit("statusUpdate",status)
     updateLocations()
 

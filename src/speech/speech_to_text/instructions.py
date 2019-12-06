@@ -93,7 +93,7 @@ class InstructionParser:
                 name = strip_leading_space(instruction.split("find")[1])
                 print(f"Finding {get_id(name)}")
                 requests.get(f"http://localhost:5001/say/Finding {get_id(name)}")
-                requests.get(f"http://localhost:5000/seek/{get_id(name)}")
+                requests.get(f"http://localhost:5000/seek/{name}")
             elif instruction.__contains__("learn my face"):
                 response = "What is your name?"
                 requests.get(f"http://localhost:5001/say/{response}")

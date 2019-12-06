@@ -40,9 +40,10 @@ spinning = False
 goalReached = ""
 spin_lock = threading.Lock()
 target = ''
+targetName = ""
 seek_steps_done = 0
 sayCounter = 0
-followStrings=["Follow me", "This way", "Follow me to your destination", "I'm over here","Almost there","Head towards me","Head towards the sound of me voice","Your destination is this way"]
+followStrings=["Follow me", "This way", "Follow me to your destination", "I'm over here","Almost there","Head towards me","Head towards the sound of my voice","Your destination is this way"]
 
 
 pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=100)
@@ -164,7 +165,7 @@ def loop_scan(target):
     global seeker
     global seeking
     while seeking:
-        if seeker.scan(int(target)):            
+        if seeker.scan(int(target),name):            
             seek_lock.acquire()
             seeking = False
             seek_lock.release()
@@ -178,9 +179,19 @@ def seek(name: str):
     global seeking
     global seek_lock
     global current_seek
+    global targetName
     global seek_steps_done
     seek_steps_done = 0
-    target = name
+    target = None
+    names = seeker.get_names()
+    for n in names:
+        if(n[0]==name):
+            target=n[1]
+    if(target==None):
+        return "Person not found"
+    targetName = name
+    print("target",target)
+    # target = name
     print(f"seek={seeking}")
     seek_lock.acquire()
     seeking = True
@@ -248,7 +259,7 @@ def callbackStatus(msg):
             try:
                 req = requests.get("http://localhost:5001/say/"+word)
                 if(req.status_code==200):
-                    console.log("said Follow me")
+                    print("said Follow me")
             except:
                 print("Failed to Say:"+word)
             # print("Follow me")
@@ -262,7 +273,14 @@ def callbackStatus(msg):
             # spin_lock.acquire()
             spinning = True
             spin_lock.release()
+            print("TTTTTTTTT",target,targetName)
 
+            try:
+                req = requests.get("http://localhost:5001/say/Where are you "+targetName)
+                if(req.status_code==200):
+                    print("said Follow me")
+            except:
+                print("Failed to Say:"+word)
             found = seeker.seek(int(target))
 
             
