@@ -37,6 +37,7 @@ google-cloud-speech = "*"
 # termcolor = "*"
 gTTS = "*"
 playsound = "*"
+twilio = "*"
 
 [requires]
 python_version = "3.7"
