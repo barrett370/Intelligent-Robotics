@@ -173,6 +173,19 @@ def loop_scan(target):
             print("found while moving!")
             
 
+@app.route("/spin")
+def spin():
+    global seeker
+    seeker.spin(int(0),'1')
+    return 'spin boi'
+
+
+@app.route('/singleScan')
+def single_scan():
+    global seeker
+    result = seeker.scan()
+    return result
+
 @app.route("/seek/<name>")
 def seek(name: str):
     global target
