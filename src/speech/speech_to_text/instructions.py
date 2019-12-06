@@ -9,6 +9,7 @@ from speech.speech_to_text.misc_functions import strip_leading_space
 from speech.speech_to_text.names import get_id
 
 language = 'en'
+
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
 YELLOW = '\033[0;33m'
@@ -34,6 +35,7 @@ def strip_dets(instruction: str) -> str:
 
 
 def get_loc():
+
     # print("get_loc")
     req = requests.get("http://localhost:5000/getRelLoc")
     # print(req.json())
@@ -43,12 +45,14 @@ def get_loc():
 def get_weather():
     resp = requests.get("http://www.wttr.in?format=j1").json()['current_condition'][0]
     response = f"It is currently {resp['weatherDesc'][0]['value']} and feels like {resp['FeelsLikeC']} degrees"
+
     success(response)
     requests.get(f"http://localhost:5001/say/{response}")
 
 
 def get_time():
     response = f"It is {datetime.datetime.now().hour} {datetime.datetime.now().minute}"
+
     success(response)
     requests.get(f"http://localhost:5001/say/{response}")
 
@@ -82,7 +86,6 @@ class InstructionParser:
                 requests.get(f"http://localhost:5000/go/{strip_dets(location)}")
                 req = requests.get(f"http://localhost:5000/getLandmark/{strip_dets(location)}")
                 resp: dict = req.json()
-                # print(resp)
                 keys = resp.keys()
                 if 'error' in keys:
                     os.system("mpg321 ../resources/snippets/error.mp3")
@@ -125,6 +128,7 @@ class InstructionParser:
                 except KeyError:
                     return True
         else:
+
             warn(f"continuing conversation from {self.prev_instruction}")
             if self.prev_instruction == "learn my face":
                 if instruction.__contains__("my name is"):

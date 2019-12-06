@@ -12,6 +12,7 @@ import requests
 import os
 import threading
 
+
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
 YELLOW = '\033[0;33m'
@@ -34,6 +35,7 @@ class Seeker:
         self.sub = rospy.Subscriber('/odom', Odometry)
         self.odom = None
         self.rate = rospy.Rate(self.HZ)  # 10hz
+
         self.found = False
         self.FRAMES = 15
         warn("[INFO] loading encodings...")
@@ -54,11 +56,13 @@ class Seeker:
         self.odom = msg
 
     def get_names(self):
+
         return list(set(self.data["names"]))
 
     def pickle_path(self):
         TEST_FILENAME = os.path.join(os.path.dirname(__file__), 'encodings.pickle')
         os.system(f"touch {TEST_FILENAME}")
+
         info(f"pickle file found at : {TEST_FILENAME}")
         return TEST_FILENAME
 
@@ -68,6 +72,7 @@ class Seeker:
         found = False
         # initialize the video stream and pointer to output video file, then
         # allow the camera sensor to warm up
+
         info("[INFO] starting video stream...")
 
         # time.sleep(2.0)
@@ -108,6 +113,7 @@ class Seeker:
             # attempt to match each face in the input image to our known
             # encodings
             matches = face_recognition.compare_faces(self.data["encodings"],
+
                                                      encoding)
 
             # check to see if we have found a match
@@ -155,6 +161,7 @@ class Seeker:
         knownEncodings = []
         knownNames = []
         for i in range(self.FRAMES):
+
 
             info("[INFO] processing image {}/{}".format(i, self.FRAMES))
 

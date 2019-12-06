@@ -2,6 +2,7 @@ from flask import Flask, request, send_from_directory
 from flask import render_template
 from flask_socketio import SocketIO
 from flask_socketio import send, emit
+
 import requests
 import asyncio
 import logging
@@ -20,6 +21,7 @@ import math
 import pickle
 import rospy
 
+
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
 YELLOW = '\033[0;33m'
@@ -34,6 +36,7 @@ loop = asyncio.get_event_loop()
 motionOn = False
 app = Flask(__name__, static_url_path='')
 app.config['SECRET_KEY'] = 'secret!'
+
 lastPath = []
 socketio = SocketIO(app, cors_allowed_origins="*", async_handlers=True)
 info("[INFO] WEB SERVER STARTED")
@@ -41,6 +44,7 @@ info("[INFO] WEB SERVER STARTED")
 
 def callbackPath(msg):
     global lastPath
+
     temp = []
     if (msg.poses != []):
         for i in range(0, len(msg.poses)):
@@ -74,6 +78,7 @@ def get_people():
         req = requests.get("http://localhost:5000/faces")
         return req.json()
     except Exception as e:
+
         error(f"[ERROR] {e}")
         return []
 
@@ -83,6 +88,7 @@ def get_cameras():
         req = requests.get("http://localhost:5000/cameras")
         return req.json()
     except Exception as e:
+
         error(f"[ERROR] {e}")
         return []
 
@@ -92,6 +98,7 @@ def get_mics():
         req = requests.get("http://localhost:5000/mics")
         return req.json()
     except Exception as e:
+
         error(f"[ERROR] {e}")
         return []
 
@@ -102,6 +109,7 @@ def callback(msg):
     qur = msg.pose.pose.orientation
     x = pose.x
     y = pose.y
+
     euler = quaternion_to_euler(qur.x, qur.y, qur.z, qur.w)
     motionOn = True
     socketio.emit("robot-update", {'x': x, 'y': y, "yaw": euler[0], "pitch": euler[1]})
@@ -116,6 +124,7 @@ twist = Twist()
 
 
 @app.route('/')
+
 def root():
     return app.send_static_file('index.html')
 
@@ -124,16 +133,13 @@ def root():
 def map():
     return app.send_static_file('img/map.png')
 
-
 @app.route('/css/google.css')
 def google():
     return app.send_static_file('css/google.css')
 
-
 @app.route('/css/icon.css')
 def icon():
     return app.send_static_file('css/icon.css')
-
 
 @app.route('/js/socket.io.js')
 def socket():
@@ -149,6 +155,7 @@ def updateLocations():
         people = get_people()
         cameras = get_cameras()
         mics = get_mics()
+
         socketio.emit("setup", {'locations': landmarks, "people": people, "camera": cameras, "mic": mics})
         return {'locations': landmarks, "people": people, "camera": cameras, "mic": mics}
     except Exception as e:
@@ -169,6 +176,7 @@ def set_cam(id):
         req = requests.get(f'http://localhost:5000/setCam/{id}')
         return f'{req.json()}'
     except Exception as e:
+
         error(f'[ERROR] {e}')
     return f'{e}'
 
@@ -179,6 +187,7 @@ def set_id(id):
         req = requests.get(f'http://localhost:5000/setMic/{id}')
         return f'{req.json()}'
     except Exception as e:
+
         error(f'[ERROR] {e}')
     return f'{e}'
 
@@ -187,6 +196,7 @@ def set_id(id):
 def handle_my_custom_event(json):
     updateLocations()
     statusCheck()
+
     info('[INFO] received json: ' + str(json))
 
 
@@ -229,6 +239,7 @@ def newLandmark(json):
 @socketio.on('goTo')
 def goTo(json):
     try:
+
         req = requests.get("http://localhost:5000/go/" + json["data"])
         if (req.status_code == 200):
             updateLocations()
@@ -241,6 +252,7 @@ def goTo(json):
 @socketio.on('find')
 def find(json):
     try:
+
         req = requests.get("http://localhost:5000/seek/" + json["data"])
         if (req.status_code == 200):
             updateLocations()
@@ -253,6 +265,7 @@ def find(json):
 @socketio.on('say')
 def say(json):
     try:
+
         req = requests.get("http://localhost:5001/say/" + json["data"])
         if req.status_code == 200:
             # console.log("said " + json["data"])
@@ -264,6 +277,7 @@ def say(json):
 @socketio.on('removeLandmark')
 def removeLandmark(json):
     try:
+
         req = requests.get("http://localhost:5000/removeLandmark/" + json["name"])
         if (req.status_code == 200):
             updateLocations()
@@ -273,6 +287,7 @@ def removeLandmark(json):
 
 @socketio.on('cancel')
 def cancel():
+
     warn("[WARN] Canceled Goal")
     try:
         req = requests.get("http://localhost:5000/cancel")
@@ -299,6 +314,7 @@ def statusCheck():
         status["VOICE"] = voice.status_code
     except:
         status["VOICE"] = 500
+
     if (motionOn):
         status["MOTION"] = 200
     else:

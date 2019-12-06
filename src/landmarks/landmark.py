@@ -1,3 +1,4 @@
+
 from flask import Flask, abort
 import difflib
 from landmarks.currentPose import CurrentPose
@@ -22,6 +23,7 @@ import sys
 from vision.seeker import Seeker
 from speech.speech_to_text import gspeech_live
 
+
 sys.path.append('../')
 
 rospy.init_node('landmarks', anonymous=False, disable_signals=True)
@@ -43,6 +45,7 @@ target = ''
 targetName = ""
 seek_steps_done = 0
 sayCounter = 0
+
 followStrings = ["Follow me", "This way", "Follow me to your destination", "I'm over here", "Almost there",
                  "Head towards me", "Head towards the sound of my voice", "Your destination is this way"]
 
@@ -59,13 +62,16 @@ def hello():
     return "Landmarks Server is Running"
 
 
+
 # Return the coords of a specific landmark
 # Returns the coords if found in dict, if name is similar it returns check for confirmation, if the name is not similar is returns error
+
 @app.route("/getLandmark/<locString>")
 def getLandmark(locString):
     if (locString in locationsDict):
         return locationsDict[locString]
     else:
+
         sim, landmark = 0, ""
         for i in locationsDict:
             seq = difflib.SequenceMatcher(a=i, b=locString).ratio()
@@ -84,6 +90,7 @@ def getLandmark(locString):
 @app.route("/getAllLandmarks")
 def getAllLandmarks():
     return locationsDict
+
 
 
 # create a new Landmark based on current posiition
@@ -118,6 +125,7 @@ def getRelLoc():
             distance = d
             landmark = i
     if distance < 15:
+
         return {"text": "You are near the " + landmark}
     else:
         return {"text": "You are not near anything"}
@@ -128,6 +136,7 @@ def go(landmark, seek):
     global seek_lock
     if seek:
         seek_lock.acquire()
+
         seeking = False
         seek_lock.release()
 
@@ -140,6 +149,7 @@ def go(landmark, seek):
     goal.pose.orientation = Quaternion(0, 0, 1, 0)
     goal.header.frame_id = "map"
     pub.publish(goal)
+
     print("[INFO] set goal position")
     return "success"
 
@@ -173,16 +183,38 @@ def loop_scan(target):
     global seeker
     global seeking
     while seeking:
+
         if seeker.scan(int(target)):
             seek_lock.acquire()
             seeking = False
             seek_lock.release()
             cancel()
+
             print("[INFO] found target while in motion!")
 
 
 @app.route("/seek/<name>")
 def seek(name: str):
+
+            print("found while moving!")
+            
+
+@app.route("/spin")
+def spin():
+    global seeker
+    seeker.spin(int(0),'1')
+    return 'spin boi'
+
+
+@app.route('/singleScan')
+def single_scan():
+    global seeker
+    result = seeker.scan()
+    return result
+
+@app.route("/seek/<name>")
+def seek(name: str):
+    name = name.lower()
     global target
     global seeking
     global seek_lock
@@ -192,6 +224,7 @@ def seek(name: str):
     seek_steps_done = 0
     target = None
     names = seeker.get_names()
+
     for n in names:
         if n[0] == name:
             target = n[1]
@@ -218,27 +251,24 @@ def learn_name(name: str):
     try:
         seeker.learn_face(name)
         print("learned face")
+
         return {"text": "success"}
     except Exception as e:
         print(f"[ERROR] {e}")
         return {"text": e}
-
 
 @app.route("/faces")
 def get_faces():
     names = seeker.get_names()
     return json.dumps(names)
 
-
 @app.route("/mics")
 def mics():
     return json.dumps(get_inputs.get())
 
-
 @app.route("/cameras")
 def cameras():
     return json.dumps(get_cameras.get())
-
 
 @app.route('/setCam/<id>')
 def set_cam(id):
@@ -247,12 +277,12 @@ def set_cam(id):
     seeker.change_device(int(id))
 
 
+
 @app.route('/setMic/<id>')
 def set_id(id):
     global stt
     print(f'[INFO] setting audio to: {id}')
     stt.change_mic_id(int(id))
-
 
 def callbackStatus(msg):
     global seeking
@@ -263,6 +293,7 @@ def callbackStatus(msg):
     global spinning
     global goalReached
     global target
+
     global seeker
     global seek_steps_done
     global sayCounter
@@ -285,10 +316,10 @@ def callbackStatus(msg):
         spin_lock.acquire()
         if seeking and not spinning:
             print("[INFO] Seeking")
-
             # spin_lock.acquire()
             spinning = True
             spin_lock.release()
+
             # print("TTTTTTTTT", target, targetName)
 
             try:
@@ -309,6 +340,7 @@ def callbackStatus(msg):
                 #     print("Recyling seek locationse")
             else:
                 next_goal = next(current_seek)
+
                 print(f"[INFO] Going to next goal: {next_goal}")
                 go_to(next_goal)
                 seek_steps_done += 1
@@ -316,6 +348,7 @@ def callbackStatus(msg):
 
             spin_lock.acquire()
             spinning = False
+
 
         spin_lock.release()
         if not seeking:

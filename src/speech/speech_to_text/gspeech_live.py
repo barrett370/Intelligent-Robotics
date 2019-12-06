@@ -19,6 +19,7 @@ CHUNK_SIZE = int(SAMPLE_RATE / 10)  # 100ms
 RED = '\033[0;31m'
 GREEN = '\033[0;32m'
 YELLOW = '\033[0;33m'
+
 ENDC = '\033[0m'
 info = lambda x: print(x)
 warn = lambda x: print(YELLOW + x + ENDC)
@@ -161,6 +162,7 @@ class Listener:
         self.listening_end = 0
         self.parser = InstructionParser()
         self.continued = False
+
         info('[INFO] creating mic manager')
         self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
         self.__thread = threading.Thread(target=self.main, daemon=True)
@@ -172,7 +174,6 @@ class Listener:
         self.__thread.start()
 
     def parse_input_stream(self, responses):
-
         # print("attempting to parse input")
         if responses:
             for response in responses:
@@ -199,6 +200,7 @@ class Listener:
                         self.listening_end = get_current_time() + 1000000
                     elif self.listening_end > get_current_time():
                         transcript = strip_leading_space(transcript)
+
                         info(f"checking for commands {transcript}")
                         # instructions[transcript.lower()]()
                         if self.parser.parse(transcript.lower(), self.continued):
@@ -224,6 +226,7 @@ class Listener:
         streaming_config = speech.types.StreamingRecognitionConfig(
             config=config,
             interim_results=False)
+
         # print(self.mic_manager.chunk_size)
         with self.mic_manager as stream:
 
@@ -238,6 +241,7 @@ class Listener:
                 responses = client.streaming_recognize(streaming_config, requests)
                 # Now, put the transcription responses to use.
                 try:
+
                     info("Parsing input")
                     self.parse_input_stream(responses)
                 except google.api_core.exceptions.DeadlineExceeded:
