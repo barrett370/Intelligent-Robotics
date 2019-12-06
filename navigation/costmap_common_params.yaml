@@ -18,10 +18,6 @@ static_map:
     map_topic: map
     subscribe_to_updates: false
 
-obstacle_layer:
-    observation_sources: laser
-    laser: {data_type: LaserScan, clearing: true, marking: true, topic: /base_scan, inf_is_valid: true, footprint_clearing_enabled: true}
-
 inflation:
     inflation_radius: 0.05
     cost_scaling_factor: 5.0
