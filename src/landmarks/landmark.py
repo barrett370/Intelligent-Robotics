@@ -165,7 +165,8 @@ def loop_scan(target):
     global seeker
     global seeking
     while seeking:
-        if seeker.scan(int(target),name):            
+        if seeker.scan(int(target),name):      
+            print(f'loop_scan found {name}')      
             seek_lock.acquire()
             seeking = False
             seek_lock.release()
@@ -200,10 +201,11 @@ def seek(name: str):
     for n in names:
         if(n[0]==name):
             target=n[1]
-    if(target==None):
+    print(f'[seek] target = {target}')
+    if(target == None):
         return "Person not found"
     targetName = name
-    print("target",target)
+    print("target", target)
     # target = name
     print(f"seek={seeking}")
     seek_lock.acquire()
