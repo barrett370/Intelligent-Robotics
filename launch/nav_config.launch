@@ -2,10 +2,10 @@
  	<arg name="pkg_dir" default="$(find guide_robot)"/>
    	<!-- Start p2os driver -->
 	<node pkg="p2os_driver" type="p2os_driver" name="p2os">
-	        <param name="port" value="/dev/ttyUSB0" />
-	        <param name="use_sonar" value="false" /> 
-			<param name="pulse" value="1.0" /> 
-	        <remap from="/pose" to="/odom" />
+		<param name="port" value="/dev/ttyUSB0" />
+		<param name="use_sonar" value="false" /> 
+		<param name="pulse" value="1.0" /> 
+		<remap from="/pose" to="/odom" />
 	</node>
 		
 	<!-- run hokuyo laser node -->
@@ -13,7 +13,7 @@
 		<remap from="/laser" to="/base_scan" />
 		<remap from="/scan" to="/base_scan" />
 	</node>
-	    <param name="/use_sim_time" value="false"/>
+	<param name="/use_sim_time" value="false"/>
 
 
 	<!-- transform laser co-ordinates into robot-base co-ordinate frame -->
@@ -22,27 +22,10 @@
 	<!-- start map server -->
 	<arg name="map_file" default="$(find guide_robot)/map/CS_LG.yaml"/>
 
-    	<!-- Run the map server -->
+	<!-- Run the map server -->
 	<node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
-	
-	<node pkg="guide_robot" type="delay_launch.sh"
-        args="5 guide_robot move_base.launch"
-        name="delayed_nav_launch" output="screen" />
 
-	<node pkg="guide_robot" type="run_landmarks.sh"
-    args="1 $(arg pkg_dir)"
-    name="landmarks" output="screen"/>
+	<node pkg="guide_robot" type="delay_launch.sh" args="5 guide_robot move_base.launch" name="delayed_nav_launch" output="screen" />
 
-    <node pkg="guide_robot" type="run_web.sh"
-    args="1 $(arg pkg_dir)"
-    name="web" output="screen"/>
-
-	<node pkg="guide_robot" type="run_tts.sh"
-    args="1 $(arg pkg_dir)"
-    name="tts" output="screen"/>
-	
-	<node pkg="guide_robot" type="run_stt.sh"
-    args="1 $(arg pkg_dir)"
-    name="stt" output="screen"/>
-
+<node name="rostopic" pkg="rostopic" type="rostopic" args="pub -1 /cmd_motor_state p2os_msgs/MotorState 1"/>	
 </launch> 

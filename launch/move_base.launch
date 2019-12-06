@@ -13,7 +13,4 @@
     <rosparam file="$(find guide_robot)/navigation/base_local_planner_params.yaml" command="load" />
   </node>
 
-  <node pkg="guide_robot" type="delay_launch.sh"
-        args="3 guide_robot rviz.launch"
-        name="delayed_rviz_launch" output="screen" />
 </launch> 

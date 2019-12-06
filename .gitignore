@@ -68,3 +68,5 @@ catkinws/src/.pyre_configuration
 
 catkinws/src/scripts/.pyre/pyre.stderr
 /speech/resources/
+
+src/speech/resources/tmp.mp3
